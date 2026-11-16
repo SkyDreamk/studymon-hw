@@ -1,0 +1,377 @@
+.bp-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  box-sizing: border-box;
+  background-color: #FAF4E8;
+}
+
+.bp-card {
+  background-color: #ffffff;
+  border: 4rpx solid #e1e4e8;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-sizing: border-box;
+}
+
+.bp-state-card {
+  text-align: center;
+  padding: 48rpx 24rpx;
+}
+
+.bp-state-text {
+  font-size: 28rpx;
+  color: #5c6b7a;
+}
+
+.bp-error-text {
+  font-size: 28rpx;
+  color: #C2410C;
+  margin-bottom: 24rpx;
+}
+
+.bp-retry-row {
+  display: flex;
+  justify-content: center;
+}
+
+.bp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx 40rpx;
+  border-radius: 999rpx;
+  background-color: #F59E0B;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.bp-btn-disabled {
+  opacity: 0.55;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1f2d3d;
+  margin-bottom: 20rpx;
+}
+
+.bp-empty {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #5c6b7a;
+}
+
+.bp-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 精灵球 */
+.balls-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ball-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12rpx 8rpx;
+}
+
+.ball-count {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1f2d3d;
+  line-height: 1.2;
+}
+
+.ball-label {
+  font-size: 24rpx;
+  color: #5c6b7a;
+  margin-top: 8rpx;
+}
+
+/* 道具 */
+.bp-item-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid #e1e4e8;
+}
+
+.bp-item-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.bp-item-row:first-child {
+  padding-top: 0;
+}
+
+.bp-item-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+
+.bp-item-emoji {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.bp-item-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.bp-item-qty {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #B45309;
+  margin-left: 8rpx;
+}
+
+.bp-item-desc {
+  flex: 1;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #5c6b7a;
+  text-align: right;
+}
+
+.bp-fairy-moves {
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx solid #e1e4e8;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #5c6b7a;
+}
+
+/* 蛋 */
+.bp-egg-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid #e1e4e8;
+}
+
+.bp-egg-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.bp-egg-row:first-child {
+  padding-top: 0;
+}
+
+.bp-egg-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.egg-shell {
+  width: 48rpx;
+  height: 60rpx;
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+  border-width: 3rpx;
+  border-style: solid;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  margin-right: 18rpx;
+}
+
+.egg-spot {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.egg-spot-1 {
+  width: 10rpx;
+  height: 10rpx;
+  top: 12rpx;
+  left: 10rpx;
+}
+
+.egg-spot-2 {
+  width: 8rpx;
+  height: 8rpx;
+  top: 32rpx;
+  right: 10rpx;
+}
+
+.egg-spot-3 {
+  width: 9rpx;
+  height: 9rpx;
+  top: 20rpx;
+  right: 12rpx;
+}
+
+.egg-stripe {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 7rpx;
+}
+
+.egg-stripe-1 {
+  top: 18rpx;
+}
+
+.egg-stripe-2 {
+  top: 34rpx;
+}
+
+.egg-drop {
+  position: absolute;
+  width: 9rpx;
+  height: 9rpx;
+  border-radius: 50%;
+}
+
+.egg-drop-1 {
+  top: 16rpx;
+  left: 12rpx;
+}
+
+.egg-drop-2 {
+  top: 30rpx;
+  right: 12rpx;
+}
+
+.egg-flame-dot {
+  position: absolute;
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  top: 24rpx;
+  left: 15rpx;
+}
+
+.egg-ring {
+  position: absolute;
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 50%;
+  border-width: 4rpx;
+  border-style: solid;
+  background-color: transparent;
+  top: 15rpx;
+  left: 10rpx;
+  box-sizing: border-box;
+}
+
+.bp-egg-name-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.bp-egg-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.bp-egg-reward {
+  font-size: 24rpx;
+  color: #B45309;
+  margin-left: 6rpx;
+}
+
+.bp-egg-status {
+  font-size: 24rpx;
+  color: #5c6b7a;
+  flex-shrink: 0;
+}
+
+.bp-egg-ready {
+  color: #15803D;
+  font-weight: 600;
+}
+
+/* 伙伴 */
+.bp-comp-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid #e1e4e8;
+}
+
+.bp-comp-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.bp-comp-row:first-child {
+  padding-top: 0;
+}
+
+.bp-comp-img {
+  width: 56rpx;
+  height: 56rpx;
+  flex-shrink: 0;
+  margin-right: 18rpx;
+}
+
+.bp-comp-img-placeholder {
+  border-radius: 12rpx;
+  background-color: #e1e4e8;
+}
+
+.bp-comp-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-comp-name-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.bp-comp-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.bp-current-badge {
+  margin-left: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  background-color: #FEF3C7;
+  border: 2rpx solid #F59E0B;
+  color: #B45309;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.bp-comp-source {
+  font-size: 24rpx;
+  color: #5c6b7a;
+  margin-top: 6rpx;
+}

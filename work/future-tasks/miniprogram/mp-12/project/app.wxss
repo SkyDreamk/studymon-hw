@@ -1,0 +1,46 @@
+page {
+  background-color: #f4f6fa;
+  color: #1f2d3d;
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fff;
+  border-radius: 48rpx;
+  padding: 40rpx 32rpx;
+  margin: 32rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 32rpx;
+  font-weight: 700;
+  border-radius: 999rpx;
+  padding: 20rpx 40rpx;
+  text-align: center;
+  border: none;
+  margin: 20rpx 0;
+}
+
+.btn-primary {
+  background: #2f7cf6;
+  color: #fff;
+  box-shadow: 0 8rpx 24rpx rgba(47, 124, 246, 0.3);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #5c6b7a;
+  border: 4rpx solid #e1e4e8;
+}
+
+.muted {
+  color: #5c6b7a;
+  font-size: 28rpx;
+}

@@ -1,0 +1,149 @@
+<view class="bt-page">
+  <view wx:if="{{loading}}" class="bt-state-card">
+    <text class="bt-state-text">正在进入道馆对战…</text>
+  </view>
+
+  <view wx:elif="{{startError}}" class="bt-state-card">
+    <text class="bt-error-text">{{startError}}</text>
+    <view class="bt-btn bt-btn-primary bt-back-btn" bindtap="onBackToGym">返回道馆</view>
+  </view>
+
+  <block wx:elif="{{battle}}">
+    <!-- Top bar: stage + weather + abandon -->
+    <view class="bt-topbar">
+      <view class="bt-topbar-left">
+        <text class="bt-turn-text">第 {{battle.turnNo || 1}} 回合</text>
+        <text wx:if="{{weatherLabel}}" class="bt-weather-badge">{{weatherLabel}}</text>
+      </view>
+      <view
+        wx:if="{{battle.status === 'active'}}"
+        class="bt-btn bt-btn-abandon {{busy ? 'bt-btn-disabled' : ''}}"
+        bindtap="onAbandonTap"
+      >放弃</view>
+    </view>
+
+    <!-- Boss area (top) -->
+    <view wx:if="{{bossPet}}" class="bt-arena-card bt-boss-card">
+      <view class="bt-pet-info">
+        <view class="bt-pet-title-row">
+          <text class="bt-pet-name">{{bossPet.name}}</text>
+          <text class="bt-pet-level">Lv.{{bossPet.level}}</text>
+          <text class="bt-type-tag">{{bossPet.type}}</text>
+        </view>
+        <view class="bt-hp-bar-bg">
+          <view
+            class="bt-hp-bar-fill {{bossPet.hpPct <= 25 ? 'bt-hp-low' : (bossPet.hpPct <= 50 ? 'bt-hp-mid' : '')}}"
+            style="width: {{bossPet.hpPct}}%;"
+          ></view>
+        </view>
+        <text class="bt-hp-text">HP {{bossPet.hp}}/{{bossPet.maxHp}}</text>
+      </view>
+      <image class="bt-pet-img" src="{{bossPet.imgUrl}}" mode="aspectFit" />
+    </view>
+
+    <!-- Player area (bottom of arena) -->
+    <view wx:if="{{playerPet}}" class="bt-arena-card bt-player-card">
+      <image class="bt-pet-img" src="{{playerPet.imgUrl}}" mode="aspectFit" />
+      <view class="bt-pet-info">
+        <view class="bt-pet-title-row">
+          <text class="bt-pet-name">{{playerPet.name}}</text>
+          <text class="bt-pet-level">Lv.{{playerPet.level}}</text>
+          <text class="bt-type-tag">{{playerPet.type}}</text>
+        </view>
+        <view class="bt-hp-bar-bg">
+          <view
+            class="bt-hp-bar-fill {{playerPet.hpPct <= 25 ? 'bt-hp-low' : (playerPet.hpPct <= 50 ? 'bt-hp-mid' : '')}}"
+            style="width: {{playerPet.hpPct}}%;"
+          ></view>
+        </view>
+        <text class="bt-hp-text">HP {{playerPet.hp}}/{{playerPet.maxHp}}</text>
+      </view>
+    </view>
+
+    <!-- Bench pet (if any) -->
+    <view wx:if="{{benchPets.length > 0}}" class="bt-bench-wrap">
+      <view wx:for="{{benchPets}}" wx:key="idx" class="bt-bench-card">
+        <image class="bt-bench-img" src="{{item.imgUrl}}" mode="aspectFit" />
+        <view class="bt-bench-info">
+          <view class="bt-bench-top">
+            <text class="bt-bench-name">{{item.name}}</text>
+            <text class="bt-bench-level">Lv.{{item.level}}</text>
+            <text class="bt-bench-type">{{item.type}}</text>
+          </view>
+          <text class="bt-bench-hp">HP {{item.hp}}/{{item.maxHp}}{{item.fainted ? '（已倒下）' : ''}}</text>
+        </view>
+        <view
+          wx:if="{{battle.status === 'active' && !item.fainted}}"
+          class="bt-btn bt-btn-swap {{busy ? 'bt-btn-disabled' : ''}}"
+          data-idx="{{item.idx}}"
+          bindtap="onSwapTap"
+        >换</view>
+      </view>
+    </view>
+
+    <!-- Action error banner -->
+    <view wx:if="{{actionError}}" class="bt-action-error">
+      <text>{{actionError}}</text>
+    </view>
+
+    <!-- Result banner (when battle ends) -->
+    <view wx:if="{{battle.status !== 'active'}}" class="bt-result-card">
+      <block wx:if="{{battle.winnerSide === 'A'}}">
+        <text class="bt-result-title bt-result-win">胜利！</text>
+        <text wx:if="{{rewards && rewards.firstClear && rewards.badge}}" class="bt-result-reward">获得徽章：{{rewards.badge}}</text>
+        <text wx:if="{{rewards && rewards.firstClear && rewards.eggName}}" class="bt-result-reward">获得蛋：{{rewards.eggName}}</text>
+        <text wx:if="{{rewards && rewards.finalEgg}}" class="bt-result-final">终极奖励：梦幻蛋！</text>
+      </block>
+      <block wx:else>
+        <text class="bt-result-title bt-result-lose">失败，再试一次</text>
+      </block>
+      <view class="bt-btn bt-btn-primary bt-back-btn" bindtap="onBackToGym">返回道馆</view>
+    </view>
+
+    <!-- Moves row (active only) -->
+    <view wx:if="{{battle.status === 'active'}}" class="bt-panel">
+      <view class="bt-panel-title">出招</view>
+      <view class="bt-moves-grid">
+        <view
+          wx:for="{{moves}}"
+          wx:key="name"
+          class="bt-btn bt-move-btn {{busy ? 'bt-btn-disabled' : ''}}"
+          data-move="{{item.name}}"
+          bindtap="onMoveTap"
+        >
+          <text wx:if="{{busy}}">出招中…</text>
+          <block wx:else>
+            <image wx:if="{{item.icon}}" class="bt-move-icon" src="{{item.icon}}" mode="aspectFit" />
+            <text>{{item.name}} · {{item.type}}{{item.power !== null && item.power !== undefined ? ' · ' + item.power : ''}}</text>
+          </block>
+        </view>
+      </view>
+
+      <!-- Items row (active only, visible items only) -->
+      <block wx:if="{{usableItems.length > 0}}">
+        <view class="bt-panel-title bt-items-title">道具</view>
+        <view class="bt-items-row">
+          <view
+            wx:for="{{usableItems}}"
+            wx:key="key"
+            class="bt-btn bt-item-btn {{busy ? 'bt-btn-disabled' : ''}}"
+            data-key="{{item.key}}"
+            data-target="{{item.targetIdx}}"
+            bindtap="onItemTap"
+          >
+            <text>{{item.emoji}} {{item.name}} ×{{item.qty}}（已用 {{item.used}}/{{item.cap}}）</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- Battle log (last 6 entries, newest at bottom) -->
+    <view class="bt-log-card">
+      <view class="bt-panel-title">战斗记录</view>
+      <view wx:if="{{logLines.length === 0}}" class="bt-log-empty">暂无战斗记录</view>
+      <view wx:for="{{logLines}}" wx:key="index" class="bt-log-line">
+        <text>{{item.text}}</text>
+      </view>
+    </view>
+  </block>
+</view>

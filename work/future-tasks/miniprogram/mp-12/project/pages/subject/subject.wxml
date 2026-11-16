@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="card">
+    <view class="title-row">
+      <view class="subj-title">{{subject.subject}}</view>
+      <view class="pill {{subject.pillClass}}">{{subject.pillText}}</view>
+    </view>
+
+    <view wx:if="{{isApproved}}" class="approved-view">
+      <view class="note-display" wx:if="{{subject.checkin.note}}">{{subject.checkin.note}}</view>
+      <view class="photo-grid" wx:if="{{photos.length > 0}}">
+        <image wx:for="{{photos}}" wx:key="index" wx:if="{{item.src}}" src="{{item.src}}" mode="aspectFill" class="photo-img"></image>
+      </view>
+      <view class="locked-msg">✔️ 已审核通过，不可修改。</view>
+    </view>
+
+    <view wx:else class="edit-view">
+      <view wx:if="{{subject.checkin.status === 'rejected' && subject.checkin.reason}}" class="reason-banner">
+        家长说：{{subject.checkin.reason}}
+      </view>
+
+      <textarea class="note-input" placeholder="写点什么（选填，最多200字）" maxlength="200" value="{{note}}" bindinput="onNoteInput"></textarea>
+
+      <view class="photo-section">
+        <view class="photo-label">照片 ({{photos.length}}/3)</view>
+        <view class="photo-grid">
+          <view wx:for="{{photos}}" wx:key="index" class="photo-wrap">
+            <image wx:if="{{item.src}}" src="{{item.src}}" mode="aspectFill" class="photo-img"></image>
+            <view class="photo-del" bindtap="removePhoto" data-index="{{index}}">×</view>
+          </view>
+          <view wx:if="{{photos.length < 3}}" class="photo-add" bindtap="addPhoto">➕</view>
+        </view>
+      </view>
+
+      <button class="btn btn-primary" bindtap="doSubmit" disabled="{{isSubmitting}}">
+        {{isSubmitting ? '提交中...' : (subject.checkin && subject.checkin.status === 'pending' ? '保存修改' : '提交')}}
+      </button>
+    </view>
+  </view>
+
+  <view class="footer-hint">
+    每科单独提交、单独审核。21:30 前提交有 ⚡ 早交奖励（经验 ×1.2）！
+  </view>
+
+  <canvas type="2d" id="compressCanvas" style="position: absolute; left: -9999rpx; width: 1600px; height: 1600px; opacity: 0;"></canvas>
+</view>

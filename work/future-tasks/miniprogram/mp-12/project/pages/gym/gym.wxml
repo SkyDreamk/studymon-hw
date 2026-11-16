@@ -1,0 +1,97 @@
+<view class="gy-page">
+  <view wx:if="{{loading}}" class="gy-state-card">
+    <text class="gy-state-text">正在加载道馆信息…</text>
+  </view>
+
+  <view wx:elif="{{errorMsg}}" class="gy-state-card gy-error-card">
+    <text class="gy-error-text">{{errorMsg}}</text>
+    <view class="gy-btn gy-btn-primary gy-retry-btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <block wx:elif="{{status}}">
+    <!-- Gates banner -->
+    <view class="gy-banner {{status.canChallenge ? 'gy-banner-open' : 'gy-banner-closed'}}">
+      <view class="gy-banner-top">
+        <text class="gy-banner-checkin">本周已打卡 {{status.weekApproved}} / {{status.need || 4}} 次</text>
+        <text class="gy-banner-day">{{status.isWeekend ? '周末开放' : '非周末'}}</text>
+      </view>
+      <view class="gy-banner-reason">
+        <text>{{status.canChallenge ? '可以挑战' : status.reason}}</text>
+      </view>
+    </view>
+
+    <!-- My level & progress -->
+    <view class="gy-meta-row">
+      <text class="gy-level-text">我的等级 Lv.{{status.myLevel}}</text>
+      <text class="gy-cleared-text">已获徽章 {{status.clearedCount || 0}} / 6</text>
+    </view>
+
+    <!-- Badges row -->
+    <view class="gy-badges-card">
+      <view class="gy-section-title">道馆徽章</view>
+      <view class="gy-badges-row">
+        <view
+          wx:for="{{badges}}"
+          wx:key="stage"
+          class="gy-badge-item {{item.lit ? 'gy-badge-lit' : 'gy-badge-unlit'}}"
+        >
+          <text class="gy-badge-name">{{item.badge}}</text>
+          <text class="gy-badge-type">{{item.type}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Stage list -->
+    <view class="gy-stages-list">
+      <view
+        wx:for="{{stages}}"
+        wx:key="stage"
+        class="gy-stage-card {{item.state === 'locked' ? 'gy-stage-locked' : ''}}"
+      >
+        <view class="gy-stage-head">
+          <view class="gy-stage-title-wrap">
+            <text class="gy-stage-title">S{{item.stage}} · {{item.gymName}}</text>
+            <text class="gy-stage-badge">{{item.badge}}</text>
+          </view>
+          <text
+            class="gy-stage-state {{item.state === 'cleared' ? 'gy-state-cleared' : (item.state === 'open' ? 'gy-state-open' : 'gy-state-locked')}}"
+          >{{item.stateText}}</text>
+        </view>
+
+        <view class="gy-stage-body">
+          <image
+            class="gy-boss-img"
+            src="{{item.bossImgUrl}}"
+            mode="aspectFit"
+          />
+          <view class="gy-stage-info">
+            <view class="gy-boss-line">
+              <text class="gy-boss-name">{{item.bossName}}</text>
+              <text class="gy-boss-level">Lv.{{item.bossLevel}}</text>
+              <text class="gy-boss-type">{{item.bossTypeText}}</text>
+            </view>
+            <view class="gy-req-line">
+              <text class="gy-req-text">需要 Lv.{{item.needLevel}}</text>
+              <text class="gy-egg-text">通关蛋：{{item.eggName}}</text>
+            </view>
+          </view>
+
+          <view wx:if="{{item.state === 'open'}}" class="gy-stage-action">
+            <view
+              class="gy-btn gy-btn-primary {{status.canChallenge ? '' : 'gy-btn-disabled'}}"
+              data-stage="{{item.stage}}"
+              bindtap="onChallengeTap"
+            >挑战</view>
+          </view>
+          <view wx:elif="{{item.state === 'cleared'}}" class="gy-stage-action">
+            <view
+              class="gy-btn gy-btn-secondary {{status.canChallenge ? '' : 'gy-btn-disabled'}}"
+              data-stage="{{item.stage}}"
+              bindtap="onChallengeTap"
+            >再打一次</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

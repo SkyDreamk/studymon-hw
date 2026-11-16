@@ -1,0 +1,80 @@
+<view class="container">
+  <view wx:if="{{quizData}}">
+    
+    <view class="card" wx:if="{{quizData.quota === 0}}">
+      <view class="empty-state">先让家长通过一科打卡，再来答题吧！</view>
+    </view>
+
+    <view wx:else>
+      <view class="card quiz-header">
+        <view class="progress-info">
+          <text class="progress-title">今日测验</text>
+          <text class="progress-counts">{{quizData.answeredCount}} / {{quizData.quota}}</text>
+        </view>
+        <view class="bar-track">
+          <view class="bar-fill" style="width: {{(quizData.answeredCount / quizData.quota) * 100}}%"></view>
+        </view>
+        <view class="fragment-row" wx:if="{{quizData.quiz}}">
+          <text class="fragment-info">碎片 {{quizData.quiz.fragments}} · 再答对 {{quizData.quiz.nextFragmentIn}} 题得 1 枚</text>
+          <button class="moves-entry-btn" bindtap="goMoves">升级招式</button>
+        </view>
+        <view class="hint-text" wx:if="{{quizData.readAloudHint}}">💡 可以请家长读题</view>
+      </view>
+
+      <view wx:for="{{quizData.questions}}" wx:key="id" class="card question-card">
+        <view class="q-label">{{item.label}}</view>
+        <view class="q-text">{{item.question}}</view>
+
+        <view class="options-list">
+          <button 
+            wx:for="{{item.options}}" 
+            wx:for-item="opt" 
+            wx:for-index="idx" 
+            wx:key="*this"
+            class="btn option-btn {{item.answered ? (item.correctIdx === idx ? 'opt-correct' : (item.chosenIdx === idx ? 'opt-wrong' : 'opt-disabled')) : ''}}"
+            disabled="{{item.answered || isAnswering}}"
+            bindtap="selectOption"
+            data-qid="{{item.id}}"
+            data-idx="{{idx}}"
+          >
+            {{opt}}
+          </button>
+        </view>
+
+        <view wx:if="{{item.answered && item.result}}" class="result-box">
+          <view class="result-title {{item.result.correct ? 'res-correct' : 'res-wrong'}}">
+            {{item.result.correct ? '✔️ 答对了！' : '❌ 答错了'}}
+          </view>
+          
+          <view class="result-details">
+            <view class="res-xp">+{{item.result.xpAwarded}} XP</view>
+            <view class="res-frag" wx:if="{{item.result.fragmentsAwarded > 0}}">获得 1 枚碎片！</view>
+            <view class="res-drop" wx:if="{{item.result.drop}}">
+              {{item.result.drop.kind === 'super' ? '获得超级球！' : '获得精灵球！'}}
+            </view>
+            <view class="res-drop" wx:if="{{item.result.itemDrop}}">
+              获得 {{item.result.itemDrop.name}} {{item.result.itemDrop.emoji}}！
+            </view>
+            <view class="res-encounter" wx:if="{{item.result.encounter}}">
+              野外出现了 {{item.result.encounter.name}}！去道馆看看吧
+            </view>
+            <view class="res-levelup" wx:if="{{item.result.level}}">
+              🎉 升级啦！Lv.{{item.result.level.oldLevel}} → Lv.{{item.result.level.newLevel}}
+              <block wx:if="{{item.result.level.newMoves && item.result.level.newMoves.length > 0}}">
+                学会了新招式：{{item.result.level.newMoves}}
+              </block>
+            </view>
+          </view>
+          
+          <view class="explain-box" wx:if="{{item.result.showExplain && item.result.explain}}">
+            <view class="explain-title">解析</view>
+            <text>{{item.result.explain}}</text>
+          </view>
+        </view>
+      </view>
+
+    </view>
+  </view>
+  
+  <view class="error-msg" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+</view>

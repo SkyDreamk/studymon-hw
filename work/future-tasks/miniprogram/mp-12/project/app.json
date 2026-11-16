@@ -1,0 +1,59 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/home/home",
+    "pages/checkin/checkin",
+    "pages/subject/subject",
+    "pages/quiz/quiz",
+    "pages/moves/moves",
+    "pages/daily-english/daily-english",
+    "pages/gym/gym",
+    "pages/pokedex/pokedex",
+    "pages/battle/battle",
+    "pages/backpack/backpack",
+    "pages/care/care",
+    "pages/daily-practice/daily-practice",
+    "pages/daily-chinese/daily-chinese",
+    "pages/daily-math/daily-math",
+    "pages/oak/oak"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "打卡站",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#5c6b7a",
+    "selectedColor": "#2f7cf6",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "伙伴",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/checkin/checkin",
+        "text": "打卡",
+        "iconPath": "images/tab-checkin.png",
+        "selectedIconPath": "images/tab-checkin-active.png"
+      },
+      {
+        "pagePath": "pages/gym/gym",
+        "text": "道馆",
+        "iconPath": "images/tab-gym.png",
+        "selectedIconPath": "images/tab-gym-active.png"
+      },
+      {
+        "pagePath": "pages/pokedex/pokedex",
+        "text": "图鉴",
+        "iconPath": "images/tab-pokedex.png",
+        "selectedIconPath": "images/tab-pokedex-active.png"
+      }
+    ]
+  },
+  "style": "v2"
+}

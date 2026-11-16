@@ -1,0 +1,218 @@
+.dc-page {
+  min-height: 100vh;
+  background-color: #f4f6fa;
+  padding: 28rpx 28rpx 160rpx;
+  box-sizing: border-box;
+  color: #1f2d3d;
+}
+
+.dc-state-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 56rpx 36rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(61, 44, 30, 0.06);
+}
+
+.dc-state-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.dc-state-desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #5c6b7a;
+}
+
+.dc-retry-btn {
+  margin: 32rpx auto 0;
+  width: 260rpx;
+}
+
+.dc-done-banner {
+  background-color: #E8F8EF;
+  color: #2E8B57;
+  border: 2rpx solid #B7E4C7;
+  border-radius: 20rpx;
+  padding: 18rpx 24rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+
+.dc-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx 28rpx;
+  box-shadow: 0 6rpx 20rpx rgba(61, 44, 30, 0.06);
+  border: 2rpx solid #e1e4e8;
+}
+
+.dc-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.dc-date {
+  font-size: 24rpx;
+  color: #5c6b7a;
+}
+
+.dc-badges {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.dc-badge {
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+}
+
+.dc-badge-kind {
+  background-color: #fff8dc;
+  color: #D97706;
+  font-weight: 600;
+}
+
+.dc-badge-unit {
+  background-color: #F6EFE5;
+  color: #5c6b7a;
+}
+
+.dc-title {
+  margin-top: 18rpx;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1f2d3d;
+  line-height: 1.35;
+}
+
+.dc-author {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #5c6b7a;
+}
+
+.dc-passage-box {
+  margin-top: 24rpx;
+  background-color: #ffffff;
+  border: 2rpx solid #e1e4e8;
+  border-radius: 20rpx;
+  padding: 28rpx 24rpx;
+}
+
+.dc-passage-text {
+  display: block;
+  font-size: 32rpx;
+  color: #1f2d3d;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.dc-score-row {
+  margin-top: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.dc-score-main {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.dc-score-text {
+  color: #D97706;
+}
+
+.dc-score-empty {
+  color: #5c6b7a;
+}
+
+.dc-passed-tag {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #2E8B57;
+  background-color: #E8F8EF;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+}
+
+.dc-last-score {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #5c6b7a;
+}
+
+.dc-actions-row {
+  margin-top: 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.dc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.dc-btn-primary {
+  background-color: #2f7cf6;
+  color: #FFFFFF;
+}
+
+.dc-btn-record {
+  flex: 1;
+  background-color: #2f7cf6;
+  color: #FFFFFF;
+}
+
+.dc-btn-recording {
+  background-color: #E55353;
+  color: #FFFFFF;
+}
+
+.dc-btn-disabled {
+  background-color: #E5DDD0;
+  color: #9C8E80;
+}
+
+.dc-btn-primary:active,
+.dc-btn-record:active {
+  opacity: 0.88;
+}
+
+.dc-btn-disabled:active {
+  opacity: 1;
+}
+
+.dc-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20rpx 28rpx 32rpx;
+  background-color: #f4f6fa;
+  border-top: 2rpx solid #e1e4e8;
+  box-sizing: border-box;
+}
+
+.dc-btn-checkin {
+  width: 100%;
+}

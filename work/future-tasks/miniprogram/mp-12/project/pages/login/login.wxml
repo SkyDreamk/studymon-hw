@@ -1,0 +1,24 @@
+<view class="container">
+  <view class="card" wx:if="{{!selectedChild}}">
+    <view class="title">选择身份</view>
+    <!-- 孩子卡片写死：/api/overview 要会话才能调，登录页还没会话调不了，只能写死。新增孩子时这里同步加一张卡。 -->
+    <view class="kids-list">
+      <view class="kid-card" bindtap="selectChild" data-id="1">
+        <image class="kid-avatar" src="/images/avatar-pikachu.webp" mode="aspectFit" />
+        <view class="kid-info">三年级 · 伙伴</view>
+      </view>
+      <view class="kid-card" bindtap="selectChild" data-id="2">
+        <image class="kid-avatar" src="/images/avatar-charmander.webp" mode="aspectFit" />
+        <view class="kid-info">一年级 · 伙伴</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{selectedChild}}">
+    <view class="title">输入密码</view>
+    <input type="number" password maxlength="4" bindinput="onPasswordInput" placeholder="4位密码" class="pwd-input" />
+    <view class="error-msg" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+    <button class="btn btn-primary" bindtap="doLogin">登录</button>
+    <button class="btn btn-ghost" bindtap="goBack">返回</button>
+  </view>
+</view>

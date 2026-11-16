@@ -1,0 +1,7 @@
+.container { padding: 40rpx; }
+.title { font-size: 44rpx; font-weight: bold; margin-bottom: 40rpx; }
+.kid-card { background: #ffffff; border: 4rpx solid #e1e4e8; border-radius: 32rpx; padding: 40rpx; margin-bottom: 32rpx; display: flex; flex-direction: column; align-items: center; }
+.kid-avatar { width: 160rpx; height: 160rpx; border-radius: 32rpx; margin-bottom: 20rpx; }
+.kid-info { text-align: center; }
+.pwd-input { border: 4rpx solid #e1e4e8; border-radius: 24rpx; height: 100rpx; font-size: 48rpx; text-align: center; margin-bottom: 32rpx; }
+.error-msg { color: #B3261E; margin-bottom: 32rpx; font-size: 28rpx; }

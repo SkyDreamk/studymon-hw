@@ -1,0 +1,267 @@
+.page {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 24rpx 24rpx 160rpx;
+  box-sizing: border-box;
+}
+
+.header-card {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 24rpx 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.date-text {
+  font-size: 24rpx;
+  color: #6b7280;
+  margin-top: 6rpx;
+}
+
+.hint-text {
+  font-size: 24rpx;
+  color: #6b7280;
+  margin-top: 10rpx;
+  line-height: 1.5;
+}
+
+.done-banner {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 26rpx;
+  font-weight: 600;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+}
+
+.loading-box,
+.error-box {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 48rpx 28rpx;
+  text-align: center;
+  color: #6b7280;
+  font-size: 28rpx;
+}
+
+.error-text {
+  display: block;
+  color: #dc2626;
+  margin-bottom: 20rpx;
+}
+
+.retry-btn {
+  display: inline-block;
+  font-size: 26rpx;
+  padding: 12rpx 32rpx;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-radius: 12rpx;
+  line-height: 1.4;
+}
+
+.sentence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.sentence-card {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  border: 2rpx solid transparent;
+}
+
+.passed-card {
+  border-color: #86efac;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 14rpx;
+}
+
+.badge {
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+}
+
+.badge-textbook {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-spoken {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.speaker-tag {
+  font-size: 22rpx;
+  color: #4b5563;
+  background-color: #f3f4f6;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.episode-title {
+  font-size: 22rpx;
+  color: #6b7280;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sentence-en {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+  margin-bottom: 10rpx;
+}
+
+.sentence-zh {
+  font-size: 26rpx;
+  color: #4b5563;
+  line-height: 1.4;
+  margin-bottom: 16rpx;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+
+.score-best {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #d97706;
+}
+
+.score-unattempted {
+  font-size: 24rpx;
+  color: #9ca3af;
+}
+
+.passed-tag {
+  font-size: 22rpx;
+  color: #15803d;
+  background-color: #dcfce7;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  font-weight: 600;
+}
+
+.last-result {
+  font-size: 24rpx;
+  color: #2563eb;
+  background-color: #eff6ff;
+  padding: 10rpx 16rpx;
+  border-radius: 10rpx;
+  margin-bottom: 14rpx;
+}
+
+.actions-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 8rpx;
+}
+
+/* 操作按钮用 view（不用 button）：button 是原生组件，在 flex 行里
+   会被全局 app.wxss 的 .btn（width:100%）和原生默认样式干扰，
+   跟读按钮曾因此看不见、慢速冒出卡片。view＋专属类名彻底避开。 */
+.de-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 68rpx;
+  padding: 0 20rpx;
+  font-size: 26rpx;
+  border-radius: 14rpx;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.de-listen,
+.de-slow {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  flex-shrink: 0;
+}
+
+.de-active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.de-record {
+  flex: 1;
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.de-recording {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.de-btn.de-disabled {
+  opacity: 0.55;
+}
+
+.footer-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  padding: 20rpx 28rpx calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.checkin-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 18rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.checkin-btn::after {
+  border: none;
+}
+
+.checkin-ready {
+  background-color: #16a34a;
+  color: #ffffff;
+}
+
+.checkin-disabled {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}

@@ -1,0 +1,388 @@
+.bt-page {
+  min-height: 100vh;
+  background-color: #f4f6fa;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.bt-state-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 44rpx 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.bt-state-text {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.bt-error-text {
+  font-size: 28rpx;
+  color: #d9534f;
+  margin-bottom: 24rpx;
+}
+
+.bt-topbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.bt-topbar-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.bt-turn-text {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-right: 12rpx;
+}
+
+.bt-weather-badge {
+  font-size: 22rpx;
+  color: #7c5800;
+  background-color: #fff3cd;
+  padding: 4rpx 14rpx;
+  border-radius: 12rpx;
+}
+
+.bt-arena-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.bt-boss-card {
+  border-left: 8rpx solid #e5534b;
+}
+
+.bt-player-card {
+  border-left: 8rpx solid #2f7cf6;
+}
+
+.bt-pet-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bt-boss-card .bt-pet-info {
+  margin-right: 20rpx;
+}
+
+.bt-player-card .bt-pet-info {
+  margin-left: 20rpx;
+}
+
+.bt-pet-title-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10rpx;
+}
+
+.bt-pet-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+  margin-right: 10rpx;
+}
+
+.bt-pet-level {
+  font-size: 24rpx;
+  color: #555555;
+  margin-right: 10rpx;
+}
+
+.bt-type-tag {
+  font-size: 22rpx;
+  color: #4a6572;
+  background-color: #eef3f7;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+}
+
+.bt-hp-bar-bg {
+  width: 100%;
+  height: 18rpx;
+  background-color: #e6ebf1;
+  border-radius: 9rpx;
+  overflow: hidden;
+  margin-bottom: 6rpx;
+}
+
+.bt-hp-bar-fill {
+  height: 100%;
+  background-color: #34c759;
+  border-radius: 9rpx;
+}
+
+.bt-hp-mid {
+  background-color: #f5a623;
+}
+
+.bt-hp-low {
+  background-color: #e5534b;
+}
+
+.bt-hp-text {
+  font-size: 24rpx;
+  color: #555555;
+}
+
+.bt-pet-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  background-color: #f7f9fc;
+  flex-shrink: 0;
+}
+
+.bt-bench-wrap {
+  margin-bottom: 16rpx;
+}
+
+.bt-bench-card {
+  background-color: #ffffff;
+  border-radius: 14rpx;
+  padding: 14rpx 20rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.03);
+}
+
+.bt-bench-img {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 10rpx;
+  background-color: #f4f6fa;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.bt-bench-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bt-bench-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 4rpx;
+}
+
+.bt-bench-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-right: 8rpx;
+}
+
+.bt-bench-level {
+  font-size: 22rpx;
+  color: #666666;
+  margin-right: 8rpx;
+}
+
+.bt-bench-type {
+  font-size: 20rpx;
+  color: #4a6572;
+  background-color: #eef3f7;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+}
+
+.bt-bench-hp {
+  font-size: 22rpx;
+  color: #666666;
+}
+
+.bt-action-error {
+  background-color: #fdecea;
+  border: 2rpx solid #f5c2c0;
+  color: #b71c1c;
+  border-radius: 12rpx;
+  padding: 14rpx 20rpx;
+  font-size: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.bt-result-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.bt-result-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 12rpx;
+}
+
+.bt-result-win {
+  color: #2e9e5b;
+}
+
+.bt-result-lose {
+  color: #d9534f;
+}
+
+.bt-result-reward {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 6rpx;
+}
+
+.bt-result-final {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #c27803;
+  margin-top: 4rpx;
+  margin-bottom: 10rpx;
+}
+
+.bt-back-btn {
+  margin-top: 16rpx;
+  padding: 16rpx 40rpx;
+}
+
+.bt-panel {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.bt-panel-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12rpx;
+}
+
+.bt-moves-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.bt-move-btn {
+  width: 48.5%;
+  box-sizing: border-box;
+  background-color: #eef4ff;
+  border: 2rpx solid #c4d8ff;
+  color: #1d4ed8;
+  padding: 18rpx 12rpx;
+  margin-bottom: 12rpx;
+  text-align: center;
+  gap: 8rpx;
+}
+
+.bt-move-icon {
+  width: 40rpx;
+  height: 40rpx;
+  flex-shrink: 0;
+}
+
+.bt-items-title {
+  margin-top: 10rpx;
+}
+
+.bt-items-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.bt-item-btn {
+  background-color: #f2fbf5;
+  border: 2rpx solid #b7e4c7;
+  color: #1b6b3a;
+  padding: 12rpx 18rpx;
+  margin-right: 12rpx;
+  margin-bottom: 10rpx;
+  font-size: 24rpx;
+}
+
+.bt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.bt-btn-primary {
+  background-color: #2f7cf6;
+  color: #ffffff;
+}
+
+.bt-btn-swap {
+  background-color: #fff3cd;
+  border: 2rpx solid #f0c36d;
+  color: #7c5800;
+  padding: 12rpx 22rpx;
+  margin-left: 12rpx;
+}
+
+.bt-btn-abandon {
+  background-color: #f3f4f6;
+  border: 2rpx solid #d1d5db;
+  color: #4b5563;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+}
+
+.bt-btn-disabled {
+  opacity: 0.5;
+}
+
+.bt-log-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.bt-log-empty {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.bt-log-line {
+  font-size: 24rpx;
+  color: #444444;
+  line-height: 1.5;
+  padding: 4rpx 0;
+  border-bottom: 2rpx solid #f5f7fa;
+}

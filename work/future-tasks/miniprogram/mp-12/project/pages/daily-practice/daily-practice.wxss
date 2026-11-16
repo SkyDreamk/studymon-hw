@@ -1,0 +1,197 @@
+.dp-page {
+  min-height: 100vh;
+  background-color: #f4f6fa;
+  padding: 28rpx 28rpx 48rpx;
+  box-sizing: border-box;
+  color: #1f2d3d;
+}
+
+.dp-header {
+  padding: 12rpx 8rpx 28rpx;
+}
+
+.dp-header-title {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: #1f2d3d;
+  line-height: 1.3;
+}
+
+.dp-header-sub {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #5c6b7a;
+  line-height: 1.5;
+}
+
+.dp-state-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 56rpx 36rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(61, 44, 30, 0.06);
+}
+
+.dp-state-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.dp-state-desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #5c6b7a;
+}
+
+.dp-retry-btn {
+  margin: 32rpx auto 0;
+  width: 260rpx;
+}
+
+.dp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.dp-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 28rpx 28rpx;
+  box-shadow: 0 6rpx 20rpx rgba(61, 44, 30, 0.06);
+  border: 2rpx solid #e1e4e8;
+}
+
+.dp-card:active {
+  opacity: 0.88;
+}
+
+.dp-card-done {
+  border-color: #B7E4C7;
+  background-color: #FAFFFC;
+}
+
+.dp-card-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.dp-icon-wrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+/* 图标与网站统一：透明标准化图，无底板（2026-11-14 MP-11 同步） */
+.dp-icon-english {
+  background-color: transparent;
+}
+
+.dp-icon-chinese {
+  background-color: transparent;
+}
+
+.dp-icon-math {
+  background-color: transparent;
+}
+
+.dp-icon {
+  font-size: 46rpx;
+}
+
+.dp-icon-img {
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.dp-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dp-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  flex-wrap: wrap;
+}
+
+.dp-card-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.dp-card-count {
+  font-size: 22rpx;
+  color: #5c6b7a;
+  background-color: #FFF4E2;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+}
+
+.dp-card-date {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #9C8570;
+}
+
+.dp-card-status {
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.dp-status-done {
+  color: #2E8B57;
+}
+
+.dp-status-progress {
+  color: #E67E22;
+}
+
+.dp-status-idle {
+  color: #5c6b7a;
+}
+
+.dp-status-error {
+  color: #D9534F;
+}
+
+.dp-card-arrow {
+  font-size: 40rpx;
+  color: #B6A18D;
+  margin-left: 16rpx;
+  line-height: 1;
+}
+
+.dp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.dp-btn-primary {
+  background-color: #2f7cf6;
+  color: #FFFFFF;
+}
+
+.dp-btn-primary:active {
+  opacity: 0.85;
+}

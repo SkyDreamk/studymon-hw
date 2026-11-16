@@ -1,0 +1,27 @@
+# 测试环境配置（与正式 wrangler.toml 完全独立，互不影响）
+# 部署：python3 scripts/run-wrangler.py deploy -c wrangler.staging.toml
+# 迁移：python3 scripts/run-wrangler.py d1 migrations apply studymon-hw-test --remote -c wrangler.staging.toml
+name = "studymon-hw-test"
+main = "src/index.js"
+compatibility_date = "2025-10-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "none"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "YOUR_D1_DATABASE_NAME"
+database_id = "YOUR_D1_DATABASE_ID"
+
+# 测试模式总开关：仅本配置有此变量。开启后服务端才读 debug_day_offset/debug_hour
+# 并开放 /api/parent/debug-* 接口；正式环境没有该变量，相关代码路径完全不启用。
+[vars]
+TEST_MODE = "1"
+
+# 照片存储（R2）：账号已于 2026-10-20 开通 R2，测试桶 YOUR_R2_BUCKET 已建。
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "YOUR_R2_BUCKET"

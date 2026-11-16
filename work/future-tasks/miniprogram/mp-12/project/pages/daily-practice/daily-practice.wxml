@@ -1,0 +1,44 @@
+<view class="dp-page">
+  <view class="dp-header">
+    <view class="dp-header-title">每日练习</view>
+    <view class="dp-header-sub">
+      <text wx:if="{{date}}">{{date}} · </text>坚持每天一小步，养成好习惯
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="dp-state-card">
+    <view class="dp-state-title">加载中…</view>
+    <view class="dp-state-desc">正在获取今日练习进度</view>
+  </view>
+
+  <view wx:elif="{{totalError}}" class="dp-state-card">
+    <view class="dp-state-title">加载失败</view>
+    <view class="dp-state-desc">{{totalError}}</view>
+    <view class="dp-btn dp-btn-primary dp-retry-btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <view wx:else class="dp-list">
+    <view
+      wx:for="{{cards}}"
+      wx:key="key"
+      class="dp-card {{item.completed ? 'dp-card-done' : ''}}"
+      data-url="{{item.url}}"
+      bindtap="onTapCard"
+    >
+      <view class="dp-card-left">
+        <view class="dp-icon-wrap dp-icon-{{item.key}}">
+          <image class="dp-icon-img" src="{{item.icon}}" mode="aspectFit" />
+        </view>
+        <view class="dp-card-info">
+          <view class="dp-card-title-row">
+            <text class="dp-card-title">{{item.title}}</text>
+            <text class="dp-card-count">{{item.subtitle}}</text>
+          </view>
+          <view class="dp-card-date" wx:if="{{item.date}}">{{item.date}}</view>
+          <view class="dp-card-status {{item.statusClass}}">{{item.statusText}}</view>
+        </view>
+      </view>
+      <view class="dp-card-arrow">›</view>
+    </view>
+  </view>
+</view>

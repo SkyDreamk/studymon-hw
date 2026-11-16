@@ -1,0 +1,34 @@
+name = "studymon-hw"
+main = "src/index.js"
+compatibility_date = "2025-10-01"
+
+routes = [{ pattern = "example.com", custom_domain = true }, { pattern = "exempt.example.com", custom_domain = true }]
+
+# 注意（2026-11-12 教训）：exempt.example.com 必须写进上面这行。2026-11-12 00:41 它是经 API（PUT /workers/domains）后绑上的，
+# 不在 wrangler.toml 里；当天两次 wrangler 部署（维护模式）把它清掉了，根域直接连不上。写进 routes 后部署会保持绑定。
+
+# 所有请求先经过 Worker（做家庭密码门），再按需取静态资源
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+# 必须 none：否则 /index.html 会被资源层 307 回 /，与 Worker 取文件逻辑形成死循环
+html_handling = "none"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "YOUR_D1_DATABASE_NAME"
+# 2026-10-20 晚迁亚太（主节点 SIN）；旧库 studymon-hw（YOUR_D1_DATABASE_ID）保留作回滚，见 DEPLOY.md
+database_id = "YOUR_D1_DATABASE_ID"
+
+# 照片存储（R2）：2026-10-20 账号已开通 R2、正式桶已建
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "YOUR_R2_BUCKET"
+
+# 维护模式总开关（2026-11-12 用户令）：2026-11-12 17:02 用户令关闭，恢复正常。
+# 重开：加回 [vars] MAINTENANCE_MODE = "1" 再部署。测试站配置无此变量，不受影响。
+
+[dev]
+port = 8787
+

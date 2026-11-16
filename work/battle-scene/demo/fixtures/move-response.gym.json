@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "source": "Reconstructed read-only from the test bundles app.10a23721.js + engine-local.10a23721.js (pushLog / settleAfterDamage / playStageAttack field shapes). No live POST /api/battle/move was ever sent.",
+    "date": "2026-11-15",
+    "note": "Round: 雷丘 铁尾 KOs 大岩蛇 (30 -> 0), faint, 大钢蛇 swaps in. The 'note' log line is log-only and must not produce an event."
+  },
+  "prevView": {
+    "mode": "gym",
+    "stage": 3,
+    "weather": { "kind": "sand" },
+    "turnNo": 3,
+    "winner": null,
+    "sides": {
+      "A": {
+        "childName": "测试大宝",
+        "activeIdx": 0,
+        "pets": [
+          { "no": 26, "name": "雷丘", "hp": 48, "maxHp": 60, "img": "assets/p26.10a23721.webp", "backImg": "assets/back-26.10a23721.webp" },
+          { "no": 34, "name": "尼多王", "hp": 70, "maxHp": 70, "img": "assets/p34.10a23721.webp", "backImg": null }
+        ]
+      },
+      "B": {
+        "childName": "岩石道馆馆主",
+        "activeIdx": 0,
+        "pets": [
+          { "no": 95, "name": "大岩蛇", "hp": 30, "maxHp": 90, "img": "assets/p95.10a23721.webp", "backImg": null },
+          { "no": 208, "name": "大钢蛇", "hp": 100, "maxHp": 100, "img": "assets/p208.10a23721.webp", "backImg": null }
+        ]
+      }
+    },
+    "log": [
+      { "type": "weather", "kind": "sand", "text": "沙暴天气扬起了满天风沙！" },
+      { "type": "attack", "side": "B", "pet": "大岩蛇", "move": "岩崩", "moveType": "rock", "dmg": 12, "mult": 1, "superEffective": false, "resisted": false, "immune": false, "critical": false, "target": "雷丘", "targetHp": 48, "text": "大岩蛇 用了「岩崩」！对 雷丘 造成 12 点伤害。", "mods": [] }
+    ]
+  },
+  "response": {
+    "ok": true,
+    "battle": {
+      "mode": "gym",
+      "stage": 3,
+      "weather": { "kind": "sand" },
+      "turnNo": 4,
+      "winner": null,
+      "sides": {
+        "A": {
+          "childName": "测试大宝",
+          "activeIdx": 0,
+          "pets": [
+            { "no": 26, "name": "雷丘", "hp": 48, "maxHp": 60, "img": "assets/p26.10a23721.webp", "backImg": "assets/back-26.10a23721.webp" },
+            { "no": 34, "name": "尼多王", "hp": 70, "maxHp": 70, "img": "assets/p34.10a23721.webp", "backImg": null }
+          ]
+        },
+        "B": {
+          "childName": "岩石道馆馆主",
+          "activeIdx": 1,
+          "pets": [
+            { "no": 95, "name": "大岩蛇", "hp": 0, "maxHp": 90, "img": "assets/p95.10a23721.webp", "backImg": null },
+            { "no": 208, "name": "大钢蛇", "hp": 100, "maxHp": 100, "img": "assets/p208.10a23721.webp", "backImg": null }
+          ]
+        }
+      },
+      "log": [
+        { "type": "weather", "kind": "sand", "text": "沙暴天气扬起了满天风沙！" },
+        { "type": "attack", "side": "B", "pet": "大岩蛇", "move": "岩崩", "moveType": "rock", "dmg": 12, "mult": 1, "superEffective": false, "resisted": false, "immune": false, "critical": false, "target": "雷丘", "targetHp": 48, "text": "大岩蛇 用了「岩崩」！对 雷丘 造成 12 点伤害。", "mods": [] },
+        { "type": "attack", "side": "A", "pet": "雷丘", "move": "铁尾", "moveType": "steel", "dmg": 30, "mult": 2, "superEffective": true, "resisted": false, "immune": false, "critical": false, "target": "大岩蛇", "targetHp": 0, "text": "雷丘 用了「铁尾」！效果拔群！（×2）对 大岩蛇 造成 30 点伤害。", "mods": [] },
+        { "type": "note", "side": "B", "text": "沙暴的风沙渐渐平息了。" },
+        { "type": "faint", "side": "B", "pet": "大岩蛇", "text": "大岩蛇 倒下了！" },
+        { "type": "swap", "side": "B", "pet": "大钢蛇", "text": "大钢蛇 上场啦！" }
+      ]
+    }
+  },
+  "expectedEvents": [
+    { "type": "attack", "side": "A", "move": "铁尾", "moveType": "steel", "damage": 30, "superEffective": true, "notVeryEffective": false, "immune": false, "critical": false, "startHp": 30, "targetHp": 0, "maxHp": 90 },
+    { "type": "faint", "side": "B", "name": "大岩蛇" },
+    { "type": "switch", "side": "B", "fromNo": 95, "toNo": 208, "toName": "大钢蛇", "img": "assets/p208.10a23721.webp", "backImg": null }
+  ]
+}

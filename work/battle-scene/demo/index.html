@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>道馆战斗场景 demo</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#FFF7E8;color:#3D2C1E;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif;font-size:14px;font-weight:400}
+.topbar{height:48px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;background:#fff;border-bottom:1px solid #F0E2CC}
+#app{max-width:520px;margin:0 auto;padding:12px 14px 330px}
+#battleStage{width:100%}
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;width:min(520px,100%);padding:8px 14px;background:#FFF7E8;border-top:1px solid #F0E2CC;z-index:5}
+.moves{display:flex;gap:6px;padding-bottom:4px}
+.moves .btn{flex:1 1 0;min-width:0;padding:6px 4px;line-height:20px;overflow-wrap:anywhere}
+.btn{flex:0 0 auto;min-height:40px;padding:6px 14px;border:0;border-radius:12px;background:#FF9F43;color:#3D2C1E;font:inherit;font-size:16px;font-weight:600;box-shadow:0 2px 8px rgba(120,80,30,.12);cursor:pointer;touch-action:manipulation}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sec{background:#fff;border:1px solid #F0E2CC;font-weight:500}
+.btn:focus-visible{outline:2px solid #3D2C1E;outline-offset:2px}
+.row2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;color:#7A6552}
+#status{font-size:14px;font-weight:500}
+#turnLog{margin:4px 0 0;padding:0;max-height:64px;overflow:auto;font-size:14px;list-style:none}
+#turnLog li.turn-head{font-weight:600;color:#7A6552}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:90px;display:flex;align-items:center;justify-content:center;background:#fff;border-top:1px solid #F0E2CC;color:#7A6552;font-size:14px;z-index:6}
+details{margin-top:10px;background:#fff;border:1px solid #F0E2CC;border-radius:12px;padding:8px 12px}
+summary{font-size:16px;font-weight:600;cursor:pointer}
+.dev{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.dev .btn{min-height:32px;font-size:14px;font-weight:500;padding:4px 10px}
+pre{white-space:pre-wrap;word-break:break-all;margin:6px 0;font-size:14px;color:#7A6552}
+ol.cb{margin:4px 0;padding-left:18px;max-height:90px;overflow:auto}
+.shell{display:flex;gap:16px;justify-content:center;padding:12px;flex-wrap:wrap}
+.shell iframe{border:1px solid #F0E2CC;border-radius:12px;background:#FFF7E8}
+</style>
+</head>
+<body>
+<div id="shellHost"></div>
+<div id="page">
+  <div class="topbar">道馆对战</div>
+  <div id="app">
+    <div id="battleStage" data-testid="stage"></div>
+    <details id="devpanel">
+      <summary>调试面板（仅 demo）</summary>
+      <div class="dev" id="presets">
+        <a class="btn sec" href="?frame=390x844" style="text-decoration:none">390×844</a>
+        <a class="btn sec" href="?frame=390x664" style="text-decoration:none">390×664</a>
+        <a class="btn sec" href="?frame=1280x800" style="text-decoration:none">1280</a>
+        <a class="btn sec" href="?" style="text-decoration:none">全屏</a>
+      </div>
+      <div class="dev">
+        <button class="btn sec" id="devFallback">触发降级</button>
+        <button class="btn sec" id="devLowFps">模拟低帧率</button>
+        <button class="btn sec" id="devRemount">重挂载 ×10</button>
+        <button class="btn sec" id="devMiss">落空</button>
+        <button class="btn sec" id="devFaint">倒下</button>
+        <button class="btn sec" id="devSwitch">换人</button>
+        <button class="btn sec" id="devVictory">胜利</button>
+        <button class="btn sec" id="devReset">重来</button>
+      </div>
+      <label><input type="checkbox" id="devDebug"> 显示脚底/包围盒</label>
+      <label style="margin-left:12px"><input type="checkbox" id="devMute"> 静音</label>
+      <div id="fixtureResult">夹具：检查中…</div>
+      <div id="fpsLine">模式：- ｜ FPS：-</div>
+      <pre id="diag"></pre>
+      <div>回调记录：</div>
+      <ol class="cb" id="cbLog"></ol>
+    </details>
+  </div>
+  <div class="dock" id="dock">
+    <div class="moves" id="moves" role="group" aria-label="招式"></div>
+    <div class="row2"><span id="status">请选一只先发出场</span><button class="btn sec" id="skipBtn" type="button">跳过演出</button></div>
+    <ul id="turnLog" aria-label="本回合战报"></ul>
+  </div>
+  <div class="tabbar">标签栏（90px 预留）</div>
+</div>
+<script type="module">
+// Viewport presets: ?frame=390x664 wraps the real demo in an iframe of that size.
+const f = new URLSearchParams(location.search).get('frame');
+if (f) {
+  const [w, h] = f.split('x').map(Number);
+  document.getElementById('page').style.display = 'none';
+  const wrap = document.createElement('div');
+  wrap.className = 'shell';
+  const fr = document.createElement('iframe');
+  fr.src = 'index.html';
+  fr.width = String(w);
+  fr.height = String(h);
+  fr.title = '预览 ' + w + '×' + h;
+  wrap.appendChild(fr);
+  document.getElementById('shellHost').appendChild(wrap);
+} else {
+  import('./demo.js');
+}
+</script>
+</body>
+</html>

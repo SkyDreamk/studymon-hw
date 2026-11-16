@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="card header-card" wx:if="{{loaded}}">
+    <view class="frag-banner">碎片 {{fragments}} 枚 · 升级一次 3 枚</view>
+  </view>
+
+  <view class="card empty-card" wx:if="{{loaded && moves.length === 0}}">
+    <view class="empty-text">还没有学会招式，先升级打卡攒经验吧</view>
+  </view>
+
+  <view class="moves-list" wx:if="{{loaded && moves.length > 0}}">
+    <view class="move-row" wx:for="{{moves}}" wx:key="name">
+      <view class="move-info">
+        <view class="move-top">
+          <text class="move-name">{{item.name}}</text>
+          <text class="move-type" wx:if="{{item.type}}">{{item.type}}</text>
+        </view>
+        <view class="move-meta">
+          <text class="move-lv">技能 Lv.{{item.skillLevel}} / 5</text>
+          <text class="move-power">威力 {{item.power}}</text>
+        </view>
+      </view>
+      <button
+        class="btn upgrade-btn {{item.skillLevel >= 5 || fragments < 3 ? 'btn-disabled' : 'btn-primary'}}"
+        disabled="{{item.skillLevel >= 5 || fragments < 3 || upgrading}}"
+        bindtap="onTapUpgrade"
+        data-index="{{index}}"
+      >
+        {{item.skillLevel >= 5 ? '已满级' : (fragments < 3 ? '碎片不够' : '升级')}}
+      </button>
+    </view>
+  </view>
+
+  <view class="error-msg" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+</view>

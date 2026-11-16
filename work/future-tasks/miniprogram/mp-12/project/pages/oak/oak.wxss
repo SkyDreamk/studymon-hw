@@ -1,0 +1,270 @@
+.oak-page {
+  min-height: 100vh;
+  background-color: #f4f6fa;
+  padding: 24rpx;
+  box-sizing: border-box;
+  color: #1f2d3d;
+}
+
+.oak-state-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 56rpx 32rpx;
+  margin-top: 40rpx;
+  text-align: center;
+  border: 2rpx solid #F2DFC4;
+}
+
+.oak-state-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+  margin-bottom: 16rpx;
+}
+
+.oak-state-sub {
+  font-size: 28rpx;
+  color: #5c6b7a;
+  line-height: 1.6;
+}
+
+.oak-retry-btn {
+  margin: 32rpx auto 0;
+  width: 260rpx;
+}
+
+.oak-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.oak-header-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  border: 2rpx solid #F2DFC4;
+}
+
+.oak-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14rpx;
+}
+
+.oak-title {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.oak-date {
+  font-size: 26rpx;
+  color: #5c6b7a;
+}
+
+.oak-topic-row {
+  font-size: 30rpx;
+  margin-bottom: 18rpx;
+  line-height: 1.5;
+}
+
+.oak-topic-label {
+  color: #5c6b7a;
+}
+
+.oak-topic-value {
+  color: #1f2d3d;
+  font-weight: 600;
+}
+
+.oak-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.oak-stat-pill {
+  background-color: #FFF3DC;
+  color: #B8651B;
+  font-size: 26rpx;
+  font-weight: 600;
+  padding: 10rpx 22rpx;
+  border-radius: 999rpx;
+}
+
+.oak-stat-star {
+  background-color: #FFF0CC;
+  color: #C77400;
+}
+
+.oak-hint {
+  font-size: 26rpx;
+  color: #5c6b7a;
+  line-height: 1.55;
+  background-color: #ffffff;
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+}
+
+.oak-banner-done {
+  background-color: #E9F7EC;
+  border: 2rpx solid #B8E2C2;
+  border-radius: 24rpx;
+  padding: 22rpx 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.oak-banner-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #26733D;
+}
+
+.oak-banner-sub {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #2E8547;
+}
+
+.oak-banner-draw {
+  background-color: #FFF0D6;
+  border: 2rpx solid #FFD18C;
+  border-radius: 24rpx;
+  padding: 20rpx 28rpx;
+}
+
+.oak-banner-draw-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #B85D00;
+}
+
+.oak-empty {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 48rpx 28rpx;
+  text-align: center;
+  border: 2rpx solid #F2DFC4;
+}
+
+.oak-sentence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding-bottom: 32rpx;
+}
+
+.oak-sentence-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  border: 2rpx solid #F2DFC4;
+}
+
+.oak-sentence-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.oak-index-badge {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #5c6b7a;
+  background-color: #f4f6fa;
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+}
+
+.oak-score-badge {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #D97706;
+  background-color: #FFF5DB;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+}
+
+.oak-en {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f2d3d;
+  line-height: 1.5;
+  margin-bottom: 12rpx;
+}
+
+.oak-zh {
+  font-size: 28rpx;
+  color: #5c6b7a;
+  line-height: 1.55;
+  margin-bottom: 12rpx;
+}
+
+.oak-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.oak-btn {
+  flex: 1;
+  min-width: 170rpx;
+  height: 76rpx;
+  padding: 0 20rpx;
+  border-radius: 18rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.oak-btn-primary {
+  background-color: #2f7cf6;
+  color: #FFFFFF;
+}
+
+.oak-btn-accent {
+  background-color: #FFF0D9;
+  color: #B85D00;
+  border: 2rpx solid #FFBE76;
+}
+
+.oak-btn-outline {
+  background-color: #FFFFFF;
+  color: #1f2d3d;
+  border: 2rpx solid #E6D2B8;
+}
+
+.oak-btn-active {
+  background-color: #FFE4BD;
+  color: #A85500;
+  border: 2rpx solid #2f7cf6;
+}
+
+.oak-btn-recording {
+  background-color: #E55039;
+  color: #FFFFFF;
+}
+
+.oak-btn-done {
+  background-color: #E9F7EC;
+  color: #2E8547;
+  border: 2rpx solid #B8E2C2;
+}
+
+.oak-btn-disabled {
+  background-color: #F5EFE6;
+  color: #B5A492;
+  border: 2rpx solid #EADFD0;
+}

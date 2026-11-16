@@ -1,0 +1,110 @@
+import { test, describe, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
+
+const src = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const M = await import('data:text/javascript;base64,' + Buffer.from(src).toString('base64'));
+const MIGRATIONS = [
+  '0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql',
+  '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql',
+  '0010_pvp_rematch.sql',
+];
+let raw, env;
+function makeEnv() {
+  raw = new DatabaseSync(':memory:');
+  for (const name of MIGRATIONS) raw.exec(readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8'));
+  raw.exec("UPDATE children SET name='测试伙伴'");
+  const db = {
+    prepare(sql) {
+      let args = [];
+      return {
+        bind(...values) { args = values; return this; },
+        async first() { return raw.prepare(sql).get(...args) || null; },
+        async all() { return { results: raw.prepare(sql).all(...args) }; },
+        async run() { const r = raw.prepare(sql).run(...args); return { success: true, meta: { changes: Number(r.changes), last_row_id: Number(r.lastInsertRowid) } }; },
+      };
+    },
+    async batch(stmts) { return Promise.all(stmts.map((s) => s.run())); },
+  };
+  return { DB: db, TEST_MODE: '1', ASSETS: { fetch: async () => new Response('<html>app</html>', { headers: { 'Content-Type': 'text/html' } }) } };
+}
+async function call(path, { method = 'GET', body, cookie } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (cookie) headers.Cookie = cookie;
+  const res = await M.default.fetch(new Request('https://test.local' + path, {
+    method, headers, ...(body ? { body: JSON.stringify(body) } : {}),
+  }), env);
+  return { status: res.status, j: await res.json(), cookie: res.headers.get('set-cookie')?.split(';')[0], res };
+}
+async function parentCookie() {
+  const r = await call('/api/parent/login', { method: 'POST', body: { pin: '0000' } });
+  assert.equal(r.status, 200);
+  return r.cookie;
+}
+async function pokedex(childId, cookie) {
+  const r = await call('/api/pokedex', { method: 'POST', body: { childId }, cookie });
+  assert.equal(r.status, 200);
+  assert.equal(r.j.ok, true);
+  return r.j;
+}
+function insertEntry(childId, key) {
+  const columns = raw.prepare('PRAGMA table_info(pokedex)').all().filter((c) => c.name !== 'id');
+  const names = columns.map((c) => `"${c.name}"`).join(', ');
+  const values = columns.map((c) => c.name === 'entry_key' ? '?' : `"${c.name}"`).join(', ');
+  const r = raw.prepare(`INSERT INTO pokedex (${names}) SELECT ${values} FROM pokedex WHERE child_id=? AND entry_key LIKE 'form:%' LIMIT 1`).run(key, childId);
+  assert.equal(r.changes, 1);
+}
+describe('pokedex cards', () => {
+  beforeEach(() => { env = makeEnv(); });
+  afterEach(() => raw.close());
+  test('details are restricted to owned, non-egg entries', async () => {
+    const cookie = await parentCookie();
+    await pokedex(1, cookie);
+    raw.exec('UPDATE children SET total_xp=40 WHERE id=1');
+    for (const key of ['wild:54', 'gym:95', 'form:charmander:1', 'form:pikachu:1']) insertEntry(1, key);
+    raw.exec("UPDATE pokedex SET unlocked_at='2026-01-02' WHERE child_id=1");
+    const j = await pokedex(1, cookie);
+    assert.equal(j.level, 2);
+    assert.deepEqual(j.xp, { total: 40, intoLevel: 0, span: 80, toNext: 80 });
+    const line = j.lineEntries.find((e) => e.current && e.no != null && e.unlocked);
+    assert.equal(line.level, 2);
+    assert.equal(line.type, '电');
+    assert.ok(line.moves.some((m) => m.level === 2 && m.desc));
+    const other = j.lineEntries.find((e) => e.key === 'form:charmander:1');
+    assert.equal(other.type, '火');
+    assert.equal(Object.hasOwn(other, 'level'), false);
+    const egg = j.lineEntries.find((e) => e.current && e.no == null);
+    for (const field of ['type', 'moves', 'level', 'obtainedAt']) assert.equal(Object.hasOwn(egg, field), false);
+    const wild = j.wild.find((e) => e.no === 54);
+    assert.equal(wild.type, '水');
+    assert.equal(wild.obtainedAt, '2026-01-02');
+    assert.ok(wild.moves.every((m) => m.name && m.power));
+    const gym = j.others.find((e) => e.no === 95);
+    assert.deepEqual(gym.moves[0], { name: '岩石猛击', type: '岩石', power: 28 });
+    assert.equal(j.dex151[53].obtainedAt, wild.obtainedAt);
+    assert.deepEqual(j.dex151[53].moves, wild.moves);
+    const locked = j.dex151.find((e) => !e.unlocked);
+    assert.deepEqual(locked, { no: locked.no, unlocked: false, name: null, img: null });
+    for (const e of [...j.wild, ...j.others, ...j.eggSpecies, ...j.lineEntries].filter((e) => !e.unlocked)) {
+      for (const field of ['type', 'moves', 'level', 'obtainedAt']) assert.equal(Object.hasOwn(e, field), false);
+    }
+  });
+});
+test('frontend card guards and styling', () => {
+  const app = readFileSync(new URL('../public/static/app.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../public/static/style.css', import.meta.url), 'utf8');
+  assert.match(app, /let dexData = null;/);
+  assert.match(app, /e\.unlocked && e\.no != null \? ` onclick="openDexCard/);
+  const card = app.slice(app.indexOf('function openDexCard('), app.indexOf('window.toggleDex151'));
+  assert.match(card, /if \(!e\) return;/);
+  assert.match(card, /if \(!e\.unlocked\) return;/);
+  assert.match(card, /if \(e\.no == null\) return;/);
+  assert.doesNotMatch(card, /\bstate\b|showModal/);
+  assert.match(card, /class="overlay" onclick="closeModal\(\)"/);
+  assert.match(card, /event\.stopPropagation\(\)/);
+  assert.match(card, /还没有学会招式/);
+  assert.match(css, /\.dex \.slot\.clickable\{cursor:pointer\}/);
+  assert.match(css, /\.modal\.dex-card/);
+  assert.match(css, /\.dex-card-image\{height:200px/);
+});

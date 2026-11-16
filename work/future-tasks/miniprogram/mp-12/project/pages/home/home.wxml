@@ -1,0 +1,75 @@
+<view class="container">
+  <view class="card" wx:if="{{child}}">
+    <view class="home-header">
+      <view class="pet-section">
+        <image wx:if="{{child.avatar}}" class="pet-img" src="{{'https://example.com' + child.avatar}}" mode="aspectFit"></image>
+        <view wx:else class="pet-avatar">🐾</view>
+        <view class="streak-text">🔥 连胜 {{child.streak || 0}} 天</view>
+      </view>
+      <view class="info-section">
+        <view class="level-title">伙伴等级: Lv.{{child.level || 1}}</view>
+        <view class="xp-bar-wrap">
+          <view class="xp-bar-fill" style="width: {{child.xpPercent || 0}}%;"></view>
+        </view>
+        <view class="xp-text">XP: {{child.totalXp || 0}}</view>
+      </view>
+    </view>
+
+    <view class="today-section">
+      <view wx:if="{{child.todaySubmittedCount === 0}}" class="muted">
+        今天还没打卡，去交第一科吧！冲鸭！
+      </view>
+      <view wx:else class="today-stats">
+        今日已提交: {{child.todaySubmittedCount}}/5 | 已通过: {{child.todayApprovedCount}}
+      </view>
+    </view>
+
+    <view class="notices-section" wx:if="{{child.notices && child.notices.length > 0}}">
+      <view class="notice-item" wx:for="{{child.notices}}" wx:key="id">
+        {{item.text}}
+      </view>
+    </view>
+  </view>
+
+  <view class="card nav-grid" wx:if="{{child}}">
+    <view class="nav-item" bindtap="goCheckin">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/icon-checkin.webp" mode="aspectFit" /></view>
+      <view class="nav-text">打卡</view>
+    </view>
+    <view class="nav-item" bindtap="goQuiz">
+      <view class="nav-icon">📝</view>
+      <view class="nav-text">测验 ({{child.quizToday ? child.quizToday.answeredCount + '/' + child.quizToday.quota : '0/0'}})</view>
+    </view>
+    <view class="nav-item" bindtap="goDailyPractice">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/mic.png" mode="aspectFit" /></view>
+      <view class="nav-text">每日练习</view>
+    </view>
+    <view class="nav-item" bindtap="goOak">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/icon-chat.webp" mode="aspectFit" /></view>
+      <view class="nav-text">英语交流</view>
+    </view>
+    <view class="nav-item" bindtap="goBackpack">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/icon-backpack.webp" mode="aspectFit" /></view>
+      <view class="nav-text">背包</view>
+    </view>
+    <view class="nav-item" bindtap="goCare">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/icon-care.webp" mode="aspectFit" /></view>
+      <view class="nav-text">照顾</view>
+    </view>
+  </view>
+
+  <view class="error-msg" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+
+  <view class="logout-link" bindtap="doLogout">退出登录</view>
+
+  <!-- 隐私授权弹窗（MP-12）：首次进首页未同意隐私指引时弹出；同意按钮须是 open-type="agreePrivacyAuthorization" 的原生 button，点后平台记同意 -->
+  <view class="privacy-mask" wx:if="{{showPrivacy}}">
+    <view class="privacy-pop">
+      <view class="privacy-title">隐私保护指引</view>
+      <view class="privacy-body">作业打卡大冒险需要使用麦克风进行跟读评分、选择照片作为作业打卡凭证。请阅读《作业打卡大冒险小程序隐私保护指引》，同意后继续使用。</view>
+      <view class="privacy-link" bindtap="openPrivacyContract">查看《隐私保护指引》全文</view>
+      <button id="agree-btn" class="privacy-btn agree" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="onAgreePrivacy">同意</button>
+      <view class="privacy-later" bindtap="onPrivacyLater">暂不使用</view>
+    </view>
+  </view>
+</view>

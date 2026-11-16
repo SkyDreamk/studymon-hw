@@ -1,0 +1,206 @@
+<view class="dx-page">
+  <!-- Loading -->
+  <view wx:if="{{loading && !loaded}}" class="dx-state-box">
+    <text class="dx-state-text">图鉴加载中...</text>
+  </view>
+
+  <!-- Error -->
+  <view wx:elif="{{errorMsg}}" class="dx-state-box">
+    <text class="dx-error-text">{{errorMsg}}</text>
+    <view class="dx-btn dx-retry-btn" bindtap="loadPokedex">重新加载</view>
+  </view>
+
+  <!-- Content -->
+  <block wx:else>
+    <!-- Progress Header -->
+    <view class="dx-card dx-header-card">
+      <view class="dx-header-top">
+        <view class="dx-header-title">已收集 {{progress.owned}} / {{progress.total}}</view>
+        <view class="dx-header-pct">{{progress.pct}}%</view>
+      </view>
+      <view class="dx-progress-track">
+        <view class="dx-progress-fill" style="width: {{progress.pct}}%;"></view>
+      </view>
+      <view class="dx-meta-row">
+        <view class="dx-meta-pill">我的等级 Lv.{{level}}</view>
+        <view class="dx-meta-pill">碎片 {{fragments}} 枚</view>
+      </view>
+    </view>
+
+    <!-- Main-line Card -->
+    <view wx:if="{{mainLineForms.length > 0}}" class="dx-card">
+      <view class="dx-section-title">主线伙伴{{currentLineLabel ? ' · ' + currentLineLabel : ''}}</view>
+      <view class="dx-line-row">
+        <block wx:for="{{mainLineForms}}" wx:key="formIdx">
+          <view wx:if="{{index > 0}}" class="dx-line-arrow">→</view>
+          <view
+            class="dx-line-item {{item.current ? 'dx-line-current' : ''}} {{!item.unlocked ? 'dx-line-locked' : ''}}"
+            data-source="line"
+            data-index="{{index}}"
+            bindtap="onTapLineForm"
+          >
+            <view class="dx-line-thumb">
+              <image
+                wx:if="{{item.imgUrl}}"
+                class="dx-line-img {{!item.unlocked ? 'dx-silhouette' : ''}}"
+                src="{{item.imgUrl}}"
+                mode="aspectFit"
+              />
+              <view wx:elif="{{item.formIdx === 0}}" class="dx-egg-icon {{!item.unlocked ? 'dx-silhouette' : ''}}">
+                <view class="dx-egg-shell" style="background-color: {{item.egg ? item.egg.bg : '#fef3c7'}}; border-color: {{item.egg ? item.egg.c1 : '#f59e0b'}}">
+                  <view wx:if="{{item.egg && item.egg.pat === 'spots'}}" class="dx-egg-dot dx-egg-dot-a" style="background-color: {{item.egg.c1}}"></view>
+                  <view wx:if="{{item.egg && item.egg.pat === 'spots'}}" class="dx-egg-dot dx-egg-dot-b" style="background-color: {{item.egg.c2}}"></view>
+                  <view wx:if="{{item.egg && item.egg.pat === 'spots'}}" class="dx-egg-dot dx-egg-dot-c" style="background-color: {{item.egg.c1}}"></view>
+                  <view wx:if="{{item.egg && (item.egg.pat === 'stripes' || item.egg.pat === 'waves')}}" class="dx-egg-bar dx-egg-bar-a" style="background-color: {{item.egg.c1}}"></view>
+                  <view wx:if="{{item.egg && (item.egg.pat === 'stripes' || item.egg.pat === 'waves')}}" class="dx-egg-bar dx-egg-bar-b" style="background-color: {{item.egg.c2}}"></view>
+                  <view wx:if="{{item.egg && (item.egg.pat === 'drops' || item.egg.pat === 'bubbles')}}" class="dx-egg-dot dx-egg-dot-a" style="background-color: {{item.egg.c2}}"></view>
+                  <view wx:if="{{item.egg && (item.egg.pat === 'drops' || item.egg.pat === 'bubbles')}}" class="dx-egg-dot dx-egg-dot-c" style="background-color: {{item.egg.c2}}"></view>
+                  <view wx:if="{{item.egg && (item.egg.pat === 'flame' || item.egg.pat === 'bolt')}}" class="dx-egg-dot dx-egg-dot-b" style="background-color: {{item.egg.c1}}"></view>
+                  <view wx:if="{{item.egg && (item.egg.pat === 'ring' || item.egg.pat === 'shell' || item.egg.pat === 'curl' || item.egg.pat === 'belly')}}" class="dx-egg-ring" style="border-color: {{item.egg.c1}}"></view>
+                </view>
+              </view>
+              <view wx:else class="dx-empty-thumb">?</view>
+            </view>
+            <view class="dx-line-name">{{item.displayName}}</view>
+            <view wx:if="{{item.current}}" class="dx-current-badge">当前</view>
+          </view>
+        </block>
+      </view>
+
+      <!-- Friendship Hearts on Current Form -->
+      <view wx:if="{{hasFriendship}}" class="dx-friendship-row">
+        <view class="dx-hearts">
+          <text
+            wx:for="{{hearts}}"
+            wx:for-index="hidx"
+            wx:key="hidx"
+            class="dx-heart {{item ? 'dx-heart-full' : 'dx-heart-empty'}}"
+          >{{item ? '♥' : '♡'}}</text>
+        </view>
+        <view class="dx-friendship-text">友好度 {{friendship}}/255</view>
+      </view>
+    </view>
+
+    <!-- 151 Grid -->
+    <view class="dx-card">
+      <view class="dx-section-title">关都图鉴 (151)</view>
+      <view class="dx-grid">
+        <view
+          wx:for="{{dex151}}"
+          wx:key="no"
+          class="dx-grid-cell-wrap"
+        >
+          <view
+            class="dx-grid-cell {{item.unlocked ? 'dx-cell-unlocked' : 'dx-cell-locked'}}"
+            data-index="{{index}}"
+            bindtap="onTapDexCell"
+          >
+            <view class="dx-cell-no">#{{item.noText}}</view>
+            <view class="dx-cell-img-box">
+              <image
+                wx:if="{{item.imgUrl}}"
+                class="dx-cell-img {{!item.unlocked ? 'dx-silhouette' : ''}}"
+                src="{{item.imgUrl}}"
+                mode="aspectFit"
+                lazy-load="true"
+              />
+              <view wx:else class="dx-cell-placeholder">?</view>
+            </view>
+            <view class="dx-cell-name">{{item.unlocked ? item.name : '???'}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Collection Section -->
+    <view class="dx-card">
+      <view class="dx-section-title">收藏宠</view>
+      <view wx:if="{{collection.length === 0}}" class="dx-empty-collection">暂无收藏宠</view>
+      <view wx:else class="dx-collection-grid">
+        <view
+          wx:for="{{collection}}"
+          wx:key="key"
+          class="dx-collection-wrap"
+        >
+          <view
+            class="dx-collection-card"
+            data-index="{{index}}"
+            bindtap="onTapCollectionItem"
+          >
+            <image
+              wx:if="{{item.imgUrl}}"
+              class="dx-collection-img"
+              src="{{item.imgUrl}}"
+              mode="aspectFit"
+            />
+            <view class="dx-collection-no" wx:if="{{item.noText}}">#{{item.noText}}</view>
+            <view class="dx-collection-name">{{item.name}}</view>
+            <view class="dx-collection-source" wx:if="{{item.sourceText}}">{{item.sourceText}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- Detail Modal -->
+  <view wx:if="{{selected}}" class="dx-modal-mask" bindtap="closeDetail">
+    <view class="dx-modal-panel" catchtap="noop">
+      <view class="dx-modal-header">
+        <image
+          wx:if="{{selected.imgUrl}}"
+          class="dx-modal-img"
+          src="{{selected.imgUrl}}"
+          mode="aspectFit"
+        />
+        <view class="dx-modal-head-info">
+          <view class="dx-modal-no" wx:if="{{selected.noText}}">#{{selected.noText}}</view>
+          <view class="dx-modal-name">{{selected.name}}</view>
+          <view wx:if="{{selected.typeList.length > 0}}" class="dx-type-row">
+            <view wx:for="{{selected.typeList}}" wx:for-index="tidx" wx:key="tidx" class="dx-type-tag">{{item}}</view>
+          </view>
+          <view wx:if="{{selected.obtainedText}}" class="dx-modal-date">获得日期：{{selected.obtainedText}}</view>
+        </view>
+      </view>
+
+      <scroll-view scroll-y="true" class="dx-modal-body">
+        <!-- Stats -->
+        <view wx:if="{{selected.statList.length > 0}}" class="dx-detail-block">
+          <view class="dx-detail-title">基础属性</view>
+          <view class="dx-stat-grid">
+            <view wx:for="{{selected.statList}}" wx:key="label" class="dx-stat-item">
+              <text class="dx-stat-label">{{item.label}}</text>
+              <text class="dx-stat-val">{{item.val}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- Evolution Chain -->
+        <view wx:if="{{selected.evoText}}" class="dx-detail-block">
+          <view class="dx-detail-title">进化链</view>
+          <view class="dx-evo-text">{{selected.evoText}}</view>
+        </view>
+
+        <!-- Moves -->
+        <view wx:if="{{selected.moveList.length > 0}}" class="dx-detail-block">
+          <view class="dx-detail-title">招式</view>
+          <view class="dx-move-list">
+            <view wx:for="{{selected.moveList}}" wx:key="index" class="dx-move-row">
+              <view class="dx-move-left">
+                <text class="dx-move-name">{{item.name}}</text>
+                <text wx:if="{{item.learned}}" class="dx-move-learned">已习得</text>
+              </view>
+              <view class="dx-move-right">
+                <text wx:if="{{item.type}}" class="dx-move-type">{{item.type}}</text>
+                <text class="dx-move-power">威力 {{item.power}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="dx-modal-footer">
+        <view class="dx-btn dx-close-btn" bindtap="closeDetail">关闭</view>
+      </view>
+    </view>
+  </view>
+</view>

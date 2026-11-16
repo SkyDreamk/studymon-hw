@@ -1,0 +1,93 @@
+<view class="oak-page">
+  <view wx:if="{{loading}}" class="oak-state-card">
+    <view class="oak-state-title">正在加载今日英语交流…</view>
+    <view class="oak-state-sub">请稍候</view>
+  </view>
+
+  <view wx:elif="{{loadError}}" class="oak-state-card">
+    <view class="oak-state-title">加载失败</view>
+    <view class="oak-state-sub">{{loadError}}</view>
+    <view class="oak-btn oak-btn-primary oak-retry-btn" bindtap="onRetryTap">重新加载</view>
+  </view>
+
+  <view wx:else class="oak-content">
+    <view class="oak-header-card">
+      <view class="oak-header-top">
+        <view class="oak-title">英语交流</view>
+        <view class="oak-date" wx:if="{{date}}">{{date}}</view>
+      </view>
+
+      <view class="oak-topic-row" wx:if="{{topic}}">
+        <text class="oak-topic-label">今日话题：</text>
+        <text class="oak-topic-value">{{topic}}</text>
+      </view>
+
+      <view class="oak-stats-row">
+        <view class="oak-stat-pill">已听 {{listenedCount}}/{{totalCount}} 句</view>
+        <view class="oak-stat-pill oak-stat-star" wx:if="{{assessEnabled}}">
+          5 星 {{fiveStarCount}}/{{fiveStarTotal}}
+        </view>
+      </view>
+
+      <view class="oak-hint">
+        按顺序听，每句听完点「听完了」；想练发音就点「🎤 跟读」。
+      </view>
+    </view>
+
+    <view class="oak-banner-done" wx:if="{{completed}}">
+      <view class="oak-banner-title">今日已完成</view>
+      <view class="oak-banner-sub" wx:if="{{xpAwardedToday > 0}}">
+        今日已获得 {{xpAwardedToday}} 经验
+      </view>
+    </view>
+
+    <view class="oak-banner-draw" wx:if="{{drawText}}">
+      <view class="oak-banner-draw-text">{{drawText}}</view>
+    </view>
+
+    <view class="oak-empty" wx:if="{{sentences.length === 0}}">
+      <view class="oak-state-sub">今天还没有英语交流句子</view>
+    </view>
+
+    <view class="oak-sentence-list" wx:else>
+      <view class="oak-sentence-card" wx:for="{{sentences}}" wx:key="id">
+        <view class="oak-sentence-head">
+          <view class="oak-index-badge">第 {{item.idx + 1}} 句</view>
+          <view class="oak-score-badge" wx:if="{{item.latestPron !== null}}">
+            本次 {{item.latestPron}} 分 · {{item.latestStarsStr}}
+          </view>
+        </view>
+
+        <view class="oak-en">{{item.en}}</view>
+        <view class="oak-zh" wx:if="{{item.showZh && item.zh}}">{{item.zh}}</view>
+
+        <view class="oak-actions-row">
+          <view
+            class="oak-btn {{!item.hasAudio || recordingId !== null || assessingId !== null ? 'oak-btn-disabled' : (playingId === item.id ? 'oak-btn-active' : 'oak-btn-outline')}}"
+            data-id="{{item.id}}"
+            bindtap="onPlayTap"
+          >
+            {{playingId === item.id ? '播放中…' : '▶ 听'}}
+          </view>
+
+          <view
+            class="oak-btn {{item.listened ? 'oak-btn-done' : (item.canListen ? (listeningId === item.id ? 'oak-btn-disabled' : 'oak-btn-primary') : 'oak-btn-disabled')}}"
+            data-id="{{item.id}}"
+            bindtap="onListenTap"
+          >
+            {{item.listened ? '已听 ✓' : (item.canListen ? (listeningId === item.id ? '提交中…' : '听完了') : '按顺序听')}}
+          </view>
+
+          <view
+            wx:if="{{assessEnabled}}"
+            class="oak-btn {{assessingId === item.id ? 'oak-btn-disabled' : (recordingId === item.id ? 'oak-btn-recording' : ((recordingId !== null || assessingId !== null) ? 'oak-btn-disabled' : 'oak-btn-accent'))}}"
+            data-id="{{item.id}}"
+            bindtap="onRecordTap"
+          >
+            {{assessingId === item.id ? '评分中…' : (recordingId === item.id ? '录音中…点一下停止' : '🎤 跟读')}}
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

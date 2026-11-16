@@ -1,0 +1,234 @@
+<view class="care-page">
+  <view wx:if="{{loading}}" class="state-card">
+    <view class="state-title">正在准备照顾小窝…</view>
+    <view class="state-desc">请稍等一下哦</view>
+  </view>
+
+  <view wx:elif="{{loadError}}" class="state-card">
+    <view class="state-title">加载失败</view>
+    <view class="state-desc">{{loadError}}</view>
+    <view class="care-btn care-btn-primary state-retry" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <view wx:elif="{{careDisabled}}" class="state-card">
+    <view class="state-title">照顾功能暂未开启</view>
+    <view class="state-desc">请稍后再来看看吧</view>
+  </view>
+
+  <block wx:else>
+    <!-- 1. Header Card -->
+    <view class="care-card header-card">
+      <view class="scene-badge">今日场景</view>
+      <view class="scene-name">{{scene ? scene.name : '温馨小屋'}}</view>
+      <view class="scene-text" wx:if="{{scene && scene.text}}">{{scene.text}}</view>
+
+      <!-- Pet hero: the companion, with the interaction animation layer -->
+      <view class="pet-hero">
+        <image
+          wx:if="{{petImg}}"
+          class="pet-hero-img {{petBounce ? 'pet-bounce' : ''}}"
+          src="{{petImg}}"
+          mode="aspectFit"
+        />
+        <view wx:else class="pet-hero-placeholder">🐾</view>
+        <view class="pet-hero-name" wx:if="{{petName}}">{{petName}}</view>
+        <view class="fx-layer" wx:if="{{showFx}}">
+          <view class="fx-fly" wx:if="{{fxEmoji}}">{{fxEmoji}}</view>
+          <text
+            wx:for="{{fxSparks}}"
+            wx:key="index"
+            class="fx-spark fx-spark-{{index}}"
+          >{{item}}</text>
+        </view>
+      </view>
+
+      <view class="friendship-box">
+        <view class="hearts-row">
+          <text
+            wx:for="{{heartList}}"
+            wx:key="index"
+            class="heart-icon {{item ? 'heart-filled' : 'heart-empty'}}"
+          >{{item ? '♥' : '♡'}}</text>
+        </view>
+        <view class="friendship-text">友好度 {{friendship}}/255</view>
+      </view>
+    </view>
+
+    <!-- 2. Feed Section -->
+    <view class="care-card">
+      <view class="section-header">
+        <view class="section-title">喂食</view>
+        <view class="section-tip" wx:if="{{fedToday}}">今日已完成</view>
+        <view class="section-tip" wx:else>每日可喂 1 次</view>
+      </view>
+
+      <view class="done-banner" wx:if="{{fedToday}}">今天已经喂过啦，明天再来吧</view>
+
+      <view class="item-grid food-grid">
+        <view
+          wx:for="{{foods}}"
+          wx:key="key"
+          class="item-tile {{(item.qty <= 0 || fedToday || (feedingKey && feedingKey !== item.key)) ? 'item-disabled' : ''}} {{feedingKey === item.key ? 'item-busy' : ''}}"
+          data-key="{{item.key}}"
+          data-name="{{item.name}}"
+          data-qty="{{item.qty}}"
+          bindtap="onTapFood"
+        >
+          <view class="fav-badge" wx:if="{{item.isFavoriteKnown}}">最爱</view>
+          <view class="item-emoji">{{item.emoji}}</view>
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-flavor">{{item.flavor}}</view>
+          <view class="item-qty {{item.qty > 0 ? 'qty-ok' : 'qty-zero'}}">×{{item.qty}}</view>
+        </view>
+      </view>
+
+      <view class="action-error" wx:if="{{feedError}}">{{feedError}}</view>
+      <view class="action-result" wx:if="{{feedResult}}">
+        <view class="result-line">喂了{{feedResult.foodName}}，友好度 +{{feedResult.friendshipAwarded}}</view>
+        <view class="result-highlight" wx:if="{{feedResult.favorite && feedResult.xpAwarded > 0}}">
+          最爱食物！经验 +{{feedResult.xpAwarded}}
+        </view>
+        <view class="result-highlight" wx:if="{{feedResult.levelText}}">{{feedResult.levelText}}</view>
+      </view>
+    </view>
+
+    <!-- 3. Bath Section -->
+    <view class="care-card">
+      <view class="section-header">
+        <view class="section-title">洗澡</view>
+        <view class="section-tip" wx:if="{{bathedToday}}">今日已完成</view>
+        <view class="section-tip" wx:else>每日可洗 1 次</view>
+      </view>
+
+      <view class="done-banner" wx:if="{{bathedToday}}">今天已经洗过啦</view>
+
+      <view class="item-grid bath-grid">
+        <view
+          wx:for="{{baths}}"
+          wx:key="key"
+          class="item-tile {{(item.qty <= 0 || bathedToday || (bathingKey && bathingKey !== item.key)) ? 'item-disabled' : ''}} {{bathingKey === item.key ? 'item-busy' : ''}}"
+          data-key="{{item.key}}"
+          data-name="{{item.name}}"
+          data-qty="{{item.qty}}"
+          bindtap="onTapBath"
+        >
+          <view class="item-emoji">{{item.emoji}}</view>
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-qty {{item.qty > 0 ? 'qty-ok' : 'qty-zero'}}">×{{item.qty}}</view>
+        </view>
+      </view>
+
+      <view class="action-error" wx:if="{{bathError}}">{{bathError}}</view>
+      <view class="action-result" wx:if="{{bathResult}}">
+        <view class="result-line">洗了{{bathResult.bathName}}，友好度 +{{bathResult.friendshipAwarded}}</view>
+      </view>
+    </view>
+
+    <!-- 4. Care QA Section -->
+    <view class="care-card">
+      <view class="section-header">
+        <view class="section-title">照顾问答</view>
+        <view class="section-tip">今日已答 {{qaStatus.answeredToday}}/{{qaStatus.dailyLimit}}（剩余 {{qaStatus.remainingToday}} 题）</view>
+      </view>
+
+      <view wx:if="{{!qaQuestion}}" class="qa-intro">
+        <view class="qa-hint" wx:if="{{qaStatus.remainingToday > 0}}">答对题目可获得 +5 经验值哦</view>
+        <view class="done-banner" wx:else>今天的照顾问答做完啦</view>
+        <view
+          wx:if="{{qaStatus.remainingToday > 0}}"
+          class="care-btn care-btn-primary {{qaLoading ? 'care-btn-disabled' : ''}}"
+          bindtap="onStartQa"
+        >{{qaLoading ? '题目加载中…' : '开始答题'}}</view>
+      </view>
+
+      <view wx:else class="qa-body">
+        <view class="qa-question">{{qaQuestion.question}}</view>
+
+        <view class="qa-options">
+          <view
+            wx:for="{{qaQuestion.options}}"
+            wx:key="index"
+            class="qa-option {{qaSubmitting ? 'qa-option-busy' : ''}} {{qaResult && qaResult.answered && index === qaResult.correctIdx ? 'qa-option-correct' : ''}} {{qaResult && qaResult.answered && index === qaResult.selectedIdx && !qaResult.correct ? 'qa-option-wrong' : ''}}"
+            data-idx="{{index}}"
+            bindtap="onSelectQaOption"
+          >
+            <view class="qa-opt-label">{{optionLabels[index] || (index + 1)}}</view>
+            <view class="qa-opt-text">{{item}}</view>
+          </view>
+        </view>
+
+        <view class="qa-result-box" wx:if="{{qaResult && qaResult.answered}}">
+          <view class="qa-verdict {{qaResult.correct ? 'verdict-ok' : 'verdict-wrong'}}">
+            {{qaResult.correct ? '答对了！' : '答错了'}}
+            <text wx:if="{{qaResult.xpAwarded > 0}}" class="qa-xp"> 经验 +{{qaResult.xpAwarded}}</text>
+          </view>
+          <view class="result-highlight" wx:if="{{qaResult.levelText}}">{{qaResult.levelText}}</view>
+          <view class="qa-explain" wx:if="{{qaResult.explain}}">解析：{{qaResult.explain}}</view>
+
+          <view
+            wx:if="{{qaStatus.remainingToday > 0}}"
+            class="care-btn care-btn-primary qa-next-btn {{qaLoading ? 'care-btn-disabled' : ''}}"
+            bindtap="onStartQa"
+          >{{qaLoading ? '题目加载中…' : '下一题'}}</view>
+          <view wx:else class="done-banner qa-finish-note">今天的照顾问答做完啦</view>
+        </view>
+      </view>
+
+      <view class="action-error" wx:if="{{qaError}}">{{qaError}}</view>
+    </view>
+
+    <!-- 5. Care Wheel Section -->
+    <view class="care-card">
+      <view class="section-header">
+        <view class="section-title">养成转盘</view>
+        <view class="section-tip">今日剩余机会 {{wheelChances}} 次</view>
+      </view>
+
+      <view class="wheel-panel">
+        <view class="wheel-desc" wx:if="{{wheelChances <= 0 && !spinning && !wheelPrize}}">
+          完成今日 5 句每日练习跟读可以获得 1 次抽奖机会
+        </view>
+
+        <view
+          class="care-btn care-btn-primary wheel-btn {{(wheelChances <= 0 || spinning) ? 'care-btn-disabled' : ''}}"
+          bindtap="onSpinWheel"
+        >{{spinning ? '抽奖中…' : '抽一次'}}</view>
+
+        <view class="wheel-spinning" wx:if="{{spinning}}">抽奖中… 请稍候</view>
+
+        <view class="wheel-prize" wx:if="{{wheelPrize}}">
+          <view class="prize-emoji">{{wheelPrize.emoji}}</view>
+          <view class="prize-text">抽中了 {{wheelPrize.name}}，已放入背包</view>
+        </view>
+      </view>
+
+      <view class="action-error" wx:if="{{wheelError}}">{{wheelError}}</view>
+    </view>
+
+    <!-- 6. Recent Section -->
+    <view class="care-card">
+      <view class="section-header">
+        <view class="section-title">最近照顾</view>
+        <view class="section-tip">近 7 天记录</view>
+      </view>
+
+      <view class="recent-empty" wx:if="{{!recent || recent.length === 0}}">
+        最近还没有照顾记录哦
+      </view>
+
+      <view class="recent-list" wx:else>
+        <view class="recent-item" wx:for="{{recent}}" wx:key="index">
+          <view class="recent-left">
+            <view class="recent-date">{{item.date}}</view>
+            <view class="recent-tag {{item.kind === 'feed' ? 'tag-feed' : 'tag-bath'}}">
+              {{item.kind === 'feed' ? '喂食' : '洗澡'}}
+            </view>
+            <view class="recent-name">{{item.itemName}}</view>
+            <view class="recent-fav" wx:if="{{item.favorite}}">★最爱</view>
+          </view>
+          <view class="recent-scene">{{item.sceneName}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

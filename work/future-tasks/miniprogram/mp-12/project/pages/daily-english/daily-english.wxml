@@ -1,0 +1,93 @@
+<view class="page">
+  <view class="header-card">
+    <view class="header-row">
+      <view>
+        <view class="page-title">每日练习跟读</view>
+        <view class="date-text" wx:if="{{date}}">{{date}}</view>
+      </view>
+      <view class="done-banner" wx:if="{{completed}}">今日已完成</view>
+    </view>
+    <view class="hint-text">每天 5 句，点 🎤 跟读录音评分，全部 ≥75 分可打卡（听示范音不计分）</view>
+  </view>
+
+  <view class="loading-box" wx:if="{{loading && sentences.length === 0}}">
+    <text>加载中…</text>
+  </view>
+
+  <view class="error-box" wx:if="{{loadError}}">
+    <text class="error-text">{{loadError}}</text>
+    <button class="retry-btn" bindtap="loadDailyEnglish">重试</button>
+  </view>
+
+  <view class="sentence-list" wx:if="{{sentences.length > 0}}">
+    <view class="sentence-card {{item.passed ? 'passed-card' : ''}}" wx:for="{{sentences}}" wx:key="key">
+      <view class="card-meta">
+        <view class="badge {{item.type === 'textbook' ? 'badge-textbook' : 'badge-spoken'}}">
+          {{item.type === 'textbook' ? '课本' : '口语'}}
+        </view>
+        <text class="speaker-tag" wx:if="{{item.speaker}}">{{item.speaker}}</text>
+        <text class="episode-title">{{item.titleEn}}{{item.titleZh ? ' · ' + item.titleZh : ''}}</text>
+      </view>
+
+      <view class="sentence-en">{{item.en}}</view>
+      <view class="sentence-zh">{{item.zh}}</view>
+
+      <view class="score-row">
+        <text class="score-best" wx:if="{{item.hasScore}}">
+          最好 {{item.best}} 分 · {{item.bestStarsText}}
+        </text>
+        <text class="score-unattempted" wx:else>未评分</text>
+        <text class="passed-tag" wx:if="{{item.passed}}">已达标</text>
+      </view>
+
+      <view class="last-result" wx:if="{{item.lastPron !== null}}">
+        本次 {{item.lastPron}} 分 · 最好 {{item.best}} 分 · {{item.lastStarsText}}
+        <text wx:if="{{item.passed}}"> · 已达标</text>
+      </view>
+
+      <view class="actions-row">
+        <view
+          class="de-btn de-listen {{playingIndex === index && playingSpeed === 'normal' ? 'de-active' : ''}} {{(recordingIndex === index || assessingIndex === index) ? 'de-disabled' : ''}}"
+          data-index="{{index}}"
+          data-speed="normal"
+          bindtap="onPlayDemo"
+        >
+          {{playingIndex === index && playingSpeed === 'normal' ? '⏸ 停止' : '▶ 听'}}
+        </view>
+
+        <view
+          class="de-btn de-slow {{playingIndex === index && playingSpeed === 'slow' ? 'de-active' : ''}} {{(recordingIndex === index || assessingIndex === index) ? 'de-disabled' : ''}}"
+          wx:if="{{item.audioSlow}}"
+          data-index="{{index}}"
+          data-speed="slow"
+          bindtap="onPlayDemo"
+        >
+          {{playingIndex === index && playingSpeed === 'slow' ? '⏸ 停止' : '慢速'}}
+        </view>
+
+        <view
+          class="de-btn de-record {{recordingIndex === index ? 'de-recording' : ''}} {{((recordingIndex !== -1 && recordingIndex !== index) || assessingIndex !== -1) ? 'de-disabled' : ''}}"
+          data-index="{{index}}"
+          bindtap="onToggleRecord"
+        >
+          <block wx:if="{{assessingIndex === index}}">评分中…</block>
+          <block wx:elif="{{recordingIndex === index}}">录音中…点一下停止</block>
+          <block wx:else>🎤 跟读</block>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-bar" wx:if="{{sentences.length > 0}}">
+    <button
+      class="checkin-btn {{(!completed && missingCount === 0) ? 'checkin-ready' : 'checkin-disabled'}}"
+      disabled="{{completed || missingCount > 0 || checkingIn}}"
+      bindtap="onCheckin"
+    >
+      <block wx:if="{{completed}}">今日已完成</block>
+      <block wx:elif="{{checkingIn}}">打卡中…</block>
+      <block wx:elif="{{missingCount > 0}}">还差 {{missingCount}} 句达标</block>
+      <block wx:else>完成今日打卡</block>
+    </button>
+  </view>
+</view>

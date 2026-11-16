@@ -1,0 +1,146 @@
+<view class="bp-page">
+  <view wx:if="{{loading && !loaded}}" class="bp-card bp-state-card">
+    <view class="bp-state-text">正在加载背包...</view>
+  </view>
+
+  <view wx:elif="{{error}}" class="bp-card bp-state-card">
+    <view class="bp-error-text">{{error}}</view>
+    <view class="bp-retry-row">
+      <view
+        class="bp-btn {{loading ? 'bp-btn-disabled' : ''}}"
+        bindtap="onRetry"
+      >
+        {{loading ? '加载中...' : '重试'}}
+      </view>
+    </view>
+  </view>
+
+  <block wx:else>
+    <!-- 1. 精灵球 -->
+    <view class="bp-card">
+      <view class="section-title">精灵球</view>
+      <view class="balls-row">
+        <view class="ball-cell">
+          <view class="ball-count">{{balls.normal}}</view>
+          <view class="ball-label">精灵球</view>
+        </view>
+        <view class="ball-cell">
+          <view class="ball-count">{{balls.super}}</view>
+          <view class="ball-label">超级球</view>
+        </view>
+        <view class="ball-cell">
+          <view class="ball-count">{{balls.hyper}}</view>
+          <view class="ball-label">高级球</view>
+        </view>
+        <view class="ball-cell">
+          <view class="ball-count">{{balls.master}}</view>
+          <view class="ball-label">大师球</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 2. 道具 -->
+    <view class="bp-card">
+      <view class="section-title">道具</view>
+      <view wx:if="{{inventory.length === 0}}" class="bp-empty">
+        背包还是空的。考试考得好、单元测试拿高分、高级转盘都能拿到道具哦！
+      </view>
+      <view wx:else class="bp-list">
+        <view
+          wx:for="{{inventory}}"
+          wx:key="key"
+          class="bp-item-row"
+        >
+          <view class="bp-item-left">
+            <text class="bp-item-emoji">{{item.emoji}}</text>
+            <text class="bp-item-name">{{item.name}}</text>
+            <text class="bp-item-qty">×{{item.qty}}</text>
+          </view>
+          <view class="bp-item-desc">{{item.desc}}</view>
+        </view>
+      </view>
+      <view wx:if="{{fairyMovesText}}" class="bp-fairy-moves">
+        伊布已学会的妖精招式：{{fairyMovesText}}
+      </view>
+    </view>
+
+    <!-- 3. 蛋 -->
+    <view class="bp-card">
+      <view class="section-title">蛋</view>
+      <view wx:if="{{eggs.length === 0}}" class="bp-empty">
+        还没有蛋。道馆胜利、考试奖励和高级转盘都能拿到蛋哦！
+      </view>
+      <view wx:else class="bp-list">
+        <view
+          wx:for="{{eggs}}"
+          wx:key="index"
+          class="bp-egg-row"
+        >
+          <view class="bp-egg-left">
+            <view
+              class="egg-shell"
+              style="background-color: {{item.bg}}; border-color: {{item.c1}};"
+            >
+              <block wx:if="{{item.patGroup === 'spots'}}">
+                <view class="egg-spot egg-spot-1" style="background-color: {{item.c1}};"></view>
+                <view class="egg-spot egg-spot-2" style="background-color: {{item.c1}};"></view>
+                <view class="egg-spot egg-spot-3" style="background-color: {{item.c2}};"></view>
+              </block>
+              <block wx:elif="{{item.patGroup === 'stripes'}}">
+                <view class="egg-stripe egg-stripe-1" style="background-color: {{item.c1}};"></view>
+                <view class="egg-stripe egg-stripe-2" style="background-color: {{item.c2}};"></view>
+              </block>
+              <block wx:elif="{{item.patGroup === 'drops'}}">
+                <view class="egg-drop egg-drop-1" style="background-color: {{item.c2}};"></view>
+                <view class="egg-drop egg-drop-2" style="background-color: {{item.c2}};"></view>
+              </block>
+              <block wx:elif="{{item.patGroup === 'flame'}}">
+                <view class="egg-flame-dot" style="background-color: {{item.c1}};"></view>
+              </block>
+              <block wx:elif="{{item.patGroup === 'ring'}}">
+                <view class="egg-ring" style="border-color: {{item.c1}};"></view>
+              </block>
+            </view>
+            <view class="bp-egg-name-wrap">
+              <text class="bp-egg-name">{{item.speciesName}}</text>
+              <text wx:if="{{item.isReward}}" class="bp-egg-reward">（奖励蛋）</text>
+            </view>
+          </view>
+          <view class="bp-egg-status {{item.daysLeft === 0 ? 'bp-egg-ready' : ''}}">
+            {{item.statusText}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 4. 伙伴 -->
+    <view class="bp-card">
+      <view class="section-title">伙伴</view>
+      <view wx:if="{{instances.length === 0}}" class="bp-empty">
+        暂无伙伴。
+      </view>
+      <view wx:else class="bp-list">
+        <view
+          wx:for="{{instances}}"
+          wx:key="index"
+          class="bp-comp-row"
+        >
+          <image
+            wx:if="{{item.imgUrl}}"
+            class="bp-comp-img"
+            src="{{item.imgUrl}}"
+            mode="aspectFit"
+          />
+          <view wx:else class="bp-comp-img bp-comp-img-placeholder"></view>
+          <view class="bp-comp-info">
+            <view class="bp-comp-name-row">
+              <text class="bp-comp-name">{{item.name}}</text>
+              <text wx:if="{{item.current}}" class="bp-current-badge">当前</text>
+            </view>
+            <view wx:if="{{item.sourceText}}" class="bp-comp-source">{{item.sourceText}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

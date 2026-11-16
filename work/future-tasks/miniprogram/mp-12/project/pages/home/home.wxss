@@ -1,0 +1,32 @@
+.container { padding: 16rpx; }
+.home-header { display: flex; align-items: center; margin-bottom: 24rpx; text-align: left; }
+.pet-section { display: flex; flex-direction: column; align-items: center; width: 160rpx; }
+.pet-avatar { font-size: 80rpx; background: #ffffff; border-radius: 32rpx; width: 128rpx; height: 128rpx; display: flex; align-items: center; justify-content: center; border: 4rpx solid #e1e4e8; }
+.pet-img { width: 128rpx; height: 128rpx; border-radius: 32rpx; background: #ffffff; border: 4rpx solid #e1e4e8; }
+.streak-text { color: #2f7cf6; font-weight: bold; font-size: 24rpx; margin-top: 12rpx; }
+.info-section { flex: 1; padding-left: 32rpx; }
+.level-title { font-size: 32rpx; font-weight: bold; color: #1f2d3d; margin-bottom: 12rpx; }
+.xp-bar-wrap { height: 20rpx; background: #e1e4e8; border-radius: 10rpx; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: #2e9e5b; transition: width 0.3s; }
+.xp-text { font-size: 24rpx; color: #5c6b7a; margin-top: 8rpx; }
+.today-section { border-top: 4rpx dashed #e1e4e8; padding-top: 20rpx; margin-top: 12rpx; }
+.today-stats { font-size: 28rpx; font-weight: bold; color: #1f2d3d; }
+.notices-section { margin-top: 20rpx; background: #ffffff; border-radius: 20rpx; padding: 20rpx; border: 2rpx solid #e1e4e8; text-align: left; }
+.notice-item { color: #D97706; font-size: 26rpx; margin-bottom: 8rpx; line-height: 1.4; }
+.nav-grid { display: flex; flex-wrap: wrap; justify-content: space-between; padding: 24rpx; margin-top: 16rpx; }
+.nav-item { width: 46%; background: #ffffff; border: 4rpx solid #e1e4e8; border-radius: 24rpx; padding: 24rpx 0; margin-bottom: 24rpx; }
+.nav-icon { font-size: 56rpx; height: 56rpx; margin-bottom: 12rpx; display: flex; align-items: center; justify-content: center; }
+.nav-icon-img { width: 56rpx; height: 56rpx; }
+.nav-text { font-size: 28rpx; font-weight: bold; color: #1f2d3d; text-align: center; }
+.nav-item.disabled { opacity: 0.5; filter: grayscale(100%); }
+.logout-link { margin-top: 16rpx; font-size: 26rpx; color: #5c6b7a; text-align: center; }
+/* 隐私授权弹窗（MP-12）：全屏遮罩 + 居中卡片；按钮上下排布，不用 flex 行（原生 button 不进 flex 行） */
+.privacy-mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 99; }
+.privacy-pop { width: 640rpx; background: #ffffff; border-radius: 24rpx; padding: 32rpx; }
+.privacy-title { font-size: 32rpx; font-weight: bold; color: #1f2d3d; text-align: center; margin-bottom: 20rpx; }
+.privacy-body { font-size: 28rpx; color: #5c6b7a; line-height: 1.6; }
+.privacy-link { font-size: 26rpx; color: #2f7cf6; text-align: center; margin-top: 20rpx; }
+.privacy-btn { width: 100%; height: 80rpx; line-height: 80rpx; font-size: 30rpx; border-radius: 16rpx; margin-top: 28rpx; border: none; }
+.privacy-btn::after { border: none; }
+.privacy-btn.agree { background: #2f7cf6; color: #ffffff; }
+.privacy-later { font-size: 26rpx; color: #5c6b7a; text-align: center; margin-top: 20rpx; }

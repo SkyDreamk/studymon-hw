@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="card header-card" wx:if="{{child}}">
+    <view class="header-top">
+      <view class="page-title">作业打卡</view>
+      <view class="streak-text">🔥 连胜 {{child.streak || 0}} 天</view>
+    </view>
+    <view class="progress-wrap">
+      <view class="progress-label">今日打卡 {{child.todaySubmittedCount || 0}}/5</view>
+      <view class="bar-track">
+        <view class="bar-fill" style="width: {{((child.todaySubmittedCount || 0) / 5) * 100}}%"></view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{child && child.todaySubmittedCount === 0}}" class="empty-state">
+    今天还没开始打卡哦，完成一科作业就来交一科，冲鸭！
+  </view>
+
+  <view wx:if="{{child && subjects.length > 0}}" class="subjects-list">
+    <view class="subject-card" wx:for="{{subjects}}" wx:key="subject" bindtap="goDetail" data-index="{{index}}">
+      <view class="subj-header">
+        <view class="subj-name">{{item.subject}}</view>
+        <view class="pill {{item.pillClass}}">{{item.pillText}}</view>
+      </view>
+
+      <view class="subj-body" wx:if="{{item.checkin}}">
+        <view class="subj-note" wx:if="{{item.checkin.note}}">📝 {{item.checkin.note}}</view>
+        <view class="subj-photos" wx:if="{{item.checkin.photos && item.checkin.photos.length > 0}}">
+          🖼️ 照片 ×{{item.checkin.photos.length}}
+        </view>
+        <view class="subj-reason" wx:if="{{item.checkin.status === 'rejected' && item.checkin.reason}}">
+          家长说：{{item.checkin.reason}}
+        </view>
+      </view>
+
+      <view class="subj-action">
+        <button class="btn btn-primary btn-sm" wx:if="{{!item.checkin}}" catchtap="goDetail" data-index="{{index}}">提交</button>
+        <button class="btn btn-ghost btn-sm" wx:elif="{{item.checkin.status === 'rejected'}}" catchtap="goDetail" data-index="{{index}}">修改</button>
+        <button class="btn btn-ghost btn-sm" wx:elif="{{item.checkin.status === 'pending'}}" catchtap="goDetail" data-index="{{index}}">修改</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="error-msg" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+</view>
