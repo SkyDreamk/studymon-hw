@@ -1,0 +1,1946 @@
+{
+  "version": 2,
+  "generated_at": "2026-11-15T04:43:46.894Z",
+  "source": "PokeAPI /move；中文名取自 PokeAPI zh-hans（与 App 名 0 差异）；效果为英文 short_effect 的中文转述",
+  "note": "官方原版招式数据；主宠招式的 type 与 damage_class 参与战斗结算（src/index.js 内嵌 MOVES_OFFICIAL，见 scripts/gen-moves-official.mjs），power/accuracy/effect/pp 不参与；答题对战仍用 App 现有自定义规则与威力。2026-11-06 同步：按 2026-11-05 招式系统升级核对后的内嵌表补 76 招（type/damage_class/accuracy 与内嵌表逐字一致，另见 LEARNSET-官方表-合并.json）。 2026-11-15 任务 116 回填 12 招 power/accuracy/pp/name_en（PokeAPI /move，zh-hans 与 type 逐招核对；影子球对应 shadow-ball，PokeAPI 现行简中定名为暗影球，App 保留旧名影子球）。",
+  "count": 115,
+  "moves": [
+    {
+      "name": "蹭蹭脸颊",
+      "name_en": "nuzzle",
+      "type": "电",
+      "type_en": "electric",
+      "power": 20,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 20,
+      "effect": "有几率让对方麻痹。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 5
+          }
+        ]
+      },
+      "app_power": 55,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 5 时威力 55（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "打雷",
+      "name_en": "thunder",
+      "type": "电",
+      "type_en": "electric",
+      "power": 110,
+      "accuracy": 70,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10,
+      "effect": "有几率让对方麻痹。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 11
+          }
+        ]
+      },
+      "app_power": 91,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 11 时威力 91（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "大地之力",
+      "name_en": "earth-power",
+      "type": "地面",
+      "type_en": "ground",
+      "power": 90,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10,
+      "effect": "有几率降低对方特防1级。",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 2,
+            "type": "地面",
+            "app_power": 70
+          }
+        ]
+      },
+      "app_power": 70,
+      "app_power_note": "道馆馆主招式表写死威力 70（平衡定参，非官方数值）；官方威力 90，与 App 值不同——仅记录，不改 App 战斗数值"
+    },
+    {
+      "name": "大字爆炎",
+      "name_en": "fire-blast",
+      "type": "火",
+      "type_en": "fire",
+      "power": 110,
+      "accuracy": 85,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 5,
+      "effect": "有几率让对方灼伤。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 11
+          }
+        ]
+      },
+      "app_power": 91,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 11 时威力 91（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "电光一闪",
+      "name_en": "quick-attack",
+      "type": "普通",
+      "type_en": "normal",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 30,
+      "effect": "造成普通伤害，无追加效果。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 2
+          }
+        ]
+      },
+      "app_power": 37,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 2 时威力 37（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "电击",
+      "name_en": "thunder-shock",
+      "type": "电",
+      "type_en": "electric",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 30,
+      "effect": "有几率让对方麻痹。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 4
+          }
+        ]
+      },
+      "app_power": 49,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 4 时威力 49（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "电球",
+      "name_en": "electro-ball",
+      "type": "电",
+      "type_en": "electric",
+      "power": null,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10,
+      "effect": "自身速度比对方越快威力越高，最高150。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 9
+          }
+        ]
+      },
+      "app_power": 79,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 9 时威力 79（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "飞叶风暴",
+      "name_en": "leaf-storm",
+      "type": "草",
+      "type_en": "grass",
+      "power": 130,
+      "accuracy": 90,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 5,
+      "effect": "攻击后自身特攻降低2级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 10
+          }
+        ]
+      },
+      "app_power": 85,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 10 时威力 85（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "飞叶快刀",
+      "name_en": "razor-leaf",
+      "type": "草",
+      "type_en": "grass",
+      "power": 55,
+      "accuracy": 95,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 25,
+      "effect": "容易击中要害。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 7
+          }
+        ]
+      },
+      "app_power": 67,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 7 时威力 67（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "疯狂植物",
+      "name_en": "frenzy-plant",
+      "type": "草",
+      "type_en": "grass",
+      "power": 150,
+      "accuracy": 90,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 5,
+      "effect": "使用后下一回合无法行动，需要蓄力。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 11
+          }
+        ]
+      },
+      "app_power": 91,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 11 时威力 91（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "伏特攻击",
+      "name_en": "volt-tackle",
+      "type": "电",
+      "type_en": "electric",
+      "power": 120,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 15,
+      "effect": "自己受到造成伤害三分之一的反作用伤害，并有几率让对方麻痹。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 10
+          }
+        ]
+      },
+      "app_power": 85,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 10 时威力 85（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "高速旋转",
+      "name_en": "rapid-spin",
+      "type": "普通",
+      "type_en": "normal",
+      "power": 50,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 40,
+      "effect": "摆脱束缚状态，清除寄生种子和撒菱。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 8
+          }
+        ]
+      },
+      "app_power": 73,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 8 时威力 73（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "火花",
+      "name_en": "ember",
+      "type": "火",
+      "type_en": "fire",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 25,
+      "effect": "有几率让对方灼伤。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 4
+          }
+        ]
+      },
+      "app_power": 49,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 4 时威力 49（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "火焰牙",
+      "name_en": "fire-fang",
+      "type": "火",
+      "type_en": "fire",
+      "power": 65,
+      "accuracy": 95,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 15,
+      "effect": "有几率让对方灼伤，并有几率让对方畏缩。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 6
+          }
+        ]
+      },
+      "app_power": 61,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 6 时威力 61（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "寄生种子",
+      "name_en": "leech-seed",
+      "type": "草",
+      "type_en": "grass",
+      "power": null,
+      "accuracy": 90,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 10,
+      "effect": "在对方身上种下种子，每回合吸取对方体力。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 6
+          }
+        ]
+      },
+      "app_power": 61,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 6 时威力 61（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "加农水炮",
+      "name_en": "hydro-cannon",
+      "type": "水",
+      "type_en": "water",
+      "power": 150,
+      "accuracy": 90,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 5,
+      "effect": "使用后下一回合无法行动，需要蓄力。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 11
+          }
+        ]
+      },
+      "app_power": 91,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 11 时威力 91（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "叫声",
+      "name_en": "growl",
+      "type": "普通",
+      "type_en": "normal",
+      "power": null,
+      "accuracy": 100,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 40,
+      "effect": "降低对方攻击1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 3
+          },
+          {
+            "line": "bulbasaur",
+            "level": 3
+          }
+        ]
+      },
+      "app_power": 43,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 3 时威力 43（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "龙爪",
+      "name_en": "dragon-claw",
+      "type": "龙",
+      "type_en": "dragon",
+      "power": 80,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 15,
+      "effect": "造成普通伤害，无追加效果。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 9
+          }
+        ]
+      },
+      "app_power": 79,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 9 时威力 79（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "魔法叶",
+      "name_en": "magical-leaf",
+      "type": "草",
+      "type_en": "grass",
+      "power": 60,
+      "accuracy": null,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 20,
+      "effect": "一定会命中。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 8
+          }
+        ]
+      },
+      "app_power": 73,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 8 时威力 73（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "泡沫",
+      "name_en": "bubble",
+      "type": "水",
+      "type_en": "water",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 30,
+      "effect": "有几率降低对方速度1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 6
+          }
+        ]
+      },
+      "app_power": 61,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 6 时威力 61（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "喷射火焰",
+      "name_en": "flamethrower",
+      "type": "火",
+      "type_en": "fire",
+      "power": 90,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 15,
+      "effect": "有几率让对方灼伤。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 8
+          }
+        ]
+      },
+      "app_power": 73,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 8 时威力 73（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "劈开",
+      "name_en": "slash",
+      "type": "普通",
+      "type_en": "normal",
+      "power": 70,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 20,
+      "effect": "容易击中要害。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 7
+          }
+        ]
+      },
+      "app_power": 67,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 7 时威力 67（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "求雨",
+      "name_en": "rain-dance",
+      "type": "水",
+      "type_en": "water",
+      "power": null,
+      "accuracy": null,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 5,
+      "effect": "五回合内天气变为下雨。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 10
+          }
+        ]
+      },
+      "app_power": 85,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 10 时威力 85（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "日光束",
+      "name_en": "solar-beam",
+      "type": "草",
+      "type_en": "grass",
+      "power": 120,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10,
+      "effect": "需要蓄力一回合再攻击。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 9
+          }
+        ]
+      },
+      "app_power": 79,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 9 时威力 79（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "撒娇",
+      "name_en": "charm",
+      "type": "妖精",
+      "type_en": "fairy",
+      "power": null,
+      "accuracy": 100,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 20,
+      "effect": "降低对方攻击2级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 3
+          }
+        ]
+      },
+      "app_power": 43,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 3 时威力 43（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "闪焰冲锋",
+      "name_en": "flare-blitz",
+      "type": "火",
+      "type_en": "fire",
+      "power": 120,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 15,
+      "effect": "自己受到造成伤害三分之一的反作用伤害，并有几率让对方灼伤。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 10
+          }
+        ]
+      },
+      "app_power": 85,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 10 时威力 85（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "生长",
+      "name_en": "growth",
+      "type": "普通",
+      "type_en": "normal",
+      "power": null,
+      "accuracy": null,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 20,
+      "effect": "提升自身攻击和特攻各1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 5
+          }
+        ]
+      },
+      "app_power": 55,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 5 时威力 55（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "十万伏特",
+      "name_en": "thunderbolt",
+      "type": "电",
+      "type_en": "electric",
+      "power": 90,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 15,
+      "effect": "有几率让对方麻痹。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 8
+          }
+        ]
+      },
+      "app_power": 73,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 8 时威力 73（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "水炮",
+      "name_en": "hydro-pump",
+      "type": "水",
+      "type_en": "water",
+      "power": 110,
+      "accuracy": 80,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 5,
+      "effect": "造成普通伤害，无追加效果。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 9
+          }
+        ]
+      },
+      "app_power": 79,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 9 时威力 79（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "水枪",
+      "name_en": "water-gun",
+      "type": "水",
+      "type_en": "water",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 25,
+      "effect": "造成普通伤害，无追加效果。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 4
+          }
+        ]
+      },
+      "app_power": 49,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 4 时威力 49（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "水之波动",
+      "name_en": "water-pulse",
+      "type": "水",
+      "type_en": "water",
+      "power": 60,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 20,
+      "effect": "有几率让对方混乱。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 7
+          }
+        ]
+      },
+      "app_power": 67,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 7 时威力 67（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "缩入壳中",
+      "name_en": "withdraw",
+      "type": "水",
+      "type_en": "water",
+      "power": null,
+      "accuracy": null,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 40,
+      "effect": "提升自身防御1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 5
+          }
+        ]
+      },
+      "app_power": 55,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 5 时威力 55（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "藤鞭",
+      "name_en": "vine-whip",
+      "type": "草",
+      "type_en": "grass",
+      "power": 45,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 25,
+      "effect": "造成普通伤害，无追加效果。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "bulbasaur",
+            "level": 4
+          }
+        ]
+      },
+      "app_power": 49,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 4 时威力 49（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "铁尾",
+      "name_en": "iron-tail",
+      "type": "钢",
+      "type_en": "steel",
+      "power": 100,
+      "accuracy": 75,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 15,
+      "effect": "有几率降低对方防御1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 7
+          }
+        ]
+      },
+      "app_power": 67,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 7 时威力 67（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "烟幕",
+      "name_en": "smokescreen",
+      "type": "普通",
+      "type_en": "normal",
+      "power": null,
+      "accuracy": 100,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 20,
+      "effect": "降低对方命中率1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 5
+          }
+        ]
+      },
+      "app_power": 55,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 5 时威力 55（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "摇尾巴",
+      "name_en": "tail-whip",
+      "type": "普通",
+      "type_en": "normal",
+      "power": null,
+      "accuracy": 100,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 30,
+      "effect": "降低对方防御1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 3
+          }
+        ]
+      },
+      "app_power": 43,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 3 时威力 43（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "影子分身",
+      "name_en": "double-team",
+      "type": "普通",
+      "type_en": "normal",
+      "power": null,
+      "accuracy": null,
+      "damage_class": "变化",
+      "damage_class_en": "status",
+      "pp": 15,
+      "effect": "提升自身闪避率1级。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "pikachu",
+            "level": 6
+          }
+        ]
+      },
+      "app_power": 61,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 6 时威力 61（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "抓",
+      "name_en": "scratch",
+      "type": "普通",
+      "type_en": "normal",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 35,
+      "effect": "造成普通伤害，无追加效果。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "charmander",
+            "level": 2
+          }
+        ]
+      },
+      "app_power": 37,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 2 时威力 37（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "撞击",
+      "name_en": "tackle",
+      "type": "普通",
+      "type_en": "normal",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 35,
+      "effect": "造成普通伤害，无追加效果。",
+      "app_sources": {
+        "lines": [
+          {
+            "line": "squirtle",
+            "level": 2
+          },
+          {
+            "line": "bulbasaur",
+            "level": 2
+          }
+        ]
+      },
+      "app_power": 37,
+      "app_power_note": "App 内公式 25+6×等级，学会等级 2 时威力 37（随等级成长的是出招宠等级加成，非招式本身威力；见 src/index.js 伤害公式）"
+    },
+    {
+      "name": "啄",
+      "type": "飞行",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "翅膀攻击",
+      "type": "飞行",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "空气利刃",
+      "type": "飞行",
+      "damage_class": "特殊",
+      "accuracy": 95
+    },
+    {
+      "name": "燕返",
+      "type": "飞行",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "神鸟猛击",
+      "type": "飞行",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "暴风",
+      "type": "飞行",
+      "damage_class": "特殊",
+      "accuracy": 70
+    },
+    {
+      "name": "落石",
+      "type": "岩石",
+      "damage_class": "物理",
+      "accuracy": 90
+    },
+    {
+      "name": "岩石封锁",
+      "type": "岩石",
+      "damage_class": "物理",
+      "accuracy": 95
+    },
+    {
+      "name": "岩崩",
+      "type": "岩石",
+      "damage_class": "物理",
+      "accuracy": 90
+    },
+    {
+      "name": "尖石攻击",
+      "type": "岩石",
+      "damage_class": "物理",
+      "accuracy": 80
+    },
+    {
+      "name": "力量宝石",
+      "type": "岩石",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "原始之力",
+      "type": "岩石",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "影子球",
+      "name_en": "shadow-ball",
+      "type": "幽灵",
+      "type_en": "ghost",
+      "power": 80,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 15
+    },
+    {
+      "name": "舌舔",
+      "type": "幽灵",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "黑夜魔影",
+      "type": "幽灵",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "暗影拳",
+      "type": "幽灵",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "冰砾",
+      "type": "冰",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "冻风",
+      "type": "冰",
+      "damage_class": "特殊",
+      "accuracy": 95
+    },
+    {
+      "name": "冰冻拳",
+      "type": "冰",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "冰冻光束",
+      "name_en": "ice-beam",
+      "type": "冰",
+      "type_en": "ice",
+      "power": 90,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10
+    },
+    {
+      "name": "暴风雪",
+      "name_en": "blizzard",
+      "type": "冰",
+      "type_en": "ice",
+      "power": 110,
+      "accuracy": 70,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 5
+    },
+    {
+      "name": "毒针",
+      "type": "毒",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "溶解液",
+      "name_en": "acid",
+      "type": "毒",
+      "type_en": "poison",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 30
+    },
+    {
+      "name": "污泥炸弹",
+      "type": "毒",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "十字毒刃",
+      "type": "毒",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "咬住",
+      "type": "恶",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "恶之波动",
+      "type": "恶",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "突袭",
+      "type": "恶",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "大声咆哮",
+      "type": "恶",
+      "damage_class": "特殊",
+      "accuracy": 95
+    },
+    {
+      "name": "空手劈",
+      "type": "格斗",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "音速拳",
+      "type": "格斗",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "劈瓦",
+      "type": "格斗",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "近身战",
+      "type": "格斗",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "念力",
+      "type": "超能力",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "幻象光线",
+      "type": "超能力",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "精神强念",
+      "name_en": "psychic",
+      "type": "超能力",
+      "type_en": "psychic",
+      "power": 90,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10
+    },
+    {
+      "name": "精神利刃",
+      "type": "超能力",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "预知未来",
+      "name_en": "future-sight",
+      "type": "超能力",
+      "type_en": "psychic",
+      "power": 120,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10
+    },
+    {
+      "name": "连斩",
+      "type": "虫",
+      "damage_class": "物理",
+      "accuracy": 95
+    },
+    {
+      "name": "十字剪",
+      "name_en": "x-scissor",
+      "type": "虫",
+      "type_en": "bug",
+      "power": 80,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 15
+    },
+    {
+      "name": "虫咬",
+      "type": "虫",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "信号光束",
+      "type": "虫",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "热风",
+      "type": "火",
+      "damage_class": "特殊",
+      "accuracy": 90
+    },
+    {
+      "name": "火焰拳",
+      "type": "火",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "火焰轮",
+      "type": "火",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "火焰旋涡",
+      "name_en": "fire-spin",
+      "type": "火",
+      "type_en": "fire",
+      "power": 35,
+      "accuracy": 85,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 15
+    },
+    {
+      "name": "蓄能焰袭",
+      "type": "火",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "地震",
+      "type": "地面",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "挖洞",
+      "type": "地面",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "泥巴射击",
+      "type": "地面",
+      "damage_class": "特殊",
+      "accuracy": 95
+    },
+    {
+      "name": "重踏",
+      "type": "地面",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "直冲钻",
+      "type": "地面",
+      "damage_class": "物理",
+      "accuracy": 95
+    },
+    {
+      "name": "冲浪",
+      "type": "水",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "电光",
+      "type": "电",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "雷电拳",
+      "name_en": "thunder-punch",
+      "type": "电",
+      "type_en": "electric",
+      "power": 75,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 15
+    },
+    {
+      "name": "叶刃",
+      "type": "草",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "超级吸取",
+      "type": "草",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "高速星星",
+      "type": "普通",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "巨声",
+      "type": "普通",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "龙卷风",
+      "type": "龙",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "龙之怒",
+      "type": "龙",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "龙息",
+      "type": "龙",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "龙之波动",
+      "type": "龙",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "龙尾",
+      "type": "龙",
+      "damage_class": "物理",
+      "accuracy": 90
+    },
+    {
+      "name": "逆鳞",
+      "type": "龙",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "流星群",
+      "type": "龙",
+      "damage_class": "特殊",
+      "accuracy": 90
+    },
+    {
+      "name": "子弹拳",
+      "name_en": "bullet-punch",
+      "type": "钢",
+      "type_en": "steel",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "物理",
+      "damage_class_en": "physical",
+      "pp": 30
+    },
+    {
+      "name": "钢翼",
+      "type": "钢",
+      "damage_class": "物理",
+      "accuracy": 90
+    },
+    {
+      "name": "铁头",
+      "type": "钢",
+      "damage_class": "物理",
+      "accuracy": 100
+    },
+    {
+      "name": "加农光炮",
+      "type": "钢",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "魔法闪耀",
+      "name_en": "dazzling-gleam",
+      "type": "妖精",
+      "type_en": "fairy",
+      "power": 80,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 10
+    },
+    {
+      "name": "月亮之力",
+      "type": "妖精",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "嬉闹",
+      "type": "妖精",
+      "damage_class": "物理",
+      "accuracy": 90
+    },
+    {
+      "name": "妖精之风",
+      "name_en": "fairy-wind",
+      "type": "妖精",
+      "type_en": "fairy",
+      "power": 40,
+      "accuracy": 100,
+      "damage_class": "特殊",
+      "damage_class_en": "special",
+      "pp": 30
+    },
+    {
+      "name": "吸取之吻",
+      "type": "妖精",
+      "damage_class": "特殊",
+      "accuracy": 100
+    },
+    {
+      "name": "魅惑之声",
+      "type": "妖精",
+      "damage_class": "特殊",
+      "accuracy": 100
+    }
+  ],
+  "missing_count": 45,
+  "missing": [
+    {
+      "name": "乘浪冲锋",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 131,
+            "app_power": 52
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "俯冲啄击",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 16,
+            "app_power": 56
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "冰晶水炮",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 131,
+            "app_power": 62
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "十万电光",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 3,
+            "type": "电",
+            "app_power": 72
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "呼噜冲击",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 143,
+            "app_power": 54
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "大地践踏",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 111,
+            "app_power": 62
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "大地重压",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 1,
+            "type": "地面",
+            "app_power": 36
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "大肚子压顶",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 143,
+            "app_power": 66
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "头痛水花",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 54,
+            "app_power": 46
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "小小雷光",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 179,
+            "app_power": 54
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "小火轮",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 58,
+            "app_power": 46
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "小龙卷",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 147,
+            "app_power": 54
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "尾巴横扫",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 1,
+            "type": "普通",
+            "app_power": 34
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "岩石猛击",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 1,
+            "type": "岩石",
+            "app_power": 28
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "巨叶拍打",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 4,
+            "type": "草",
+            "app_power": 48
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "心灵星光",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 151,
+            "app_power": 66
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "念力头槌",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 54,
+            "app_power": 60
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "挖洞突袭",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 50,
+            "app_power": 46
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "摇篮小曲",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 39,
+            "app_power": 40
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "旋转突进",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 2,
+            "type": "普通",
+            "app_power": 60
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "旋风小翅",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 16,
+            "app_power": 44
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "旋风连斩",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 123,
+            "app_power": 52
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "星星冲撞",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 133,
+            "app_power": 46
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "梦幻泡泡",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 151,
+            "app_power": 54
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "毛茸茸连打",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 133,
+            "app_power": 56
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "水泡连弹",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 98,
+            "app_power": 46
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "水炮冲击",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 2,
+            "type": "水",
+            "app_power": 30
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "泥巴投掷",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 50,
+            "app_power": 40
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "滚动撞击",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 74,
+            "app_power": 46
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "火焰冲锋",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 58,
+            "app_power": 56
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "火焰小尾",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 37,
+            "app_power": 44
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "火花飞舞",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 37,
+            "app_power": 54
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "独角猛撞",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 111,
+            "app_power": 58
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "甘露重压",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 4,
+            "type": "水",
+            "app_power": 72
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "疾风电爪",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 3,
+            "type": "电",
+            "app_power": 54
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "花瓣狂舞",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 4,
+            "type": "草",
+            "app_power": 56
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "花粉喷雾",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 43,
+            "app_power": 40
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "落石小雨",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 74,
+            "app_power": 56
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "蟹钳重击",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 98,
+            "app_power": 56
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "连环小巴掌",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 39,
+            "app_power": 52
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "镰刀疾风",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 123,
+            "app_power": 60
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "雷电重拳",
+      "app_sources": {
+        "gym_boss": [
+          {
+            "stage": 3,
+            "type": "电",
+            "app_power": 64
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "静电绒毛",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 179,
+            "app_power": 42
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "飞叶小刀",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 43,
+            "app_power": 48
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    },
+    {
+      "name": "龙尾轻扫",
+      "app_sources": {
+        "collection": [
+          {
+            "species_no": 147,
+            "app_power": 60
+          }
+        ]
+      },
+      "reason": "App 自创招式名，无官方对应招式，未编官方数值"
+    }
+  ]
+}

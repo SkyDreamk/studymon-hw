@@ -1,0 +1,1 @@
+ALTER TABLE children ADD COLUMN move_levels TEXT NOT NULL DEFAULT '{}';

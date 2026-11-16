@@ -1,0 +1,47 @@
+# 依赖与本地运行
+node_modules/
+.wrangler/
+__pycache__/
+*.log
+.env*
+*.zip
+
+# 内部工作目录与运维文档（不进公开库）
+# 注意：cf-deploy/work/ 整体排除，但其中两个测试夹具文件是单测的依赖，用 ! 保留
+cf-deploy/work/*
+!cf-deploy/work/skill-levels-migrate-test.sql
+!cf-deploy/work/quiz-midterm-cn-20261109.json
+cf-deploy/backups/
+cf-deploy/tasks/
+cf-deploy/DEPLOY.md
+cf-deploy/AUDIT-*.md
+cf-deploy/任务单-*.md
+cf-deploy/index-16104a16-for-claude.js
+cf-deploy/wrangler.toml.bak
+
+# 哈希 bundle（由 .orig 经 scripts/hash-assets.mjs 重新生成，不入库）
+cf-deploy/public/static/app.*.js
+cf-deploy/public/static/style.*.css
+cf-deploy/public/static/care-room.*.js
+cf-deploy/public/static/engine-local.*.js
+cf-deploy/public/static/asset-manifest.json
+cf-deploy/public/static/*.orig.orig
+
+# battle-scene 构建产物与测试输出（不入库）
+work/battle-scene/dist/
+work/battle-scene/test-results/
+work/battle-scene/node_modules/
+
+# 图片与音频（版权原因不进公开库，需自行准备）
+*.webp
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.mp3
+*.wav
+*.m4a
+*.ogg
+*.webm
+*.mp4

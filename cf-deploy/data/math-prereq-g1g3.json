@@ -1,0 +1,1954 @@
+{
+  "meta": {
+    "source": "cn-math-taxonomy data/dependencies.json + data/topics.json（AI 初稿、未经教师审核，仅决定查哪条链）",
+    "generated": "2026-10-26",
+    "counts": {
+      "topicsTriggerable": 77,
+      "topicsTotal": 137,
+      "edges": 163,
+      "hard": 150,
+      "soft": 13
+    }
+  },
+  "topics": [
+    {
+      "id": "cnm_p001",
+      "name": "1到5各数的认识",
+      "chapter": "一年级上册 第1单元 5以内数的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p002",
+      "name": "5以内数的大小",
+      "chapter": "一年级上册 第1单元 5以内数的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p003",
+      "name": "几和第几",
+      "chapter": "一年级上册 第1单元 5以内数的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p004",
+      "name": "5以内数的分与合",
+      "chapter": "一年级上册 第1单元 5以内数的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p005",
+      "name": "0的认识",
+      "chapter": "一年级上册 第1单元 5以内数的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p006",
+      "name": "5以内的加法",
+      "chapter": "一年级上册 第1单元 5以内数的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p007",
+      "name": "5以内的减法",
+      "chapter": "一年级上册 第1单元 5以内数的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p008",
+      "name": "6到10各数的认识",
+      "chapter": "一年级上册 第2单元 6到10的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p009",
+      "name": "10以内数的比较",
+      "chapter": "一年级上册 第2单元 6到10的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p010",
+      "name": "10以内的加法",
+      "chapter": "一年级上册 第2单元 6到10的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p011",
+      "name": "10以内的减法",
+      "chapter": "一年级上册 第2单元 6到10的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p012",
+      "name": "连加和连减",
+      "chapter": "一年级上册 第2单元 6到10的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p013",
+      "name": "10以内加减混合",
+      "chapter": "一年级上册 第2单元 6到10的认识和加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p014",
+      "name": "认识长方体、正方体、圆柱和球",
+      "chapter": "一年级上册 第3单元 认识立体图形",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p015",
+      "name": "上下前后左右",
+      "chapter": "一年级上册 综合与实践 我的教室",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p016",
+      "name": "11到20各数的认识",
+      "chapter": "一年级上册 第4单元 11到20的认识",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p017",
+      "name": "十位和个位",
+      "chapter": "一年级上册 第4单元 11到20的认识",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p018",
+      "name": "20以内不进位加法",
+      "chapter": "一年级上册 第4单元 11到20的认识",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p019",
+      "name": "凑十法",
+      "chapter": "一年级上册 第5单元 20以内的进位加法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p020",
+      "name": "9加几",
+      "chapter": "一年级上册 第5单元 20以内的进位加法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p021",
+      "name": "8、7、6加几",
+      "chapter": "一年级上册 第5单元 20以内的进位加法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p022",
+      "name": "用数介绍和简单分类",
+      "chapter": "一年级上册 综合与实践 数学游戏分享",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p023",
+      "name": "认识长方形、正方形、三角形和圆",
+      "chapter": "一年级下册 第1单元 认识平面图形",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p024",
+      "name": "平面图形的拼组",
+      "chapter": "一年级下册 第1单元 认识平面图形",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p025",
+      "name": "十几减9",
+      "chapter": "一年级下册 第2单元 20以内的退位减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p026",
+      "name": "十几减8、7、6",
+      "chapter": "一年级下册 第2单元 20以内的退位减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p027",
+      "name": "十几减5、4、3、2",
+      "chapter": "一年级下册 第2单元 20以内的退位减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p028",
+      "name": "100以内数的认识",
+      "chapter": "一年级下册 第3单元 100以内数的认识",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p029",
+      "name": "100以内数的大小",
+      "chapter": "一年级下册 第3单元 100以内数的认识",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p030",
+      "name": "整十数的加减",
+      "chapter": "一年级下册 第3单元 100以内数的认识",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p031",
+      "name": "100以内口算加法",
+      "chapter": "一年级下册 第4单元 100以内的口算加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p032",
+      "name": "100以内口算减法",
+      "chapter": "一年级下册 第4单元 100以内的口算加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p033",
+      "name": "100以内笔算加法",
+      "chapter": "一年级下册 第5单元 100以内的笔算加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p034",
+      "name": "100以内笔算减法",
+      "chapter": "一年级下册 第5单元 100以内的笔算加、减法",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p035",
+      "name": "部分与总数",
+      "chapter": "一年级下册 第6单元 数量间的加减关系",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p217",
+      "name": "求两数相差几",
+      "chapter": "一年级下册 第6单元 数量间的加减关系",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p218",
+      "name": "求比一个数多（少）几的数",
+      "chapter": "一年级下册 第6单元 数量间的加减关系",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p036",
+      "name": "认识人民币",
+      "chapter": "一年级下册 综合与实践 欢乐购物街",
+      "grade": 1,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p037",
+      "name": "分类与整理",
+      "chapter": "二年级上册 第1单元 分类与整理",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p038",
+      "name": "乘法的意义",
+      "chapter": "二年级上册 第2单元 1到6的表内乘法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p039",
+      "name": "2到6的乘法口诀",
+      "chapter": "二年级上册 第2单元 1到6的表内乘法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p057",
+      "name": "乘加乘减的运算顺序",
+      "chapter": "二年级上册 第2单元 1到6的表内乘法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p043",
+      "name": "除法的意义",
+      "chapter": "二年级上册 第3单元 1到6的表内除法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p049",
+      "name": "东、南、西、北",
+      "chapter": "二年级上册 综合与实践 校园小导游",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p040",
+      "name": "认识厘米",
+      "chapter": "二年级上册 第4单元 厘米和米",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p041",
+      "name": "认识米",
+      "chapter": "二年级上册 第4单元 厘米和米",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p042",
+      "name": "7、8、9的乘法口诀",
+      "chapter": "二年级上册 第5单元 7到9的表内乘、除法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p044",
+      "name": "用7、8、9的口诀求商",
+      "chapter": "二年级上册 第5单元 7到9的表内乘、除法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p061",
+      "name": "秒的认识",
+      "chapter": "二年级下册 综合与实践 时间在哪里",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p062",
+      "name": "时、分、秒的进率",
+      "chapter": "二年级下册 综合与实践 时间在哪里",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p063",
+      "name": "经过时间",
+      "chapter": "二年级下册 综合与实践 时间在哪里",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p219",
+      "name": "数量间的乘除关系",
+      "chapter": "二年级下册 第2单元 数量间的乘除关系",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p053",
+      "name": "万以内数的认识",
+      "chapter": "二年级下册 第3单元 万以内数的认识",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p054",
+      "name": "万以内数的大小比较",
+      "chapter": "二年级下册 第3单元 万以内数的认识",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p064",
+      "name": "几百几十的口算加法",
+      "chapter": "二年级下册 第4单元 万以内的加法和减法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p065",
+      "name": "几百几十的口算减法",
+      "chapter": "二年级下册 第4单元 万以内的加法和减法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p071",
+      "name": "三位数加法笔算",
+      "chapter": "二年级下册 第4单元 万以内的加法和减法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p220",
+      "name": "加减法各部分间的关系",
+      "chapter": "二年级下册 第4单元 万以内的加法和减法",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p060",
+      "name": "简单的变化规律",
+      "chapter": "二年级下册 第5单元 复习与关联",
+      "grade": 2,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p221",
+      "name": "观察简单的立体积木",
+      "chapter": "三年级上册 第1单元 观察物体",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p222",
+      "name": "长方体纸盒的展开图",
+      "chapter": "三年级上册 第1单元 观察物体",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p223",
+      "name": "同级运算与两级运算的运算顺序",
+      "chapter": "三年级上册 第2单元 混合运算",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p058",
+      "name": "带小括号的两步运算",
+      "chapter": "三年级上册 第2单元 混合运算",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p059",
+      "name": "两步加减应用",
+      "chapter": "三年级上册 第2单元 混合运算",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p067",
+      "name": "毫米",
+      "chapter": "三年级上册 第3单元 毫米、分米和千米",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p068",
+      "name": "分米",
+      "chapter": "三年级上册 第3单元 毫米、分米和千米",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p069",
+      "name": "千米",
+      "chapter": "三年级上册 第3单元 毫米、分米和千米",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p056",
+      "name": "克和千克",
+      "chapter": "三年级上册 综合与实践 曹冲称象的故事",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p070",
+      "name": "吨的认识",
+      "chapter": "三年级上册 综合与实践 曹冲称象的故事",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p224",
+      "name": "等量代换（曹冲称象）",
+      "chapter": "三年级上册 综合与实践 曹冲称象的故事",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p074",
+      "name": "多位数乘一位数",
+      "chapter": "三年级上册 第4单元 多位数乘一位数",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p075",
+      "name": "因数中间或末尾有 0 的乘法",
+      "chapter": "三年级上册 第4单元 多位数乘一位数",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p076",
+      "name": "数字编码",
+      "chapter": "三年级上册 综合与实践 数字编码",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p099",
+      "name": "线段、直线和射线",
+      "chapter": "三年级上册 第5单元 线和角",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p225",
+      "name": "角的认识",
+      "chapter": "三年级上册 第5单元 线和角",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p101",
+      "name": "锐角、直角和钝角",
+      "chapter": "三年级上册 第5单元 线和角",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p079",
+      "name": "几分之一",
+      "chapter": "三年级上册 第6单元 分数的初步认识",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p226",
+      "name": "几分之几",
+      "chapter": "三年级上册 第6单元 分数的初步认识",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p227",
+      "name": "简单的分数大小比较",
+      "chapter": "三年级上册 第6单元 分数的初步认识",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p080",
+      "name": "同分母分数的初步加减",
+      "chapter": "三年级上册 第6单元 分数的初步认识",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p073",
+      "name": "倍的认识",
+      "chapter": "三年级上册 第7单元 复习与关联",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p081",
+      "name": "集合图里的重叠",
+      "chapter": "三年级上册 第7单元 复习与关联",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p095",
+      "name": "简单的搭配",
+      "chapter": "三年级上册 第8单元 数学广角——搭配问题",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p228",
+      "name": "生活中的运动现象",
+      "chapter": "三年级下册 第1单元 生活中的运动现象",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p083",
+      "name": "除数是一位数的除法",
+      "chapter": "三年级下册 第2单元 除数是一位数的除法",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p084",
+      "name": "除法解决实际问题",
+      "chapter": "三年级下册 第2单元 除数是一位数的除法",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p229",
+      "name": "多边形的认识",
+      "chapter": "三年级下册 第3单元 长方形和正方形",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p077",
+      "name": "长方形和正方形的特征",
+      "chapter": "三年级下册 第3单元 长方形和正方形",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p078",
+      "name": "长方形和正方形的周长",
+      "chapter": "三年级下册 第3单元 长方形和正方形",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p088",
+      "name": "面积的意义",
+      "chapter": "三年级下册 第4单元 图形的面积",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p089",
+      "name": "长方形和正方形的面积",
+      "chapter": "三年级下册 第4单元 图形的面积",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p090",
+      "name": "面积单位的换算",
+      "chapter": "三年级下册 第4单元 图形的面积",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p085",
+      "name": "复式统计表",
+      "chapter": "三年级下册 第5单元 数据的收集与整理",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p091",
+      "name": "年、月、日",
+      "chapter": "三年级下册 综合与实践 年、月、日的秘密",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p092",
+      "name": "24时记时法",
+      "chapter": "三年级下册 综合与实践 年、月、日的秘密",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p093",
+      "name": "一位小数的初步认识",
+      "chapter": "三年级下册 第6单元 小数的初步认识",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p094",
+      "name": "一位小数的加减",
+      "chapter": "三年级下册 第6单元 小数的初步认识",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p082",
+      "name": "东北、东南、西北、西南",
+      "chapter": "三年级下册 第7单元 复习与关联",
+      "grade": 3,
+      "inScope": true
+    },
+    {
+      "id": "cnm_p100",
+      "name": "角的度量",
+      "chapter": "四年级上册 第2单元 角的度量",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p232",
+      "name": "平角、周角和角的分类",
+      "chapter": "四年级上册 第2单元 角的度量",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p086",
+      "name": "两位数乘两位数",
+      "chapter": "四年级上册 第3单元 多位数乘两位数",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p111",
+      "name": "常见数量关系",
+      "chapter": "四年级上册 第4单元 加法模型和乘法模型",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p103",
+      "name": "垂直",
+      "chapter": "四年级上册 第5单元 平行四边形和梯形",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p108",
+      "name": "条形统计图",
+      "chapter": "四年级上册 第6单元 条形统计图",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p109",
+      "name": "简单的优化",
+      "chapter": "四年级上册 第7单元 复习与关联",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p110",
+      "name": "四则运算各部分间的关系",
+      "chapter": "四年级下册 第1单元 四则运算",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p113",
+      "name": "从不同方向观察物体",
+      "chapter": "四年级下册 第2单元 观察物体（二）",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p118",
+      "name": "小数的意义",
+      "chapter": "四年级下册 第4单元 小数的意义和性质",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p119",
+      "name": "比较小数的大小",
+      "chapter": "四年级下册 第4单元 小数的意义和性质",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p125",
+      "name": "小数加减法",
+      "chapter": "四年级下册 第6单元 小数的加法和减法",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p127",
+      "name": "轴对称",
+      "chapter": "四年级下册 第7单元 图形的运动（二）",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p106",
+      "name": "除数是两位数的除法",
+      "chapter": "四年级下册 第9单元 除数是两位数的除法",
+      "grade": 4,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p237",
+      "name": "观察简单组合体",
+      "chapter": "五年级上册 第1单元 观察简单组合体",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p132",
+      "name": "小数乘整数",
+      "chapter": "五年级上册 第2单元 小数乘法",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p098",
+      "name": "公顷和平方千米",
+      "chapter": "五年级上册 第6单元 多边形的面积",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p147",
+      "name": "平行四边形的面积",
+      "chapter": "五年级上册 第6单元 多边形的面积",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p151",
+      "name": "植树问题",
+      "chapter": "五年级上册 第8单元 复习与关联",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p160",
+      "name": "长方体和正方体的认识",
+      "chapter": "五年级下册 第3单元 长方体和正方体",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p161",
+      "name": "长方体的表面积",
+      "chapter": "五年级下册 第3单元 长方体和正方体",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p162",
+      "name": "体积单位",
+      "chapter": "五年级下册 第3单元 长方体和正方体",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p165",
+      "name": "分数的意义",
+      "chapter": "五年级下册 第4单元 分数的意义和性质",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p173",
+      "name": "异分母分数加减",
+      "chapter": "五年级下册 第6单元 分数的加法和减法",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p174",
+      "name": "分数加减混合",
+      "chapter": "五年级下册 第6单元 分数的加法和减法",
+      "grade": 5,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p136",
+      "name": "用数对确定位置",
+      "chapter": "六年级上册 第1单元 确定位置",
+      "grade": 6,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p180",
+      "name": "根据方向和距离确定位置",
+      "chapter": "六年级上册 第1单元 确定位置",
+      "grade": 6,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p188",
+      "name": "圆的认识",
+      "chapter": "六年级上册 第4单元 圆",
+      "grade": 6,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p192",
+      "name": "圆的面积",
+      "chapter": "六年级上册 第4单元 圆",
+      "grade": 6,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p193",
+      "name": "扇形的认识",
+      "chapter": "六年级上册 第4单元 圆",
+      "grade": 6,
+      "inScope": false
+    },
+    {
+      "id": "cnm_p200",
+      "name": "数与形",
+      "chapter": "六年级下册 第6单元 整理和复习",
+      "grade": 6,
+      "inScope": false
+    },
+    {
+      "id": "cnm_051",
+      "name": "从不同方向看与立体图形的展开图",
+      "chapter": "七上 第六章 几何图形初步 6.1.1",
+      "grade": 7,
+      "inScope": false
+    },
+    {
+      "id": "cnm_053",
+      "name": "直线、射线、线段",
+      "chapter": "七上 第六章 几何图形初步 6.2.1",
+      "grade": 7,
+      "inScope": false
+    },
+    {
+      "id": "cnm_056",
+      "name": "角的概念与表示",
+      "chapter": "七上 第六章 几何图形初步 6.3.1",
+      "grade": 7,
+      "inScope": false
+    },
+    {
+      "id": "cnm_102",
+      "name": "全面调查与抽样调查",
+      "chapter": "七下 第十二章 数据的收集、整理与描述 12.1.1",
+      "grade": 7,
+      "inScope": false
+    },
+    {
+      "id": "cnm_106",
+      "name": "频数分布表与数据分组",
+      "chapter": "七下 第十二章 数据的收集、整理与描述 12.2.2",
+      "grade": 7,
+      "inScope": false
+    },
+    {
+      "id": "cnm_131",
+      "name": "轴对称图形与两个图形成轴对称",
+      "chapter": "八上 第十五章 轴对称 15.1",
+      "grade": 8,
+      "inScope": false
+    },
+    {
+      "id": "cnm_148",
+      "name": "完全平方公式",
+      "chapter": "八上 第十六章 整式的乘法 16.3",
+      "grade": 8,
+      "inScope": false
+    },
+    {
+      "id": "cnm_h230",
+      "name": "分类加法计数原理",
+      "chapter": "选必三 第六章 计数原理 6.1",
+      "grade": 14,
+      "inScope": false
+    }
+  ],
+  "edges": [
+    {
+      "topicId": "cnm_p002",
+      "prerequisiteId": "cnm_p001",
+      "strength": "hard",
+      "reason": "学习「5以内数的大小」需要先掌握「1到5各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p003",
+      "prerequisiteId": "cnm_p001",
+      "strength": "hard",
+      "reason": "学习「几和第几」需要先掌握「1到5各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p004",
+      "prerequisiteId": "cnm_p001",
+      "strength": "hard",
+      "reason": "学习「5以内数的分与合」需要先掌握「1到5各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p005",
+      "prerequisiteId": "cnm_p001",
+      "strength": "hard",
+      "reason": "学习「0的认识」需要先掌握「1到5各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p006",
+      "prerequisiteId": "cnm_p004",
+      "strength": "hard",
+      "reason": "学习「5以内的加法」需要先掌握「5以内数的分与合」。"
+    },
+    {
+      "topicId": "cnm_p007",
+      "prerequisiteId": "cnm_p006",
+      "strength": "hard",
+      "reason": "学习「5以内的减法」需要先掌握「5以内的加法」。"
+    },
+    {
+      "topicId": "cnm_p008",
+      "prerequisiteId": "cnm_p001",
+      "strength": "hard",
+      "reason": "学习「6到10各数的认识」需要先掌握「1到5各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p009",
+      "prerequisiteId": "cnm_p008",
+      "strength": "hard",
+      "reason": "学习「10以内数的比较」需要先掌握「6到10各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p009",
+      "prerequisiteId": "cnm_p002",
+      "strength": "hard",
+      "reason": "学习「10以内数的比较」需要先掌握「5以内数的大小」。"
+    },
+    {
+      "topicId": "cnm_p010",
+      "prerequisiteId": "cnm_p006",
+      "strength": "hard",
+      "reason": "学习「10以内的加法」需要先掌握「5以内的加法」。"
+    },
+    {
+      "topicId": "cnm_p010",
+      "prerequisiteId": "cnm_p008",
+      "strength": "hard",
+      "reason": "学习「10以内的加法」需要先掌握「6到10各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p011",
+      "prerequisiteId": "cnm_p007",
+      "strength": "hard",
+      "reason": "学习「10以内的减法」需要先掌握「5以内的减法」。"
+    },
+    {
+      "topicId": "cnm_p011",
+      "prerequisiteId": "cnm_p010",
+      "strength": "hard",
+      "reason": "学习「10以内的减法」需要先掌握「10以内的加法」。"
+    },
+    {
+      "topicId": "cnm_p012",
+      "prerequisiteId": "cnm_p011",
+      "strength": "hard",
+      "reason": "学习「连加和连减」需要先掌握「10以内的减法」。"
+    },
+    {
+      "topicId": "cnm_p013",
+      "prerequisiteId": "cnm_p012",
+      "strength": "hard",
+      "reason": "学习「10以内加减混合」需要先掌握「连加和连减」。"
+    },
+    {
+      "topicId": "cnm_p014",
+      "prerequisiteId": "cnm_p001",
+      "strength": "hard",
+      "reason": "学习「认识长方体、正方体、圆柱和球」需要先掌握「1到5各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p015",
+      "prerequisiteId": "cnm_p001",
+      "strength": "hard",
+      "reason": "学习「上下前后左右」需要先掌握「1到5各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p016",
+      "prerequisiteId": "cnm_p008",
+      "strength": "hard",
+      "reason": "学习「11到20各数的认识」需要先掌握「6到10各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p017",
+      "prerequisiteId": "cnm_p016",
+      "strength": "hard",
+      "reason": "学习「十位和个位」需要先掌握「11到20各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p018",
+      "prerequisiteId": "cnm_p017",
+      "strength": "hard",
+      "reason": "学习「20以内不进位加法」需要先掌握「十位和个位」。"
+    },
+    {
+      "topicId": "cnm_p018",
+      "prerequisiteId": "cnm_p010",
+      "strength": "hard",
+      "reason": "学习「20以内不进位加法」需要先掌握「10以内的加法」。"
+    },
+    {
+      "topicId": "cnm_p019",
+      "prerequisiteId": "cnm_p010",
+      "strength": "hard",
+      "reason": "学习「凑十法」需要先掌握「10以内的加法」。"
+    },
+    {
+      "topicId": "cnm_p020",
+      "prerequisiteId": "cnm_p019",
+      "strength": "hard",
+      "reason": "学习「9加几」需要先掌握「凑十法」。"
+    },
+    {
+      "topicId": "cnm_p021",
+      "prerequisiteId": "cnm_p020",
+      "strength": "hard",
+      "reason": "学习「8、7、6加几」需要先掌握「9加几」。"
+    },
+    {
+      "topicId": "cnm_p022",
+      "prerequisiteId": "cnm_p008",
+      "strength": "hard",
+      "reason": "学习「用数介绍和简单分类」需要先掌握「6到10各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p023",
+      "prerequisiteId": "cnm_p014",
+      "strength": "hard",
+      "reason": "学习「认识长方形、正方形、三角形和圆」需要先掌握「认识长方体、正方体、圆柱和球」。"
+    },
+    {
+      "topicId": "cnm_p024",
+      "prerequisiteId": "cnm_p023",
+      "strength": "hard",
+      "reason": "学习「平面图形的拼组」需要先掌握「认识长方形、正方形、三角形和圆」。"
+    },
+    {
+      "topicId": "cnm_p025",
+      "prerequisiteId": "cnm_p020",
+      "strength": "hard",
+      "reason": "学习「十几减9」需要先掌握「9加几」。"
+    },
+    {
+      "topicId": "cnm_p026",
+      "prerequisiteId": "cnm_p025",
+      "strength": "hard",
+      "reason": "学习「十几减8、7、6」需要先掌握「十几减9」。"
+    },
+    {
+      "topicId": "cnm_p026",
+      "prerequisiteId": "cnm_p021",
+      "strength": "hard",
+      "reason": "学习「十几减8、7、6」需要先掌握「8、7、6加几」。"
+    },
+    {
+      "topicId": "cnm_p027",
+      "prerequisiteId": "cnm_p026",
+      "strength": "hard",
+      "reason": "学习「十几减5、4、3、2」需要先掌握「十几减8、7、6」。"
+    },
+    {
+      "topicId": "cnm_p028",
+      "prerequisiteId": "cnm_p016",
+      "strength": "hard",
+      "reason": "学习「100以内数的认识」需要先掌握「11到20各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p029",
+      "prerequisiteId": "cnm_p028",
+      "strength": "hard",
+      "reason": "学习「100以内数的大小」需要先掌握「100以内数的认识」。"
+    },
+    {
+      "topicId": "cnm_p029",
+      "prerequisiteId": "cnm_p009",
+      "strength": "hard",
+      "reason": "学习「100以内数的大小」需要先掌握「10以内数的比较」。"
+    },
+    {
+      "topicId": "cnm_p030",
+      "prerequisiteId": "cnm_p028",
+      "strength": "hard",
+      "reason": "学习「整十数的加减」需要先掌握「100以内数的认识」。"
+    },
+    {
+      "topicId": "cnm_p030",
+      "prerequisiteId": "cnm_p010",
+      "strength": "hard",
+      "reason": "学习「整十数的加减」需要先掌握「10以内的加法」。"
+    },
+    {
+      "topicId": "cnm_p031",
+      "prerequisiteId": "cnm_p030",
+      "strength": "hard",
+      "reason": "学习「100以内口算加法」需要先掌握「整十数的加减」。"
+    },
+    {
+      "topicId": "cnm_p031",
+      "prerequisiteId": "cnm_p021",
+      "strength": "hard",
+      "reason": "学习「100以内口算加法」需要先掌握「8、7、6加几」。"
+    },
+    {
+      "topicId": "cnm_p032",
+      "prerequisiteId": "cnm_p031",
+      "strength": "hard",
+      "reason": "学习「100以内口算减法」需要先掌握「100以内口算加法」。"
+    },
+    {
+      "topicId": "cnm_p032",
+      "prerequisiteId": "cnm_p027",
+      "strength": "hard",
+      "reason": "学习「100以内口算减法」需要先掌握「十几减5、4、3、2」。"
+    },
+    {
+      "topicId": "cnm_p033",
+      "prerequisiteId": "cnm_p031",
+      "strength": "hard",
+      "reason": "学习「100以内笔算加法」需要先掌握「100以内口算加法」。"
+    },
+    {
+      "topicId": "cnm_p034",
+      "prerequisiteId": "cnm_p032",
+      "strength": "hard",
+      "reason": "学习「100以内笔算减法」需要先掌握「100以内口算减法」。"
+    },
+    {
+      "topicId": "cnm_p034",
+      "prerequisiteId": "cnm_p033",
+      "strength": "hard",
+      "reason": "学习「100以内笔算减法」需要先掌握「100以内笔算加法」。"
+    },
+    {
+      "topicId": "cnm_p035",
+      "prerequisiteId": "cnm_p034",
+      "strength": "hard",
+      "reason": "学习「部分与总数」需要先掌握「100以内笔算减法」。"
+    },
+    {
+      "topicId": "cnm_p036",
+      "prerequisiteId": "cnm_p030",
+      "strength": "hard",
+      "reason": "学习「认识人民币」需要先掌握「整十数的加减」。"
+    },
+    {
+      "topicId": "cnm_p037",
+      "prerequisiteId": "cnm_p022",
+      "strength": "hard",
+      "reason": "学习「分类与整理」需要先掌握「用数介绍和简单分类」。"
+    },
+    {
+      "topicId": "cnm_p037",
+      "prerequisiteId": "cnm_p029",
+      "strength": "hard",
+      "reason": "学习「分类与整理」需要先掌握「100以内数的大小」。"
+    },
+    {
+      "topicId": "cnm_p038",
+      "prerequisiteId": "cnm_p012",
+      "strength": "hard",
+      "reason": "学习「乘法的意义」需要先掌握「连加和连减」。"
+    },
+    {
+      "topicId": "cnm_p040",
+      "prerequisiteId": "cnm_p008",
+      "strength": "hard",
+      "reason": "学习「认识厘米」需要先掌握「6到10各数的认识」。"
+    },
+    {
+      "topicId": "cnm_p049",
+      "prerequisiteId": "cnm_p015",
+      "strength": "hard",
+      "reason": "学习「东、南、西、北」需要先掌握「上下前后左右」。"
+    },
+    {
+      "topicId": "cnm_p053",
+      "prerequisiteId": "cnm_p028",
+      "strength": "hard",
+      "reason": "学习「万以内数的认识」需要先掌握「100以内数的认识」。"
+    },
+    {
+      "topicId": "cnm_p054",
+      "prerequisiteId": "cnm_p029",
+      "strength": "hard",
+      "reason": "学习「万以内数的大小比较」需要先掌握「100以内数的大小」。"
+    },
+    {
+      "topicId": "cnm_p056",
+      "prerequisiteId": "cnm_p028",
+      "strength": "hard",
+      "reason": "学习「克和千克」需要先掌握「100以内数的认识」。"
+    },
+    {
+      "topicId": "cnm_p056",
+      "prerequisiteId": "cnm_p041",
+      "strength": "hard",
+      "reason": "学习「克和千克」需要先掌握「认识米」。"
+    },
+    {
+      "topicId": "cnm_p057",
+      "prerequisiteId": "cnm_p031",
+      "strength": "hard",
+      "reason": "学习「乘加乘减的运算顺序」需要先掌握「100以内口算加法」。"
+    },
+    {
+      "topicId": "cnm_p058",
+      "prerequisiteId": "cnm_p057",
+      "strength": "hard",
+      "reason": "学习「带小括号的两步运算」需要先掌握「乘加乘减的运算顺序」。"
+    },
+    {
+      "topicId": "cnm_p059",
+      "prerequisiteId": "cnm_p058",
+      "strength": "hard",
+      "reason": "学习「两步加减应用」需要先掌握「带小括号的两步运算」。"
+    },
+    {
+      "topicId": "cnm_p059",
+      "prerequisiteId": "cnm_p035",
+      "strength": "hard",
+      "reason": "学习「两步加减应用」需要先掌握「部分与总数」。"
+    },
+    {
+      "topicId": "cnm_p060",
+      "prerequisiteId": "cnm_p010",
+      "strength": "hard",
+      "reason": "学习「简单的变化规律」需要先掌握「10以内的加法」。"
+    },
+    {
+      "topicId": "cnm_p060",
+      "prerequisiteId": "cnm_p028",
+      "strength": "hard",
+      "reason": "学习「简单的变化规律」需要先掌握「100以内数的认识」。"
+    },
+    {
+      "topicId": "cnm_p061",
+      "prerequisiteId": "cnm_p028",
+      "strength": "hard",
+      "reason": "学习「秒的认识」需要先掌握「100以内数的认识」。"
+    },
+    {
+      "topicId": "cnm_p063",
+      "prerequisiteId": "cnm_p032",
+      "strength": "hard",
+      "reason": "学习「经过时间」需要先掌握「100以内口算减法」。"
+    },
+    {
+      "topicId": "cnm_p064",
+      "prerequisiteId": "cnm_p033",
+      "strength": "hard",
+      "reason": "学习「几百几十的口算加法」需要先掌握「100以内笔算加法」。"
+    },
+    {
+      "topicId": "cnm_p065",
+      "prerequisiteId": "cnm_p034",
+      "strength": "hard",
+      "reason": "学习「几百几十的口算减法」需要先掌握「100以内笔算减法」。"
+    },
+    {
+      "topicId": "cnm_p067",
+      "prerequisiteId": "cnm_p040",
+      "strength": "hard",
+      "reason": "学习「毫米」需要先掌握「认识厘米」。"
+    },
+    {
+      "topicId": "cnm_p068",
+      "prerequisiteId": "cnm_p067",
+      "strength": "hard",
+      "reason": "学习「分米」需要先掌握「毫米」。"
+    },
+    {
+      "topicId": "cnm_p069",
+      "prerequisiteId": "cnm_p041",
+      "strength": "hard",
+      "reason": "学习「千米」需要先掌握「认识米」。"
+    },
+    {
+      "topicId": "cnm_p070",
+      "prerequisiteId": "cnm_p056",
+      "strength": "hard",
+      "reason": "学习「吨的认识」需要先掌握「克和千克」。"
+    },
+    {
+      "topicId": "cnm_p073",
+      "prerequisiteId": "cnm_p042",
+      "strength": "hard",
+      "reason": "学习「倍的认识」需要先掌握「7、8、9的乘法口诀」。"
+    },
+    {
+      "topicId": "cnm_p074",
+      "prerequisiteId": "cnm_p042",
+      "strength": "hard",
+      "reason": "学习「多位数乘一位数」需要先掌握「7、8、9的乘法口诀」。"
+    },
+    {
+      "topicId": "cnm_p074",
+      "prerequisiteId": "cnm_p071",
+      "strength": "hard",
+      "reason": "学习「多位数乘一位数」需要先掌握「三位数加法笔算」。"
+    },
+    {
+      "topicId": "cnm_p075",
+      "prerequisiteId": "cnm_p074",
+      "strength": "hard",
+      "reason": "学习「因数中间或末尾有 0 的乘法」需要先掌握「多位数乘一位数」。"
+    },
+    {
+      "topicId": "cnm_p076",
+      "prerequisiteId": "cnm_p053",
+      "strength": "hard",
+      "reason": "学习「数字编码」需要先掌握「万以内数的认识」。"
+    },
+    {
+      "topicId": "cnm_p077",
+      "prerequisiteId": "cnm_p023",
+      "strength": "hard",
+      "reason": "学习「长方形和正方形的特征」需要先掌握「认识长方形、正方形、三角形和圆」。"
+    },
+    {
+      "topicId": "cnm_p078",
+      "prerequisiteId": "cnm_p077",
+      "strength": "hard",
+      "reason": "学习「长方形和正方形的周长」需要先掌握「长方形和正方形的特征」。"
+    },
+    {
+      "topicId": "cnm_p078",
+      "prerequisiteId": "cnm_p033",
+      "strength": "hard",
+      "reason": "学习「长方形和正方形的周长」需要先掌握「100以内笔算加法」。"
+    },
+    {
+      "topicId": "cnm_p079",
+      "prerequisiteId": "cnm_p043",
+      "strength": "hard",
+      "reason": "学习「几分之一」需要先掌握「除法的意义」。"
+    },
+    {
+      "topicId": "cnm_p080",
+      "prerequisiteId": "cnm_p079",
+      "strength": "hard",
+      "reason": "学习「同分母分数的初步加减」需要先掌握「几分之一」。"
+    },
+    {
+      "topicId": "cnm_p081",
+      "prerequisiteId": "cnm_p034",
+      "strength": "hard",
+      "reason": "学习「集合图里的重叠」需要先掌握「100以内笔算减法」。"
+    },
+    {
+      "topicId": "cnm_p082",
+      "prerequisiteId": "cnm_p049",
+      "strength": "hard",
+      "reason": "学习「东北、东南、西北、西南」需要先掌握「东、南、西、北」。"
+    },
+    {
+      "topicId": "cnm_p083",
+      "prerequisiteId": "cnm_p044",
+      "strength": "hard",
+      "reason": "学习「除数是一位数的除法」需要先掌握「用7、8、9的口诀求商」。"
+    },
+    {
+      "topicId": "cnm_p083",
+      "prerequisiteId": "cnm_p074",
+      "strength": "hard",
+      "reason": "学习「除数是一位数的除法」需要先掌握「多位数乘一位数」。"
+    },
+    {
+      "topicId": "cnm_p084",
+      "prerequisiteId": "cnm_p083",
+      "strength": "hard",
+      "reason": "学习「除法解决实际问题」需要先掌握「除数是一位数的除法」。"
+    },
+    {
+      "topicId": "cnm_p085",
+      "prerequisiteId": "cnm_p037",
+      "strength": "hard",
+      "reason": "学习「复式统计表」需要先掌握「分类与整理」。"
+    },
+    {
+      "topicId": "cnm_p085",
+      "prerequisiteId": "cnm_p033",
+      "strength": "hard",
+      "reason": "学习「复式统计表」需要先掌握「100以内笔算加法」。"
+    },
+    {
+      "topicId": "cnm_p086",
+      "prerequisiteId": "cnm_p074",
+      "strength": "hard",
+      "reason": "学习「两位数乘两位数」需要先掌握「多位数乘一位数」。"
+    },
+    {
+      "topicId": "cnm_p088",
+      "prerequisiteId": "cnm_p078",
+      "strength": "hard",
+      "reason": "学习「面积的意义」需要先掌握「长方形和正方形的周长」。"
+    },
+    {
+      "topicId": "cnm_p089",
+      "prerequisiteId": "cnm_p088",
+      "strength": "hard",
+      "reason": "学习「长方形和正方形的面积」需要先掌握「面积的意义」。"
+    },
+    {
+      "topicId": "cnm_p089",
+      "prerequisiteId": "cnm_p074",
+      "strength": "hard",
+      "reason": "学习「长方形和正方形的面积」需要先掌握「多位数乘一位数」。"
+    },
+    {
+      "topicId": "cnm_p090",
+      "prerequisiteId": "cnm_p089",
+      "strength": "hard",
+      "reason": "学习「面积单位的换算」需要先掌握「长方形和正方形的面积」。"
+    },
+    {
+      "topicId": "cnm_p090",
+      "prerequisiteId": "cnm_p068",
+      "strength": "hard",
+      "reason": "学习「面积单位的换算」需要先掌握「分米」。"
+    },
+    {
+      "topicId": "cnm_p091",
+      "prerequisiteId": "cnm_p062",
+      "strength": "hard",
+      "reason": "学习「年、月、日」需要先掌握「时、分、秒的进率」。"
+    },
+    {
+      "topicId": "cnm_p092",
+      "prerequisiteId": "cnm_p091",
+      "strength": "hard",
+      "reason": "学习「24时记时法」需要先掌握「年、月、日」。"
+    },
+    {
+      "topicId": "cnm_p093",
+      "prerequisiteId": "cnm_p079",
+      "strength": "hard",
+      "reason": "学习「一位小数的初步认识」需要先掌握「几分之一」。"
+    },
+    {
+      "topicId": "cnm_p093",
+      "prerequisiteId": "cnm_p036",
+      "strength": "hard",
+      "reason": "学习「一位小数的初步认识」需要先掌握「认识人民币」。"
+    },
+    {
+      "topicId": "cnm_p094",
+      "prerequisiteId": "cnm_p093",
+      "strength": "hard",
+      "reason": "学习「一位小数的加减」需要先掌握「一位小数的初步认识」。"
+    },
+    {
+      "topicId": "cnm_p095",
+      "prerequisiteId": "cnm_p039",
+      "strength": "hard",
+      "reason": "学习「简单的搭配」需要先掌握「2到6的乘法口诀」。"
+    },
+    {
+      "topicId": "cnm_p098",
+      "prerequisiteId": "cnm_p090",
+      "strength": "hard",
+      "reason": "学习「公顷和平方千米」需要先掌握「面积单位的换算」。"
+    },
+    {
+      "topicId": "cnm_p098",
+      "prerequisiteId": "cnm_p069",
+      "strength": "hard",
+      "reason": "学习「公顷和平方千米」需要先掌握「千米」。"
+    },
+    {
+      "topicId": "cnm_p099",
+      "prerequisiteId": "cnm_p040",
+      "strength": "hard",
+      "reason": "学习「线段、直线和射线」需要先掌握「认识厘米」。"
+    },
+    {
+      "topicId": "cnm_p100",
+      "prerequisiteId": "cnm_p099",
+      "strength": "hard",
+      "reason": "学习「角的度量」需要先掌握「线段、直线和射线」。"
+    },
+    {
+      "topicId": "cnm_p103",
+      "prerequisiteId": "cnm_p101",
+      "strength": "hard",
+      "reason": "学习「垂直」需要先掌握「锐角、直角和钝角」。"
+    },
+    {
+      "topicId": "cnm_p106",
+      "prerequisiteId": "cnm_p083",
+      "strength": "hard",
+      "reason": "学习「除数是两位数的除法」需要先掌握「除数是一位数的除法」。"
+    },
+    {
+      "topicId": "cnm_p108",
+      "prerequisiteId": "cnm_p085",
+      "strength": "hard",
+      "reason": "学习「条形统计图」需要先掌握「复式统计表」。"
+    },
+    {
+      "topicId": "cnm_p109",
+      "prerequisiteId": "cnm_p033",
+      "strength": "hard",
+      "reason": "学习「简单的优化」需要先掌握「100以内笔算加法」。"
+    },
+    {
+      "topicId": "cnm_p110",
+      "prerequisiteId": "cnm_p059",
+      "strength": "hard",
+      "reason": "学习「四则运算各部分间的关系」需要先掌握「两步加减应用」。"
+    },
+    {
+      "topicId": "cnm_p111",
+      "prerequisiteId": "cnm_p084",
+      "strength": "hard",
+      "reason": "学习「常见数量关系」需要先掌握「除法解决实际问题」。"
+    },
+    {
+      "topicId": "cnm_p113",
+      "prerequisiteId": "cnm_p023",
+      "strength": "hard",
+      "reason": "学习「从不同方向观察物体」需要先掌握「认识长方形、正方形、三角形和圆」。"
+    },
+    {
+      "topicId": "cnm_p118",
+      "prerequisiteId": "cnm_p093",
+      "strength": "hard",
+      "reason": "学习「小数的意义」需要先掌握「一位小数的初步认识」。"
+    },
+    {
+      "topicId": "cnm_p119",
+      "prerequisiteId": "cnm_p029",
+      "strength": "hard",
+      "reason": "学习「比较小数的大小」需要先掌握「100以内数的大小」。"
+    },
+    {
+      "topicId": "cnm_p125",
+      "prerequisiteId": "cnm_p094",
+      "strength": "hard",
+      "reason": "学习「小数加减法」需要先掌握「一位小数的加减」。"
+    },
+    {
+      "topicId": "cnm_p125",
+      "prerequisiteId": "cnm_p033",
+      "strength": "hard",
+      "reason": "学习「小数加减法」需要先掌握「100以内笔算加法」。"
+    },
+    {
+      "topicId": "cnm_p127",
+      "prerequisiteId": "cnm_p099",
+      "strength": "hard",
+      "reason": "学习「轴对称」需要先掌握「线段、直线和射线」。"
+    },
+    {
+      "topicId": "cnm_p132",
+      "prerequisiteId": "cnm_p074",
+      "strength": "hard",
+      "reason": "学习「小数乘整数」需要先掌握「多位数乘一位数」。"
+    },
+    {
+      "topicId": "cnm_p136",
+      "prerequisiteId": "cnm_p082",
+      "strength": "hard",
+      "reason": "学习「用数对确定位置」需要先掌握「东北、东南、西北、西南」。"
+    },
+    {
+      "topicId": "cnm_p147",
+      "prerequisiteId": "cnm_p089",
+      "strength": "hard",
+      "reason": "学习「平行四边形的面积」需要先掌握「长方形和正方形的面积」。"
+    },
+    {
+      "topicId": "cnm_p151",
+      "prerequisiteId": "cnm_p099",
+      "strength": "hard",
+      "reason": "学习「植树问题」需要先掌握「线段、直线和射线」。"
+    },
+    {
+      "topicId": "cnm_p160",
+      "prerequisiteId": "cnm_p077",
+      "strength": "hard",
+      "reason": "学习「长方体和正方体的认识」需要先掌握「长方形和正方形的特征」。"
+    },
+    {
+      "topicId": "cnm_p161",
+      "prerequisiteId": "cnm_p089",
+      "strength": "hard",
+      "reason": "学习「长方体的表面积」需要先掌握「长方形和正方形的面积」。"
+    },
+    {
+      "topicId": "cnm_p162",
+      "prerequisiteId": "cnm_p090",
+      "strength": "hard",
+      "reason": "学习「体积单位」需要先掌握「面积单位的换算」。"
+    },
+    {
+      "topicId": "cnm_p165",
+      "prerequisiteId": "cnm_p079",
+      "strength": "hard",
+      "reason": "学习「分数的意义」需要先掌握「几分之一」。"
+    },
+    {
+      "topicId": "cnm_p173",
+      "prerequisiteId": "cnm_p080",
+      "strength": "hard",
+      "reason": "学习「异分母分数加减」需要先掌握「同分母分数的初步加减」。"
+    },
+    {
+      "topicId": "cnm_p174",
+      "prerequisiteId": "cnm_p058",
+      "strength": "hard",
+      "reason": "学习「分数加减混合」需要先掌握「带小括号的两步运算」。"
+    },
+    {
+      "topicId": "cnm_p180",
+      "prerequisiteId": "cnm_p099",
+      "strength": "hard",
+      "reason": "学习「根据方向和距离确定位置」需要先掌握「线段、直线和射线」。"
+    },
+    {
+      "topicId": "cnm_p188",
+      "prerequisiteId": "cnm_p099",
+      "strength": "hard",
+      "reason": "学习「圆的认识」需要先掌握「线段、直线和射线」。"
+    },
+    {
+      "topicId": "cnm_p192",
+      "prerequisiteId": "cnm_p089",
+      "strength": "hard",
+      "reason": "学习「圆的面积」需要先掌握「长方形和正方形的面积」。"
+    },
+    {
+      "topicId": "cnm_p193",
+      "prerequisiteId": "cnm_p101",
+      "strength": "hard",
+      "reason": "学习「扇形的认识」需要先掌握「锐角、直角和钝角」。"
+    },
+    {
+      "topicId": "cnm_p200",
+      "prerequisiteId": "cnm_p089",
+      "strength": "soft",
+      "reason": "「长方形和正方形的面积」对学习「数与形」有帮助，但不会前者也可以开始学后者。"
+    },
+    {
+      "topicId": "cnm_102",
+      "prerequisiteId": "cnm_p085",
+      "strength": "hard",
+      "reason": "学习「全面调查与抽样调查」需要先会小学的「复式统计表」。小学已学数据收集与整理。"
+    },
+    {
+      "topicId": "cnm_106",
+      "prerequisiteId": "cnm_p085",
+      "strength": "hard",
+      "reason": "学习「频数分布表与数据分组」需要先会小学的「复式统计表」。对数据分组整理要以小学学过的统计表和统计图知识为基础。"
+    },
+    {
+      "topicId": "cnm_148",
+      "prerequisiteId": "cnm_p089",
+      "strength": "soft",
+      "reason": "学习「完全平方公式」需要先会小学的「长方形和正方形的面积」。完全平方公式可以用小学学过的正方形和长方形面积图形来直观解释。"
+    },
+    {
+      "topicId": "cnm_h230",
+      "prerequisiteId": "cnm_p095",
+      "strength": "hard",
+      "reason": "分类加法是小学里简单搭配继续发展后的计数原理。"
+    },
+    {
+      "topicId": "cnm_p217",
+      "prerequisiteId": "cnm_p034",
+      "strength": "hard",
+      "reason": "学习「求两数相差几」需要先掌握「100以内笔算减法」。"
+    },
+    {
+      "topicId": "cnm_p217",
+      "prerequisiteId": "cnm_p009",
+      "strength": "soft",
+      "reason": "学习「求两数相差几」需要先掌握「10以内数的比较」。"
+    },
+    {
+      "topicId": "cnm_p218",
+      "prerequisiteId": "cnm_p217",
+      "strength": "hard",
+      "reason": "学习「求比一个数多（少）几的数」需要先掌握「求两数相差几」。"
+    },
+    {
+      "topicId": "cnm_p218",
+      "prerequisiteId": "cnm_p033",
+      "strength": "hard",
+      "reason": "学习「求比一个数多（少）几的数」需要先掌握「100以内笔算加法」。"
+    },
+    {
+      "topicId": "cnm_p221",
+      "prerequisiteId": "cnm_p014",
+      "strength": "hard",
+      "reason": "学习「观察简单的立体积木」需要先掌握「认识长方体、正方体、圆柱和球」。"
+    },
+    {
+      "topicId": "cnm_p221",
+      "prerequisiteId": "cnm_p023",
+      "strength": "soft",
+      "reason": "学习「观察简单的立体积木」需要先掌握「认识长方形、正方形、三角形和圆」。"
+    },
+    {
+      "topicId": "cnm_p222",
+      "prerequisiteId": "cnm_p221",
+      "strength": "hard",
+      "reason": "学习「长方体纸盒的展开图」需要先掌握「观察简单的立体积木」。"
+    },
+    {
+      "topicId": "cnm_p222",
+      "prerequisiteId": "cnm_p014",
+      "strength": "hard",
+      "reason": "学习「长方体纸盒的展开图」需要先掌握「认识长方体、正方体、圆柱和球」。"
+    },
+    {
+      "topicId": "cnm_p223",
+      "prerequisiteId": "cnm_p057",
+      "strength": "hard",
+      "reason": "学习「同级运算与两级运算的运算顺序」需要先掌握「乘加乘减的运算顺序」。"
+    },
+    {
+      "topicId": "cnm_p223",
+      "prerequisiteId": "cnm_p220",
+      "strength": "soft",
+      "reason": "学习「同级运算与两级运算的运算顺序」需要先掌握「加减法各部分间的关系」。"
+    },
+    {
+      "topicId": "cnm_p224",
+      "prerequisiteId": "cnm_p219",
+      "strength": "hard",
+      "reason": "学习「等量代换（曹冲称象）」需要先掌握「数量间的乘除关系」。"
+    },
+    {
+      "topicId": "cnm_p224",
+      "prerequisiteId": "cnm_p056",
+      "strength": "soft",
+      "reason": "学习「等量代换（曹冲称象）」需要先掌握「克和千克」。"
+    },
+    {
+      "topicId": "cnm_p225",
+      "prerequisiteId": "cnm_p099",
+      "strength": "hard",
+      "reason": "学习「角的认识」需要先掌握「线段、直线和射线」。"
+    },
+    {
+      "topicId": "cnm_p225",
+      "prerequisiteId": "cnm_p023",
+      "strength": "soft",
+      "reason": "学习「角的认识」需要先掌握「认识长方形、正方形、三角形和圆」。"
+    },
+    {
+      "topicId": "cnm_p226",
+      "prerequisiteId": "cnm_p079",
+      "strength": "hard",
+      "reason": "学习「几分之几」需要先掌握「几分之一」。"
+    },
+    {
+      "topicId": "cnm_p227",
+      "prerequisiteId": "cnm_p226",
+      "strength": "hard",
+      "reason": "学习「简单的分数大小比较」需要先掌握「几分之几」。"
+    },
+    {
+      "topicId": "cnm_p227",
+      "prerequisiteId": "cnm_p079",
+      "strength": "hard",
+      "reason": "学习「简单的分数大小比较」需要先掌握「几分之一」。"
+    },
+    {
+      "topicId": "cnm_p228",
+      "prerequisiteId": "cnm_p023",
+      "strength": "hard",
+      "reason": "学习「生活中的运动现象」需要先掌握「认识长方形、正方形、三角形和圆」。"
+    },
+    {
+      "topicId": "cnm_p228",
+      "prerequisiteId": "cnm_p024",
+      "strength": "soft",
+      "reason": "学习「生活中的运动现象」需要先掌握「平面图形的拼组」。"
+    },
+    {
+      "topicId": "cnm_p229",
+      "prerequisiteId": "cnm_p023",
+      "strength": "hard",
+      "reason": "学习「多边形的认识」需要先掌握「认识长方形、正方形、三角形和圆」。"
+    },
+    {
+      "topicId": "cnm_p229",
+      "prerequisiteId": "cnm_p225",
+      "strength": "soft",
+      "reason": "学习「多边形的认识」需要先掌握「角的认识」。"
+    },
+    {
+      "topicId": "cnm_p232",
+      "prerequisiteId": "cnm_p101",
+      "strength": "hard",
+      "reason": "学习「平角、周角和角的分类」需要先掌握「锐角、直角和钝角」。"
+    },
+    {
+      "topicId": "cnm_p237",
+      "prerequisiteId": "cnm_p221",
+      "strength": "hard",
+      "reason": "学习「观察简单组合体」需要先掌握「观察简单的立体积木」。"
+    },
+    {
+      "topicId": "cnm_p058",
+      "prerequisiteId": "cnm_p223",
+      "strength": "hard",
+      "reason": "学习「带小括号的两步运算」需要先掌握「同级运算与两级运算的运算顺序」。"
+    },
+    {
+      "topicId": "cnm_p101",
+      "prerequisiteId": "cnm_p225",
+      "strength": "hard",
+      "reason": "学习「锐角、直角和钝角」需要先掌握「角的认识」。"
+    },
+    {
+      "topicId": "cnm_p080",
+      "prerequisiteId": "cnm_p226",
+      "strength": "soft",
+      "reason": "学习「同分母分数的初步加减」需要先掌握「几分之几」。"
+    },
+    {
+      "topicId": "cnm_p077",
+      "prerequisiteId": "cnm_p229",
+      "strength": "soft",
+      "reason": "学习「长方形和正方形的特征」需要先掌握「多边形的认识」。"
+    },
+    {
+      "topicId": "cnm_056",
+      "prerequisiteId": "cnm_p225",
+      "strength": "hard",
+      "reason": "学习「角的概念与表示」需要先掌握「角的认识」。"
+    },
+    {
+      "topicId": "cnm_053",
+      "prerequisiteId": "cnm_p099",
+      "strength": "hard",
+      "reason": "学习「直线、射线、线段」需要先掌握「线段、直线和射线」。"
+    },
+    {
+      "topicId": "cnm_051",
+      "prerequisiteId": "cnm_p222",
+      "strength": "soft",
+      "reason": "学习「从不同方向看与立体图形的展开图」需要先掌握「长方体纸盒的展开图」。"
+    },
+    {
+      "topicId": "cnm_131",
+      "prerequisiteId": "cnm_p228",
+      "strength": "soft",
+      "reason": "学习「轴对称图形与两个图形成轴对称」需要先掌握「生活中的运动现象」。"
+    }
+  ]
+}
