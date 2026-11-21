@@ -1,5 +1,35 @@
+# --- 原有（保留）---
 node_modules/
 .wrangler/
 .dev.vars
 .DS_Store
 src/index.tuned.mjs
+__pycache__/
+*.pyc
+
+# --- 生成的 hashed 静态资源（hash-assets.mjs 从 .orig 与源图重建，不进库）---
+public/static/app.*.js
+public/static/style.*.css
+public/static/engine-local.*.js
+public/static/care-room.*.js
+public/static/battle-scene.*.js
+public/static/icon-*.*.png
+public/static/img/
+public/static/asset-manifest.json
+public/static/manifest.json
+
+# --- 备份 / 快照（留磁盘，不进库）---
+*.bak
+*.orig.orig
+src/index.js.orig
+tests/*.orig
+backups/
+work/
+tasks/
+
+# --- 日志 / 记录类文档（不是源文件，不进库）---
+DEPLOY.md
+AUDIT-duplication-*.md
+任务单-*.md
+quiz-bank.json
+index-16104a16-for-claude.js

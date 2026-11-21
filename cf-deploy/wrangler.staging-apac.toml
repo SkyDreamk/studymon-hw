@@ -25,3 +25,6 @@ TEST_MODE = "1"
 [[r2_buckets]]
 binding = "PHOTOS"
 bucket_name = "YOUR_R2_BUCKET"
+
+[ai]
+binding = "AI"

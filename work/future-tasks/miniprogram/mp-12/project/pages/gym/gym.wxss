@@ -61,7 +61,7 @@
 .gy-banner-checkin {
   font-size: 28rpx;
   font-weight: 600;
-  color: #232323;
+  color: #222222;
 }
 
 .gy-banner-day {
@@ -250,7 +250,7 @@
 .gy-boss-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #232323;
+  color: #222222;
   margin-right: 10rpx;
 }
 

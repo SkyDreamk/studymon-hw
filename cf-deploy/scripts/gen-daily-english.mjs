@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const poolUrl = new URL('../work/daily-english-pool.json', import.meta.url);
 const srcUrl = new URL('../src/data/daily-english.js', import.meta.url);
 
-const EXPECTED = { xiaobao: 236, dabao: 1100 };
+const EXPECTED = { xiaobao: 464, dabao: 1462 };
 
 function build() {
   const raw = JSON.parse(readFileSync(poolUrl, 'utf8'));
@@ -49,7 +49,7 @@ function render({ episodes, pool, fetched }) {
  * 快照日期：${fetched || '2026-11-13'}（work/daily-english-pool.json）
  * 刷新方法：python3 work/extract-daily-english-pool.py（经 API 重拉跟读站）→ node scripts/gen-daily-english.mjs --write（重生成本文件）
  * 内容只用快照原样数据，不得手改句子、翻译、音频。API version 变了重拉对应集，音频 URL 以最新响应为准。
- * 小宝池：g1＋starter，29 集 236 句（口语 card 82 句）；大宝池：g3，40 集 1100 句（口语 card 98＋video 677 句）。
+ * 小宝池：g1＋starter，43 集 464 句（口语 card 137＋video 173 句）；大宝池：g3，54 集 1462 句（口语 card 152＋video 985 句）。
  * 每日选题只取课本句（见 src/index.js dailyEnglishTodayFor；2026-11-13 用户定：每日英语走课本内容，口语对话归 Oak）。
  */
 

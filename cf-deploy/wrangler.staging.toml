@@ -2,6 +2,7 @@
 # 部署：python3 scripts/run-wrangler.py deploy -c wrangler.staging.toml
 # 迁移：python3 scripts/run-wrangler.py d1 migrations apply studymon-hw-test --remote -c wrangler.staging.toml
 name = "studymon-hw-test"
+workers_dev = false # 2026-11-19：停用 workers.dev 测试地址，测试站只用 test.example.com
 main = "src/index.js"
 compatibility_date = "2025-10-01"
 
@@ -28,7 +29,13 @@ database_id = "YOUR_D1_DATABASE_ID"
 [vars]
 TEST_MODE = "1"
 
+# 旧 PIN 登录过渡开关（用户系统 v2）：true=旧 /api/child/login、/api/parent/login 仍可用；上线第 7 天由 Miles 确认后改 false。
+LEGACY_PIN_LOGIN = "true"
+
 # 照片存储（R2）：账号已于 2026-10-20 开通 R2，测试桶 YOUR_R2_BUCKET 已建。
 [[r2_buckets]]
 binding = "PHOTOS"
 bucket_name = "YOUR_R2_BUCKET"
+
+[ai]
+binding = "AI"

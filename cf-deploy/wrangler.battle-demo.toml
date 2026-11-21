@@ -1,0 +1,9 @@
+# 战斗场景 demo（PixiJS v8 道馆）独立静态站，仅供验收预览。
+# 与主站 studymon-hw 无关，不接后端、不读数据库。
+name = "battle-scene-demo"
+compatibility_date = "2025-10-01"
+
+routes = [{ pattern = "battle-demo.example.com", custom_domain = true }]
+
+[assets]
+directory = "../work/battle-scene-deploy/public"

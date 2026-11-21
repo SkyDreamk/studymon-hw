@@ -11,6 +11,10 @@
         <image class="kid-avatar" src="/images/avatar-charmander.webp" mode="aspectFit" />
         <view class="kid-info">一年级 · 伙伴</view>
       </view>
+      <view class="kid-card" bindtap="selectChild" data-id="3">
+        <image class="kid-avatar" src="/images/avatar-bulbasaur.webp" mode="aspectFit" />
+        <view class="kid-info">测试 · 三年级</view>
+      </view>
     </view>
   </view>
 

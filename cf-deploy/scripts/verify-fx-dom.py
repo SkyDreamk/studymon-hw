@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """手感动效 DOM 轮询验证（测试站专用）：亚秒级动画用截图抓不到，改用高频 DOM 轮询取证。
 用法: xvfb-run -a ~/workspace/.venv/pw/bin/python scripts/verify-fx-dom.py quiz|battle
-前置: 本地代理 127.0.0.1:8888 在跑；测试站家长 PIN（占位符 YOUR_PIN）。
+前置: 本地代理 127.0.0.1:8888 在跑；测试站家长 PIN 1234。
 """
 import json
 import subprocess
@@ -27,7 +27,7 @@ def parent_login(page):
     # 故这里用页面内 fetch 直接换家长会话（与垫子提交的是同一个接口）。
     page.goto(BASE + "/", wait_until="domcontentloaded")
     page.wait_for_timeout(1200)
-    j = api(page, "/api/parent/login", {"pin": "0000"})
+    j = api(page, "/api/parent/login", {"pin": "1234"})
     assert j.get("ok"), f"parent login failed: {j}"
     page.reload(wait_until="domcontentloaded")
     page.wait_for_timeout(1500)

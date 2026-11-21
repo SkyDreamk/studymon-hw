@@ -52,6 +52,7 @@ function walk(dir) {
 const publicFiles = () => walk('public');
 const baseFiles = [
   'static/app.js', 'static/style.css', 'static/engine-local.js', 'static/care-room.js', // 任务 122：养成小房间懒加载 bundle，与 app.js/style.css 同一 hash
+  'static/battle-scene.js', // 任务 127：道馆 Pixi 对战舞台懒加载 bundle（work/battle-scene 构建产物），与 app.js 同一 hash
   ...nos.map(n => `static/img/p${n}.webp`),
   'static/img/avatar-charmander.webp',
   'static/img/avatar-pikachu.webp',
@@ -72,11 +73,11 @@ function discover() {
   const types = [...new Set(disk
     .map(p => strip(p.slice('public/'.length)))
     .filter(p => /^static\/img\/types\/[^/]+\.webp$/.test(p)))].sort();
-  if (types.length !== 10) throw new Error(`types 图标数量应为 10，实际 ${types.length}`);
+  if (types.length !== 18) throw new Error(`types 图标数量应为 18，实际 ${types.length}`); // 2026-11-17：补齐 18 种属性图标（此前 10 种）
   const icons = [...new Set(disk
     .map(p => strip(p.slice('public/'.length)))
     .filter(p => /^static\/img\/icons\/[^/]+\.webp$/.test(p)))].sort();
-  if (icons.length !== 31) throw new Error(`icons 图标数量应为 31，实际 ${icons.length}`);
+  if (icons.length !== 32) throw new Error(`icons 图标数量应为 32，实际 ${icons.length}`); // 2026-11-17：Oak LAB 透明图标入 icons/
   const bases = [...baseFiles, ...types, ...icons].sort();
   const located = {};
   for (const base of bases) {
@@ -114,16 +115,21 @@ const rules = {
     ['icon-192.png', 1], ['icon-512.png', 1], ['icon-512-maskable.png', 1],
   ],
   'src/index.js': [
-    ['const petImg = (no) => `/static/img/p${no}.webp`;', 1],
+    // 2026-11-21 模块化拆分：petImg 搬到 src/lib/shared.js，锚点随之移过去（见下）
     // v11：头像改为三元兜底（专属头像线用 avatar- 文件，其余线用形态立绘），锚点只取模板字面量
-    ['`/static/img/avatar-${c.line}.webp`', 1],
+    // 2026-11-16 用户系统 v2：选人页（rolePage）已重写成用户名密码登录页，原 `avatar-${c.line}` 锚点随之下线；childSummary 的 `avatar-${child.line}` 仍在
     ['`/static/img/avatar-${child.line}.webp`', 1],
     ['href="/static/icon-180.png"', 1],
     ['href="/static/icon-192.png"', 1],
     ["'/static/icon-180.png'", 2],
   ],
+  'src/lib/shared.js': [
+    // 2026-11-21 模块化拆分：petImg 从 src/index.js 搬到这里
+    ['const petImg = (no) => `/static/img/p${no}.webp`;', 1],
+  ],
   'public/static/app.js': [
     ['/static/care-room.js', 1], // 任务 122：careRoomEnsure 动态 import，懒加载
+    ['/static/battle-scene.js', 1], // 任务 127：battleSceneEnsure 动态 import，进道馆对战才加载
     ['/static/engine-local.js', 1], // 对战修复批 #4：lcLoadEngine 动态 import，离线本地对战才加载
     ['`/static/img/p${p.no}.webp`', 2],
     ['`/static/img/p${hp.no}.webp`', 1],
@@ -134,6 +140,7 @@ const rules = {
     ["/static/img/types/${TYPE_EN[m.type] || 'normal'}.webp", 1], // 2026-11-06：对战选技能图标排复用同一锚点（伙伴招式列表＋对战选技能各 1 处）；2026-11-09 任务 72：SVG 换生成图 webp；2026-11-13 任务 106：两处渲染改走 moveIconSrc，属性图标模板只剩兜底里的 1 处
     ['/static/img/types/${en}.webp', 2], // 2026-11-09 任务 74：图鉴筛选 chips 复用同一锚点（typeChip 属性徽标＋筛选 chip 各 1 处）
     ['`/static/img/icons/${slug}.webp`', 1], // 2026-11-09 任务 72：道具图标（ITEM_ICON_SRC 模板）
+    ['/static/img/icons/oak-lab.webp', 1], // 2026-11-17：Oak 跟读弹窗顶栏 miles LAB 透明图标（静态字面量引用）
   ],
 };
 

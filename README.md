@@ -69,7 +69,7 @@ python3 scripts/run-wrangler.py deploy -c wrangler.toml           # 正式站
 
 ```
 cf-deploy/                 # 网站：Workers 后端 + 前端 + 测试 + 迁移
-  src/                     # 后端入口（src/index.js）
+  src/                     # 后端入口（src/index.js）+ 路由模块（src/routes/）+ 共享逻辑（src/lib/shared.js）
   public/static/           # 前端 .orig 源码（app.js.orig、style.css.orig…）
   scripts/                 # 运维与部署脚本（含 hash-assets.mjs）
   tests/                   # Node 单测（node --test）

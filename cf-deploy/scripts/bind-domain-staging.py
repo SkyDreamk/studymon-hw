@@ -9,7 +9,7 @@ sys.path.insert(0, "/opt/muse/skills/custom-connector-setup/bin")
 from dynamic_credentials import add_surrogate_to_request, read_json_response
 
 ACCOUNT = "YOUR_CLOUDFLARE_ACCOUNT_ID"
-ZONE_ID = "YOUR_CLOUDFLARE_ZONE_ID"  # example.com
+ZONE_ID = "f67f526f1a4e95247c0cf8ff978489a7"  # example.com
 HOSTNAME = "test.example.com"
 SERVICE = "studymon-hw-test"
 BASE = "https://api.cloudflare.com/client/v4"

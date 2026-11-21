@@ -8,9 +8,9 @@ CREATE TABLE settings (
 
 -- 种子设置（部署迁移时写入）
 INSERT INTO settings (key, value) VALUES
-  -- 家庭密码默认值（见 README.md；部署前请修改）
+  -- 家庭密码默认值（见 DEPLOY.md；用户可在设置里修改）
   ('family_password', '5ea632ef78c3e6d64653087d3f810972f97691ae93e064b08e6dbca4a671cb8d'),
-  -- 家长 PIN 默认值（占位符，部署前请修改）的哈希
+  -- 家长 PIN 默认 1234 的哈希
   ('pin', '9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0'),
   ('pin_fail_count', '0'),
   ('pin_locked_until', '0'),

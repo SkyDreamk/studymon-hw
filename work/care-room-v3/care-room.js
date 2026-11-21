@@ -494,12 +494,38 @@ function releaseSharedStyles() {
 
 /**
  * 轻量 Web Audio 音效合成器（无外部音频文件依赖）
+ * 叫声解锁用静音音频（跟喊招配音同一路数，审查 S21）：iOS Safari 会拒绝未解锁
+ * 的 Audio 元素播放，表现为直接回落 boop；首次用户手势内用静音音频解锁一次即可。
  */
+const CRY_SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+// 各物种定制随机库（动画原声 / 翻配）：键为物种编号，值为 {dir, count}。
+// 点按时随机播库里一句，失败回落官方 latest/legacy，再失败才回落 boop。
+// 只做主线宠物（皮卡丘线、伊布、小火龙线、杰尼龟线、妙蛙种子线）：
+// 皮卡丘/雷丘是小红书跟读视频 21 句（干净无音乐）；其余主线各 1 句，均为 Azure 翻配（Ana 儿童声，+30%）。
+// 非主线（波克比/波加曼/水水獭/果然翁/喵喵）不会出现在养成里（只主宠出现），故不配音、不接线。
+const CUSTOM_CRY_LIBS = {
+  25: { dir: 'pikachu-lib', count: 21 },
+  26: { dir: 'pikachu-lib', count: 21 },
+  133: { dir: 'eevee-lib', count: 1 },
+  1: { dir: 'bulbasaur-lib', count: 1 },
+  2: { dir: 'ivysaur-lib', count: 1 },
+  3: { dir: 'venusaur-lib', count: 1 },
+  4: { dir: 'charmander-lib', count: 1 },
+  5: { dir: 'charmeleon-lib', count: 1 },
+  6: { dir: 'charizard-lib', count: 1 },
+  7: { dir: 'squirtle-lib', count: 1 },
+  8: { dir: 'wartortle-lib', count: 1 },
+  9: { dir: 'blastoise-lib', count: 1 },
+};
+
 class CareSoundPlayer {
   constructor(isMutedFn) {
     this.isMutedFn = isMutedFn;
     this.ctx = null;
     this.closed = false;
+    this.cryAudio = null; // 复用一个 Audio 元素放官方叫声（跟招式配音同一路数）
+    this.unlockAudio = null; // 解锁专用元素：与 cryAudio 分开（性能优化#8）
+    this.cryUnlocked = false;
   }
 
   unlock() {
@@ -515,6 +541,22 @@ class CareSoundPlayer {
       }
     } catch {
       // 忽略浏览器策略限制
+    }
+    // 叫声 Audio 元素也顺手解锁（iOS Safari：未解锁的元素 play() 会被拒）。
+    // 性能优化#8：解锁用独立元素（unlockAudio），不与 cryAudio 共用——旧代码在 unlock() 里
+    // 把 cryAudio.src 设为静音 WAV 紧接着 playCry() 又在同一同步流程里把同一元素的 src 改成
+    // 真实叫声 URL，设 src 会打断正在进行的加载/播放，解锁那次播放还没开始就被 abort，
+    // 实际没起到解锁作用；独立元素则解锁播放不受干扰。 */
+    try {
+      if (!this.cryUnlocked) {
+        this.cryUnlocked = true;
+        if (!this.unlockAudio) this.unlockAudio = new Audio();
+        this.unlockAudio.src = CRY_SILENT_WAV;
+        const p = this.unlockAudio.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    } catch {
+      // 解锁失败静默，后续播放再试
     }
   }
 
@@ -548,6 +590,40 @@ class CareSoundPlayer {
 
   playPetBoop() {
     this.playTone(520, 320, 0.105, 0, 'triangle', 0.06);
+  }
+
+  // 官方叫声：每次点按在 latest / legacy 两个版本里随机挑一个播；
+  // 某版本文件缺失（如 700 号无 legacy）或播放失败时换另一版本，再失败才回落 boop。
+  // 有定制库的物种（见 CUSTOM_CRY_LIBS）先随机播库里一句，失败再回落官方。
+  playCry(no) {
+    if (this.closed || this.isMutedFn()) return;
+    const n = Number(no);
+    if (!Number.isSafeInteger(n) || n <= 0) { this.playPetBoop(); return; }
+    const first = Math.random() < 0.5 ? '' : 'legacy/';
+    const urls = [];
+    const lib = CUSTOM_CRY_LIBS[n];
+    if (lib) {
+      const i = 1 + Math.floor(Math.random() * lib.count);
+      urls.push(`/static/audio/cries/${lib.dir}/cry-${String(i).padStart(2, '0')}.mp3`);
+    }
+    urls.push(`/static/audio/cries/${first}p${n}.mp3`, `/static/audio/cries/${first ? '' : 'legacy/'}p${n}.mp3`);
+    this._playCryUrl(urls, 0);
+  }
+
+  _playCryUrl(urls, i) {
+    if (i >= urls.length) { this.playPetBoop(); return; }
+    try {
+      if (!this.cryAudio) this.cryAudio = new Audio();
+      const a = this.cryAudio;
+      let tried = false;
+      const next = () => { if (!tried) { tried = true; this._playCryUrl(urls, i + 1); } };
+      a.onerror = next;
+      a.src = urls[i];
+      const p = a.play();
+      if (p && p.catch) p.catch(next);
+    } catch {
+      this._playCryUrl(urls, i + 1);
+    }
   }
 
   playFeedSuccess(favorite) {
@@ -1489,7 +1565,14 @@ export async function mount(container, opts = {}) {
     requestAnimationFrame(step);
   }
 
-  // 摸一摸交互
+  // 当前精灵的物种编号：从立绘 URL /static/img/p{no}[.{hash}].webp 解析（立绘文件名带 hash）；解析不到返回 0（走 boop 回落）
+  function petSpeciesNo() {
+    const img = (petInfo && petInfo.img) ? String(petInfo.img) : '';
+    const m = /\/p(\d+)(?:\.[0-9a-f]{8})?\.webp/i.exec(img);
+    return m ? Number(m[1]) : 0;
+  }
+
+  // 摸一摸交互：播该精灵的官方叫声（叫声文件缺失时回落到原来的 boop）
   function handlePetActivate() {
     if (destroyed || isBusyNow()) return;
     const now = performance.now();
@@ -1497,7 +1580,7 @@ export async function mount(container, opts = {}) {
     lastPetTapMs = now;
 
     sound.unlock();
-    sound.playPetBoop();
+    sound.playCry(petSpeciesNo());
     try {
       navigator.vibrate?.(12);
     } catch {
