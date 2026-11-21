@@ -1,0 +1,1 @@
+{ "type": "module", "scripts": { "test": "node --experimental-strip-types --no-warnings --test test/logic.test.ts test/care.test.ts test/worker.test.ts test/care-worker.test.ts" } }
