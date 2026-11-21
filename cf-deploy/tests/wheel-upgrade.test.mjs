@@ -12,7 +12,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0023_care_qa_and_friendship.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0023_care_qa_and_friendship.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0040_oak_wheel_chances.sql', '0042_quiz_photo.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -36,7 +36,7 @@ function makeEnv(migrations = MIGRATIONS) {
   };
   return {
     env: { DB: db, TEST_MODE: '1', ASSETS: { fetch: async () => new Response('<html>app</html>', { headers: { 'Content-Type': 'text/html' } }) },
-      IFLYTEK_APPID: 'test-appid', IFLYTEK_API_KEY: 'test-apikey-fedcba9876543210', IFLYTEK_API_SECRET: 'test-secret-dummy-fedcba9876543210' },
+      IFLYTEK_APPID: 'test-appid', IFLYTEK_API_KEY: 'test-apikey-0123456789abcdef', IFLYTEK_API_SECRET: 'test-secret-dummy-0123456789abcdef' },
     raw,
   };
 }
@@ -244,88 +244,86 @@ describe('迁移 0025：oak_draws 重建', () => {
 });
 
 describe('Oak 新奖品授予（HTTP＋mock 讯飞）', () => {
-  test('抽中 care:apple：背包 +1、流水 reason oak-draw、oak_draws 记 prize=item/prize_key', async () => {
+  test('转盘里抽中 care:apple：背包 +1、流水 reason oak-wheel，不再记 oak_draws 行', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
     const before = raw.prepare('SELECT total_xp, balls FROM children WHERE id=1').get();
     let last;
-    await withRandom(0.32, async () => {
-      for (let i = 0; i < 6; i++) last = await assess(cookie, 1, t.sentences[i].en, 90);
-    });
-    assert.equal(last.j.draw.prize, 'item');
-    assert.equal(last.j.draw.prizeKey, 'care:apple');
-    assert.equal(last.j.draw.prizeName, '红苹果');
+    for (let i = 0; i < 6; i++) last = await assess(cookie, 1, t.sentences[i].en, 90);
+    assert.equal(last.j.drawGranted, true);
+    assert.equal(last.j.justGranted, true);
+    assert.equal(invQty(1, 'care:apple'), 0, '没扭之前不发奖');
+    assert.equal(oakDraws().length, 0, '2026-11-17 起够格只发机会，不再记 oak_draws 行');
+    const spin = await withRandom(0.32, () => call('/api/oak-wheel/spin', { method: 'POST', body: { childId: 1 }, cookie }));
+    assert.equal(spin.status, 200, JSON.stringify(spin.j));
+    assert.equal(spin.j.prize.kind, 'item');
+    assert.equal(spin.j.prize.key, 'care:apple');
+    assert.equal(spin.j.prize.name, '红苹果');
     assert.equal(invQty(1, 'care:apple'), 1);
     const led = raw.prepare("SELECT * FROM item_ledger WHERE child_id=1 AND item_key='care:apple'").all();
     assert.equal(led.length, 1);
     assert.equal(led[0].delta, 1);
-    assert.equal(led[0].reason, 'oak-draw');
-    const ds = oakDraws();
-    assert.equal(ds.length, 1);
-    assert.equal(ds[0].prize, 'item');
-    assert.equal(ds[0].prize_key, 'care:apple');
+    assert.equal(led[0].reason, 'oak-wheel');
     assert.deepEqual(raw.prepare('SELECT total_xp, balls FROM children WHERE id=1').get(), before, 'care 奖品不加经验、不加球');
   });
 
-  test('新抽与复读均带 wheel：18 扇区、权重和 100、winnerIndex 指回本次奖品', async () => {
+  test('转盘 spin 带 wheel：18 扇区、权重和 100、winnerIndex 指回本次奖品', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
     let last;
-    await withRandom(0.32, async () => {
-      for (let i = 0; i < 6; i++) last = await assess(cookie, 1, t.sentences[i].en, 90);
-    });
-    assert.equal(last.j.draw.prizeKey, 'care:apple');
-    assert.equal(last.j.draw.justDrawn, true);
-    const w = last.j.draw.wheel;
+    for (let i = 0; i < 6; i++) last = await assess(cookie, 1, t.sentences[i].en, 90);
+    assert.equal(last.j.drawGranted, true);
+    assert.equal(last.j.justGranted, true);
+    // 复读（/api/oak/today）只带发机会态，不再带已掷奖品与 wheel
+    const again = await today(cookie, 1);
+    assert.equal(again.drawGranted, true);
+    assert.equal(again.draw, undefined);
+    const spin = await withRandom(0.32, () => call('/api/oak-wheel/spin', { method: 'POST', body: { childId: 1 }, cookie }));
+    assert.equal(spin.status, 200, JSON.stringify(spin.j));
+    assert.equal(spin.j.prize.key, 'care:apple');
+    const w = spin.j.wheel;
     assert.equal(w.sectors.length, 18);
     assert.equal(w.total, 100);
     assert.equal(w.sectors[w.winnerIndex].key, 'care:apple');
-    // 复读（/api/oak/today 走 oakDrawView）也带同一 wheel，前端同一 draw 不会重复弹
-    const again = await today(cookie, 1);
-    assert.equal(again.draw.prizeKey, 'care:apple');
-    assert.deepEqual(again.draw.wheel, w);
   });
 
   test('抽中活力碎片：走 addItem 进背包、奖品名/emoji 正确', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
-    let last;
-    await withRandom(0.89, async () => {
-      for (let i = 0; i < 6; i++) last = await assess(cookie, 1, t.sentences[i].en, 90);
-    });
-    assert.equal(last.j.draw.prize, 'item');
-    assert.equal(last.j.draw.prizeKey, 'medicine:revive');
-    assert.equal(last.j.draw.prizeName, '活力碎片');
-    assert.equal(last.j.draw.prizeEmoji, '✨');
+    for (let i = 0; i < 6; i++) await assess(cookie, 1, t.sentences[i].en, 90);
+    const spin = await withRandom(0.89, () => call('/api/oak-wheel/spin', { method: 'POST', body: { childId: 1 }, cookie }));
+    assert.equal(spin.status, 200, JSON.stringify(spin.j));
+    assert.equal(spin.j.prize.kind, 'item');
+    assert.equal(spin.j.prize.key, 'medicine:revive');
+    assert.equal(spin.j.prize.name, '活力碎片');
+    assert.equal(spin.j.prize.emoji, '✨');
     assert.equal(invQty(1, 'medicine:revive'), 1);
-    assert.equal(oakDraws()[0].prize_key, 'medicine:revive');
+    assert.equal(oakDraws().length, 0);
   });
 
   test('抽中高级球：走 addItem 进背包（ball:hyper 非普通球，不走发球记账）', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 2);
     const ballsBefore = raw.prepare('SELECT balls FROM children WHERE id=2').get().balls;
-    let last;
-    await withRandom(0.97, async () => {
-      for (let i = 0; i < 6; i++) last = await assess(cookie, 2, t.sentences[i].en, 90);
-    });
-    assert.equal(last.j.draw.prize, 'item');
-    assert.equal(last.j.draw.prizeKey, 'ball:hyper');
-    assert.equal(last.j.draw.prizeName, '高级球');
-    assert.equal(last.j.draw.prizeEmoji, '🟡');
+    for (let i = 0; i < 6; i++) await assess(cookie, 2, t.sentences[i].en, 90);
+    const spin = await withRandom(0.97, () => call('/api/oak-wheel/spin', { method: 'POST', body: { childId: 2 }, cookie }));
+    assert.equal(spin.status, 200, JSON.stringify(spin.j));
+    assert.equal(spin.j.prize.kind, 'item');
+    assert.equal(spin.j.prize.key, 'ball:hyper');
+    assert.equal(spin.j.prize.name, '高级球');
+    assert.equal(spin.j.prize.emoji, '🟡');
     assert.equal(invQty(2, 'ball:hyper'), 1);
-    assert.equal(oakDraws()[0].prize_key, 'ball:hyper');
+    assert.equal(oakDraws().length, 0);
     assert.equal(raw.prepare('SELECT balls FROM children WHERE id=2').get().balls, ballsBefore, '高级球不计入普通球数');
   });
 
   test('抽中好伤药：背包 +1', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
-    let last;
-    await withRandom(0.80, async () => {
-      for (let i = 0; i < 6; i++) last = await assess(cookie, 1, t.sentences[i].en, 90);
-    });
-    assert.equal(last.j.draw.prizeKey, 'medicine:super-potion');
+    for (let i = 0; i < 6; i++) await assess(cookie, 1, t.sentences[i].en, 90);
+    const spin = await withRandom(0.80, () => call('/api/oak-wheel/spin', { method: 'POST', body: { childId: 1 }, cookie }));
+    assert.equal(spin.status, 200, JSON.stringify(spin.j));
+    assert.equal(spin.j.prize.key, 'medicine:super-potion');
     assert.equal(invQty(1, 'medicine:super-potion'), 1);
   });
 });
@@ -333,27 +331,29 @@ describe('Oak 新奖品授予（HTTP＋mock 讯飞）', () => {
 describe('照顾消耗：care 奖品的使用路径', () => {
   async function enableCare() {
     const pc = await parentCookie();
-    const r = await call('/api/parent/settings/update', { method: 'POST', cookie: pc, body: { careEnabled: true } });
-    assert.equal(r.j.ok, true);
+    // 全站开关需 settings.global 权限，旧版会话没有；这里测奖品使用路径，直接写库
+    raw.prepare("INSERT INTO settings(key,value) VALUES('care_enabled','1') ON CONFLICT(key) DO UPDATE SET value=excluded.value").run();
     return pc;
   }
 
   test('有道具时喂食扣 1、最爱食物仍 +5 XP；当日再喂仍拒绝（每日一次不变）', async () => {
     const pc = await enableCare();
-    giveItem(1, 'care:berry', 2);
+    // 每天随机最爱（2026-11-20）：当天最爱由 careDailyFavorite 决定，不再是固定树果。
+    const fav = M.careDailyFavorite(1, todayStr()).food;
+    giveItem(1, 'care:' + fav, 2);
     const before = raw.prepare('SELECT total_xp FROM children WHERE id=1').get().total_xp;
-    const r = await call('/api/care/feed', { method: 'POST', cookie: pc, body: { childId: 1, food: 'berry' } });
+    const r = await call('/api/care/feed', { method: 'POST', cookie: pc, body: { childId: 1, food: fav } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.ok, true);
-    assert.equal(r.j.favorite, true, '皮卡丘最爱树果');
+    assert.equal(r.j.favorite, true, '当天最爱食物');
     assert.equal(r.j.xpAwarded, 5);
     assert.equal(r.j.friendshipAwarded, 10, '喂食 +10 友好度');
     assert.equal(r.j.friendship, 10);
-    assert.equal(invQty(1, 'care:berry'), 1, '扣 1 件');
+    assert.equal(invQty(1, 'care:' + fav), 1, '扣 1 件');
     assert.equal(raw.prepare('SELECT total_xp FROM children WHERE id=1').get().total_xp, before + 5);
-    const again = await call('/api/care/feed', { method: 'POST', cookie: pc, body: { childId: 1, food: 'berry' } });
+    const again = await call('/api/care/feed', { method: 'POST', cookie: pc, body: { childId: 1, food: fav } });
     assert.equal(again.j.code, 'ALREADY_DONE');
-    assert.equal(invQty(1, 'care:berry'), 1, '第二次被拒不重复扣');
+    assert.equal(invQty(1, 'care:' + fav), 1, '第二次被拒不重复扣');
   });
 
   test('无道具时喂食返回 NO_ITEM，不写记录、不加友好度', async () => {
@@ -410,33 +410,33 @@ describe('共用扇区配置（纯函数）', () => {
 });
 
 describe('高级转盘扇区（奖池不动，只加 wheel 字段）', () => {
-  test('WHEEL_POOL：新奖池 15 项、合计 147；扇区逐品类映射，蛋档权重归零时蛋扇区消失', () => {
+  test('WHEEL_POOL：新奖池 15 项、合计 15；扇区逐品类映射，蛋档权重归零时蛋扇区消失', () => {
     assert.deepEqual(M.WHEEL_POOL, [
-      ['stone:sun', 25], ['stone:moon', 25], ['stone:fairy-skill', 25],
-      ['ball:hyper', 10], ['egg', 15], ['medicine:revive', 10],
-      ['stone:thunder', 5], ['stone:fire', 5], ['stone:water', 5], ['stone:leaf', 5], ['stone:ice', 5],
-      ['item:metal-coat', 3], ['item:electirizer', 3], ['item:protector', 3], ['item:black-augurite', 3],
+      ['stone:sun', 1], ['stone:moon', 1], ['stone:fairy-skill', 1],
+      ['ball:hyper', 1], ['egg', 1], ['medicine:revive', 1],
+      ['stone:thunder', 1], ['stone:fire', 1], ['stone:water', 1], ['stone:leaf', 1], ['stone:ice', 1],
+      ['item:metal-coat', 1], ['item:electirizer', 1], ['item:protector', 1], ['item:black-augurite', 1],
     ]);
-    assert.equal(M.WHEEL_POOL.reduce((a, [, w]) => a + w, 0), 147);
+    assert.equal(M.WHEEL_POOL.reduce((a, [, w]) => a + w, 0), 15);
     const full = M.buildWheelSectors([
-      { key: 'stone:sun', label: '日之石', emoji: '☀️', weight: 25 },
-      { key: 'stone:moon', label: '月之石', emoji: '🌙', weight: 25 },
-      { key: 'stone:fairy-skill', label: '妖精技能石', emoji: '🧚', weight: 25 },
-      { key: 'ball:hyper', label: '高级球', emoji: '🟡', weight: 10 },
-      { key: 'egg', label: '主宠蛋', emoji: '🥚', weight: 15 },
-      { key: 'medicine:revive', label: '活力碎片', emoji: '✨', weight: 10 },
-      { key: 'stone:thunder', label: '雷之石', emoji: '⚡', weight: 5 },
-      { key: 'stone:fire', label: '火之石', emoji: '🔥', weight: 5 },
-      { key: 'stone:water', label: '水之石', emoji: '💧', weight: 5 },
-      { key: 'stone:leaf', label: '叶之石', emoji: '🍃', weight: 5 },
-      { key: 'stone:ice', label: '冰之石', emoji: '🧊', weight: 5 },
-      { key: 'item:metal-coat', label: '金属膜', emoji: '🔩', weight: 3 },
-      { key: 'item:electirizer', label: '电力增强器', emoji: '🔌', weight: 3 },
-      { key: 'item:protector', label: '护具', emoji: '🛡️', weight: 3 },
-      { key: 'item:black-augurite', label: '黑奇石', emoji: '🪨', weight: 3 },
+      { key: 'stone:sun', label: '日之石', emoji: '☀️', weight: 1 },
+      { key: 'stone:moon', label: '月之石', emoji: '🌙', weight: 1 },
+      { key: 'stone:fairy-skill', label: '妖精技能石', emoji: '🧚', weight: 1 },
+      { key: 'ball:hyper', label: '高级球', emoji: '🟡', weight: 1 },
+      { key: 'egg', label: '主宠蛋', emoji: '🥚', weight: 1 },
+      { key: 'medicine:revive', label: '活力碎片', emoji: '✨', weight: 1 },
+      { key: 'stone:thunder', label: '雷之石', emoji: '⚡', weight: 1 },
+      { key: 'stone:fire', label: '火之石', emoji: '🔥', weight: 1 },
+      { key: 'stone:water', label: '水之石', emoji: '💧', weight: 1 },
+      { key: 'stone:leaf', label: '叶之石', emoji: '🍃', weight: 1 },
+      { key: 'stone:ice', label: '冰之石', emoji: '🧊', weight: 1 },
+      { key: 'item:metal-coat', label: '金属膜', emoji: '🔩', weight: 1 },
+      { key: 'item:electirizer', label: '电力增强器', emoji: '🔌', weight: 1 },
+      { key: 'item:protector', label: '护具', emoji: '🛡️', weight: 1 },
+      { key: 'item:black-augurite', label: '黑奇石', emoji: '🪨', weight: 1 },
     ]);
     assert.equal(full.sectors.length, 15);
-    assert.equal(full.total, 147);
+    assert.equal(full.total, 15);
     assert.equal(M.wheelWinnerIndex(full.sectors, 'egg'), 4);
     assert.equal(M.wheelWinnerIndex(full.sectors, 'medicine:revive'), 5);
     assert.equal(M.wheelWinnerIndex(full.sectors, 'item:metal-coat'), 11);
@@ -455,14 +455,14 @@ describe('高级转盘扇区（奖池不动，只加 wheel 字段）', () => {
     const recId = insertSchoolRecord(1, '期中考试', 90);
     raw.prepare('INSERT INTO wheel_chances(child_id, school_test_id, week_start, created_epoch, date_shanghai) VALUES(?,?,?,?,?)')
       .run(1, recId, M.weekStartMon(todayStr()), 100, todayStr());
-    // 新池合计 147，活力碎片段为 100~110/147，0.70 落段内
-    const r = await withRandom(0.70, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
+    // 新池合计 15，活力碎片段为 5~6/15，0.367 落段内
+    const r = await withRandom(0.367, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.prize.kind, 'medicine');
     assert.equal(r.j.prize.key, 'medicine:revive');
     assert.equal(r.j.chancesLeft, 0);
     assert.equal(r.j.wheel.sectors.length, 15);
-    assert.equal(r.j.wheel.total, 147);
+    assert.equal(r.j.wheel.total, 15);
     assert.equal(r.j.wheel.sectors[r.j.wheel.winnerIndex].key, 'medicine:revive');
   });
 
@@ -471,13 +471,13 @@ describe('高级转盘扇区（奖池不动，只加 wheel 字段）', () => {
     const cookie = await parentCookie();
     // 注意：rollWheelPrize 明确“伊布可重复”，133 永远留在蛋档里，所以蛋档权重永不归零、
     // 蛋扇区永不消失（任务单“蛋档全拥有时蛋扇区消失”的前提在现有去重口径下不成立，见交付说明）。
-    // 新池合计 147，蛋段为 85~100/147，0.6 落段内。
+    // 新池合计 15，蛋段为 4~5/15，0.3 落段内。
     for (const no of [1, 4, 7, 25]) ownSpecies(1, no);
-    assert.deepEqual(M.rollWheelPrize(() => 0.6, new Set([1, 4, 7, 25]), new Set()), { kind: 'egg', key: 'egg:133', species: 133 });
+    assert.deepEqual(M.rollWheelPrize(() => 0.3, new Set([1, 4, 7, 25]), new Set()), { kind: 'egg', key: 'egg:133', species: 133 });
     const recId = insertSchoolRecord(1, '期中考试', 90);
     raw.prepare('INSERT INTO wheel_chances(child_id, school_test_id, week_start, created_epoch, date_shanghai) VALUES(?,?,?,?,?)')
       .run(1, recId, M.weekStartMon(todayStr()), 100, todayStr());
-    const r = await withRandom(0.6, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
+    const r = await withRandom(0.3, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.prize.kind, 'egg');
     assert.equal(r.j.prize.species, 133);
@@ -671,20 +671,20 @@ describe('转盘奖池调整（2026-11-07）：进化石只进高级转盘', () 
     assert.deepEqual(M.oakPrizeDisplay('item', 'ball:hyper'), { prizeName: '高级球', prizeEmoji: '🟡' });
   });
 
-  test('WHEEL_POOL：15 项、合计 147，含全部 8 种进化石与 4 个连接交换道具，权重与任务单一致', () => {
+  test('WHEEL_POOL：15 项、合计 15，含全部 8 种进化石与 4 个连接交换道具，权重与任务单一致', () => {
     assert.equal(M.WHEEL_POOL.length, 15);
-    assert.equal(M.WHEEL_POOL.reduce((a, [, w]) => a + w, 0), 147);
+    assert.equal(M.WHEEL_POOL.reduce((a, [, w]) => a + w, 0), 15);
     for (const s of ['stone:thunder', 'stone:fire', 'stone:water', 'stone:leaf', 'stone:ice', 'stone:sun', 'stone:moon', 'stone:fairy-skill']) {
       assert.ok(M.WHEEL_POOL.some(([k]) => k === s), `高级转盘应含 ${s}`);
     }
     for (const it of ['item:metal-coat', 'item:electirizer', 'item:protector', 'item:black-augurite']) {
       assert.ok(M.WHEEL_POOL.some(([k]) => k === it), `高级转盘应含 ${it}`);
     }
-    assert.deepEqual(M.WHEEL_POOL.find(([k]) => k === 'stone:ice'), ['stone:ice', 5]);
-    assert.deepEqual(M.WHEEL_POOL.find(([k]) => k === 'item:protector'), ['item:protector', 3]);
-    // 逐项命中 9 个新增奖品（新池合计 147，段位按累积权重算）
+    assert.deepEqual(M.WHEEL_POOL.find(([k]) => k === 'stone:ice'), ['stone:ice', 1]);
+    assert.deepEqual(M.WHEEL_POOL.find(([k]) => k === 'item:protector'), ['item:protector', 1]);
+    // 逐项命中 9 个新增奖品（新池合计 15，段位按累积权重算）
     let cum = 0;
-    const total = 147;
+    const total = 15;
     for (const [key, w] of M.WHEEL_POOL) {
       const mid = (cum + w / 2) / total;
       const p = M.rollWheelPrize(() => mid, new Set(), new Set());
@@ -692,7 +692,7 @@ describe('转盘奖池调整（2026-11-07）：进化石只进高级转盘', () 
       else assert.deepEqual([p.kind, p.key], [key === 'ball:hyper' ? 'ball' : key.startsWith('medicine:') ? 'medicine' : 'stone', key], `rng ${mid} 应命中 ${key}`);
       cum += w;
     }
-    assert.equal(cum, 147);
+    assert.equal(cum, 15);
   });
 
   test('考试转盘转中雷之石：kind stone、进背包、扇区 15 个含新石头', async () => {
@@ -701,15 +701,15 @@ describe('转盘奖池调整（2026-11-07）：进化石只进高级转盘', () 
     const recId = insertSchoolRecord(1, '期中考试', 90);
     raw.prepare('INSERT INTO wheel_chances(child_id, school_test_id, week_start, created_epoch, date_shanghai) VALUES(?,?,?,?,?)')
       .run(1, recId, M.weekStartMon(todayStr()), 100, todayStr());
-    // 雷之石段为 110~115/147，0.76 落段内
-    const r = await withRandom(0.76, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
+    // 雷之石段为 6~7/15，0.433 落段内
+    const r = await withRandom(0.433, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.prize.kind, 'stone');
     assert.equal(r.j.prize.key, 'stone:thunder');
     assert.equal(r.j.prize.name, '雷之石');
     assert.equal(invQty(1, 'stone:thunder'), 1);
     assert.equal(r.j.wheel.sectors.length, 15);
-    assert.equal(r.j.wheel.total, 147);
+    assert.equal(r.j.wheel.total, 15);
     assert.equal(r.j.wheel.sectors[r.j.wheel.winnerIndex].key, 'stone:thunder');
   });
 
@@ -719,8 +719,8 @@ describe('转盘奖池调整（2026-11-07）：进化石只进高级转盘', () 
     const recId = insertSchoolRecord(1, '期中考试', 90);
     raw.prepare('INSERT INTO wheel_chances(child_id, school_test_id, week_start, created_epoch, date_shanghai) VALUES(?,?,?,?,?)')
       .run(1, recId, M.weekStartMon(todayStr()), 100, todayStr());
-    // 金属膜段为 135~138/147，0.93 落段内
-    const r = await withRandom(0.93, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
+    // 金属膜段为 11~12/15，0.767 落段内
+    const r = await withRandom(0.767, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.prize.kind, 'stone');
     assert.equal(r.j.prize.key, 'item:metal-coat');

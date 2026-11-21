@@ -9,6 +9,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { assetPath } from './asset-path.mjs';
+import { readBackendSource } from './backend-src.mjs';
 
 const APP = readFileSync(assetPath('app.js'), 'utf8');
 const CSS = readFileSync(assetPath('style.css'), 'utf8');
@@ -89,7 +90,7 @@ describe('B1b 快孵化的蛋柔光与标签', () => {
   });
 
   test('源码：仅改前端，后端 src/index.js 未引入 egg-soon 或孵化提醒文案', () => {
-    const backend = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+    const backend = readBackendSource();
     assert.doesNotMatch(backend, /egg-soon|快孵化啦|Hatching soon!/);
   });
 });
@@ -141,7 +142,7 @@ describe('B3 连续打卡距下次开箱倒计时', () => {
     assert.ok(m);
     const line = m[1];
     assert.ok(line.includes('距离下次开箱还差'));
-    assert.ok(line.includes('days to your next streak box'));
+    assert.ok(line.includes('Next streak box in '));
     assert.ok(line.includes('本周开箱已达成'));
     assert.ok(line.includes('Weekly box earned!'));
   });
@@ -176,7 +177,7 @@ describe('B3 连续打卡距下次开箱倒计时', () => {
         assert.equal(en, 'Weekly box earned!', `streak=${streak} en`);
       } else {
         assert.equal(zh, `距离下次开箱还差 ${days} 天`, `streak=${streak} zh`);
-        assert.equal(en, `${days} days to your next streak box`, `streak=${streak} en`);
+        assert.equal(en, `Next streak box in ${days} day${days === 1 ? '' : 's'}`, `streak=${streak} en`);
       }
     }
   });

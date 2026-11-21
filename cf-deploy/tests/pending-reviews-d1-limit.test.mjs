@@ -18,7 +18,7 @@ const MIGRATIONS = [
   '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql',
   '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql',
   '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql',
-  '0021_skill_levels.sql', '0022_warehouse.sql',
+  '0021_skill_levels.sql', '0022_warehouse.sql', '0043_pet_instances_ability.sql',
 ];
 
 function makeEnv() {
@@ -88,7 +88,7 @@ function seedPending(raw, n) {
     ids.push(id);
     let photos = 0;
     if (i % 5 !== 0) {
-      raw.prepare("INSERT INTO checkin_photos(checkin_id, object_key, content_type, size) VALUES(?, ?, 'image/jpeg', 2048)").run(id, 'k' + id);
+      raw.prepare("INSERT INTO checkin_photos(checkin_id, object_key, content_type, size) VALUES(?, ?, 'image/jpeg', 1234)").run(id, 'k' + id);
       photos = 1;
     }
     if (i % 10 === 1) {

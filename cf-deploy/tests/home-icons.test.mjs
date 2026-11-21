@@ -111,7 +111,7 @@ describe('图标落地（任务 107）', () => {
     assert.ok(appSrc.includes("${tr('上传学校成绩', 'Upload School Results')}"), '上传学校成绩仍是纯中文（须双语；注意 loadSchoolTestEntry 是顶层函数，bi 不在作用域内，只能用全局 tr）');
     assert.ok(!appSrc.includes('<button class="bigbtn blue icbtn" onclick="openSchoolTestUpload'), '上传学校成绩仍是蓝色主按钮（须降为次按钮）');
     assert.ok(cssSrc.includes('.bigbtn.icbtn.hero{justify-content:center;height:64px;padding:8px 16px;border:0;border-radius:22px}'), '缺 hero 规则');
-    assert.ok(cssSrc.includes('.bigbtn.icbtn.secondary{justify-content:center;height:56px;padding:6px 16px;border:2px solid #E7C9A0;border-radius:22px;background:#FFF6E3'), '缺 secondary 规则');
+    assert.ok(cssSrc.includes('.bigbtn.icbtn.secondary{justify-content:center;height:56px;padding:6px 16px;border:2px solid #FFC98A;border-radius:22px;background:#fff'), '缺 secondary 规则');
   });
 
   test('icbtn 基础：flex 左对齐、gap 12、内边距 8px 16px；图标尺寸改由底板定', () => {
@@ -163,7 +163,7 @@ describe('图标落地（任务 107）', () => {
     assert.ok(cssSrc.includes('.bigbtn.blue{background:var(--blue);color:var(--text);box-shadow:none}'), 'blue 仍有阴影');
     assert.ok(cssSrc.includes('.bigbtn.green{background:var(--green);color:var(--text);box-shadow:none}'), 'green 仍有阴影');
     assert.ok(cssSrc.includes('.bigbtn.ghost{background:#fff;color:var(--text);border:2px solid var(--orange);box-shadow:none}'), 'ghost 仍有阴影');
-    assert.ok(cssSrc.includes('.bigbtn.icbtn.secondary{justify-content:center;height:56px;padding:6px 16px;border:2px solid #E7C9A0;border-radius:22px;background:#FFF6E3;box-shadow:none}'), 'secondary 仍有阴影');
+    assert.ok(cssSrc.includes('.bigbtn.icbtn.secondary{justify-content:center;height:56px;padding:6px 16px;border:2px solid #FFC98A;border-radius:22px;background:#fff;box-shadow:none}'), 'secondary 仍有阴影');
   });
 
   test('每日行高 64、图标 44；招式格 76、图标 52；图标投影统一', () => {
@@ -197,7 +197,8 @@ describe('大木博士之家三按钮：中英双语同一文本块对齐（2026
     for (const [zh, en] of [['精灵仓库', 'Pokémon Storage'], ['伙伴养成', 'Partner Care'], ['转盘中心', 'Wheel Hub']]) {
       assert.ok(appSrc.includes(`\${biTx('${zh}', '${en}')}`), `${zh} 未用 biTx`);
     }
-    assert.ok(appSrc.includes('const biTx = (zh, en) => isBi ? `<span class="bi-tx"><span class="bi-en">${en}</span><span class="bi-sub">${zh}</span></span>` : `<span class="bi-tx">${zh}</span>`;'), '缺 biTx 定义');
+    // 任务 94 (JS-M1)：biTx 改读 state.lang（openOak 的 isBi 已删）
+    assert.ok(appSrc.includes('const biTx = (zh, en) => state.lang === \'en\' ? `<span class="bi-tx"><span class="bi-en">${en}</span><span class="bi-sub">${zh}</span></span>` : `<span class="bi-tx">${zh}</span>`;'), '缺 biTx 定义');
   });
 
   test('openOak 三按钮里无裸 bi()（裸 bi 在 flex 按钮内会被拆成英文／中文两个并排 item，基线对不上）', () => {

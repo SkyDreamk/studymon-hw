@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 const M = await import(new URL('../src/index.js', import.meta.url));
 
 // 可种子随机数，保证选题目可复现
-const seeded = (s) => () => (s = (s * 1103515245 + 13579) % 2147483648) / 2147483648;
+const seeded = (s) => () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
 
 describe('xpForLevel 不动（既有曲线）', () => {
   test('阈值', () => {
@@ -121,6 +121,142 @@ describe('selectDailyQuestions（当日选题）', () => {
     const got = M.selectDailyQuestions(rows, { gradeNum: 1, subjects: ['语文'], excludeIds: [1, 2], rng: seeded(11) });
     // 一年级语文全被排除（禁用题 12 不可用），科目槽落空；2026-11-09 起不再用谜语兜底，无题
     assert.equal(got.length, 0);
+  });
+
+const defaultGates = () => ({
+    mathGate: M.mathGateFor(3, '三年级上册 第2单元 观察物体'),
+    chineseGate: M.chineseGateFor(3, '三年级上册 第2单元'),
+    englishGate: M.englishGateFor(3, '三年级上册 Unit 2 Different families'),
+  });
+
+  test('1. 传入真实语文/英语进度门时，chapter 为 null 的自定义语文题可被语文槽位选中', () => {
+    const today = M.shDateStr();
+    const rows = [
+      { id: 101, kind: 'custom', grade: 3, subject: '语文', chapter: null, active: 1 },
+      { id: 102, kind: 'study', grade: 3, subject: '语文', chapter: '三年级上册 第1单元', active: 1 },
+    ];
+    const picked = M.selectDailyQuestions(rows, {
+      ...defaultGates(),
+      gradeNum: 3,
+      subjects: ['语文'],
+      history: new Map(),
+      today,
+      correctWindowDays: 30,
+      rng: seeded(7),
+    });
+    assert.equal(picked.length, 1);
+    assert.equal(picked[0].id, 101);
+  });
+
+  test('2. 同科同时存在未答自定义题与多道未答学习题时，优先选中自定义题且不受 rng 种子影响', () => {
+    const today = M.shDateStr();
+    const rows = [
+      { id: 201, kind: 'custom', grade: 3, subject: '数学', chapter: null, active: 1 },
+      { id: 202, kind: 'study', grade: 3, subject: '数学', chapter: '三年级上册 第1单元', active: 1 },
+      { id: 203, kind: 'study', grade: 3, subject: '数学', chapter: '三年级上册 第1单元', active: 1 },
+      { id: 204, kind: 'study', grade: 3, subject: '数学', chapter: '三年级上册 第2单元', active: 1 },
+    ];
+    const p1 = M.selectDailyQuestions(rows, {
+      ...defaultGates(),
+      gradeNum: 3,
+      subjects: ['数学'],
+      history: new Map(),
+      today,
+      correctWindowDays: 30,
+      rng: seeded(7),
+    });
+    const p2 = M.selectDailyQuestions(rows, {
+      ...defaultGates(),
+      gradeNum: 3,
+      subjects: ['数学'],
+      history: new Map(),
+      today,
+      correctWindowDays: 30,
+      rng: seeded(99),
+    });
+    assert.equal(p1.length, 1);
+    assert.equal(p1[0].id, 201);
+    assert.equal(p2.length, 1);
+    assert.equal(p2[0].id, 201);
+  });
+
+  test('3. 自定义题已被该儿童答过（tier !== 0）时，回退选中同科学习题', () => {
+    const today = M.shDateStr();
+    const rows = [
+      { id: 201, kind: 'custom', grade: 3, subject: '数学', chapter: null, active: 1 },
+      { id: 202, kind: 'study', grade: 3, subject: '数学', chapter: '三年级上册 第1单元', active: 1 },
+    ];
+    const history = new Map([[201, { lastDate: today, lastCorrect: true }]]);
+    const picked = M.selectDailyQuestions(rows, {
+      ...defaultGates(),
+      gradeNum: 3,
+      subjects: ['数学'],
+      history,
+      today,
+      correctWindowDays: 30,
+      rng: seeded(7),
+    });
+    assert.equal(picked.length, 1);
+    assert.equal(picked[0].id, 202);
+  });
+
+  test('4. 其他学科的自定义题不会抢占当前学科槽位', () => {
+    const today = M.shDateStr();
+    const rows = [
+      { id: 301, kind: 'custom', grade: 3, subject: '语文', chapter: null, active: 1 },
+      { id: 302, kind: 'study', grade: 3, subject: '数学', chapter: '三年级上册 第1单元', active: 1 },
+    ];
+    const picked = M.selectDailyQuestions(rows, {
+      ...defaultGates(),
+      gradeNum: 3,
+      subjects: ['数学'],
+      history: new Map(),
+      today,
+      correctWindowDays: 30,
+      rng: seeded(7),
+    });
+    assert.equal(picked.length, 1);
+    assert.equal(picked[0].id, 302);
+  });
+
+  test('5. 同科存在多道未答自定义题时，每科每日槽位仅选 1 道且确定性取 id 较小者', () => {
+    const today = M.shDateStr();
+    const rows = [
+      { id: 405, kind: 'custom', grade: 3, subject: '语文', chapter: null, active: 1 },
+      { id: 402, kind: 'custom', grade: 3, subject: '语文', chapter: null, active: 1 },
+      { id: 410, kind: 'study', grade: 3, subject: '语文', chapter: '三年级上册 第1单元', active: 1 },
+    ];
+    const picked = M.selectDailyQuestions(rows, {
+      ...defaultGates(),
+      gradeNum: 3,
+      subjects: ['语文'],
+      history: new Map(),
+      today,
+      correctWindowDays: 30,
+      rng: seeded(7),
+    });
+    assert.equal(picked.length, 1);
+    assert.equal(picked[0].id, 402);
+  });
+
+  test('6. 已在今日题单（excludeIds）里的自定义题不会被重复选中', () => {
+    const today = M.shDateStr();
+    const rows = [
+      { id: 601, kind: 'custom', grade: 3, subject: '语文', chapter: null, active: 1 },
+      { id: 602, kind: 'study', grade: 3, subject: '语文', chapter: '三年级上册 第1单元', active: 1 },
+    ];
+    const picked = M.selectDailyQuestions(rows, {
+      ...defaultGates(),
+      gradeNum: 3,
+      subjects: ['语文'],
+      excludeIds: [601],
+      history: new Map(),
+      today,
+      correctWindowDays: 30,
+      rng: seeded(7),
+    });
+    assert.equal(picked.length, 1);
+    assert.equal(picked[0].id, 602); // 601 已在今日题单，须回退到学习题，不能重复选
   });
 });
 

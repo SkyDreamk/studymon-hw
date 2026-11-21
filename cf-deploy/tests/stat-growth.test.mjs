@@ -134,7 +134,7 @@ describe('calcDamage 官方公式与回落', () => {
     moves: [{ name: '电击', type: '电', power: 50 }],
   });
 
-  test('水枪：base=5，水打岩石/地面 ×4，STAB ×1.5，伤害28', () => {
+  test('水枪：base=5，水打岩石/地面 ×4，STAB ×1.5，伤害24（分步取整）', () => {
     const attacker = M.makePet({
       key: 'main', name: '杰尼龟', type: '水', no: 7, level: 8,
       moves: [{ name: '水枪', type: '水', power: 40 }],
@@ -142,13 +142,13 @@ describe('calcDamage 官方公式与回落', () => {
     // floor(floor(floor(2×8/5+2)×40×13/15)/50)+2=5；倍率2×2=4；STAB ×1.5（水枪水系、攻击方水系）；half 对应命中过、区间因子 0.93、非暴击。
     assert.deepEqual(
       M.calcDamage({ name: '水枪', type: '水', power: 40 }, attacker, defender(), half, opts),
-      { dmg: 28, mult: 4, critical: false, ability: [] }, // 5×1.5×4×0.93=27.9→28。
+      { dmg: 24, mult: 4, critical: false, ability: [] }, // 分步取整 floor(5×0.93)=4→floor(4×1.5)=6→floor(6×4)=24。
     );
   });
-  test('铁尾：base=2，钢打岩石/地面 ×2，伤害4', () => {
+  test('铁尾：base=2，钢打岩石/地面 ×2，伤害2（分步取整：floor(2×0.93)=1→floor(1×2)=2）', () => {
     const move = { name: '铁尾', type: '钢', damage_class: '物理', power: 31 };
     // floor(floor(floor(2×8/5+2)×31×11/43)/50)+2=2；钢倍率2×1=2；half 非暴击。
-    assert.deepEqual(M.calcDamage(move, pichu(), defender(), half, opts), { dmg: 4, mult: 2, critical: false, ability: [] }); // 2×2×1=4。
+    assert.deepEqual(M.calcDamage(move, pichu(), defender(), half, opts), { dmg: 2, mult: 2, critical: false, ability: [] }); // 分步取整 floor(2×0.93)=1→floor(1×2)=2。
   });
   test('电光一闪：普通打岩石 ×0.5，不再免疫', () => {
     const move = { name: '电光一闪', type: '普通', damage_class: '物理', power: 31 };
@@ -167,7 +167,7 @@ describe('calcDamage 官方公式与回落', () => {
     const attacker = { level: 10, type: '电', stats: null };
     const target = { level: 10, type: '火', stats: null };
     assert.deepEqual(M.calcDamage(move, attacker, target, half), { dmg: 50, mult: 1, critical: false, ability: [] }); // 50×1.0×1×1.0=50。
-    assert.deepEqual(M.calcDamage(move, attacker, target, seq(0.5, 0)), { dmg: 75, mult: 1, critical: true, ability: [] }); // 随机倍率1，第二次掷骰0暴击：50×1.5=75。
+    assert.deepEqual(M.calcDamage(move, attacker, target, seq(0, 0.5)), { dmg: 75, mult: 1, critical: true, ability: [] }); // 暴击→随机：第一次掷骰0暴击，第二次掷骰0.5随机倍率1：50×1.5=75。
   });
 });
 

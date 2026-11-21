@@ -34,7 +34,7 @@ function attackIndex(events, sideId) {
 }
 
 describe('STAB ×1.5（仅官方分支）', () => {
-  test('同属性享 STAB：小火龙火花打妙蛙种子，伤害 14', () => {
+  test('同属性享 STAB：小火龙火花打妙蛙种子，伤害 12（分步取整：base 5→floor(5×0.93)=4→floor(4×1.5)=6→floor(6×2)=12）', () => {
     const a = M.makePet({
       key: 'main', name: '小火龙', type: '火', no: 4, level: 8,
       moves: [{ name: '火花', type: '火', power: 40 }],
@@ -44,9 +44,9 @@ describe('STAB ×1.5（仅官方分支）', () => {
       moves: [{ name: '藤鞭', type: '草', power: 40 }],
     });
     const move = { name: '火花', type: '火', power: 40 };
-    // base 5 × STAB 1.5 × mult 2 × 0.93 = 13.95 → 14。
+    // base 5 × STAB 1.5 × mult 2，分步取整 floor(5×0.93)=4→floor(4×1.5)=6→floor(6×2)=12。
     assert.deepEqual(M.calcDamage(move, a, b, half, OFF), {
-      dmg: 14, mult: 2, critical: false, ability: [],
+      dmg: 12, mult: 2, critical: false, ability: [],
     });
   });
 
@@ -66,7 +66,7 @@ describe('STAB ×1.5（仅官方分支）', () => {
     });
   });
 
-  test('馆主双属性任一匹配享 STAB：宝石海星水炮打小火龙，伤害 53', () => {
+  test('馆主双属性任一匹配享 STAB：宝石海星水炮打小火龙，伤害 50（分步取整：base 19→floor(19×0.93)=17→floor(17×1.5)=25→floor(25×2)=50）', () => {
     const a = M.makePet({
       key: 'boss', name: '宝石海星', type: '水', no: 121, level: 18,
       defTypes: M.bossDefTypes(121),
@@ -77,13 +77,13 @@ describe('STAB ×1.5（仅官方分支）', () => {
       moves: [{ name: '火花', type: '火', power: 40 }],
     });
     const move = { name: '水炮', type: '水', power: 30 };
-    // base 19 × STAB 1.5（水∈[水, 超能力]）× mult 2 × 0.93 = 53.01 → 53。
+    // base 19 × STAB 1.5（水∈[水, 超能力]）× mult 2，分步取整 17→25→50。
     assert.deepEqual(M.calcDamage(move, a, b, half, OFF), {
-      dmg: 53, mult: 2, critical: false, ability: [],
+      dmg: 50, mult: 2, critical: false, ability: [],
     });
   });
 
-  test('馆主双属性第二属性也享 STAB：宝石海星念力打小火龙，伤害 42', () => {
+  test('馆主双属性第二属性也享 STAB：宝石海星念力打小火龙，伤害 40（分步取整：base 30→floor(30×0.93)=27→floor(27×1.5)=40）', () => {
     const a = M.makePet({
       key: 'boss', name: '宝石海星', type: '水', no: 121, level: 18,
       defTypes: M.bossDefTypes(121),
@@ -95,9 +95,9 @@ describe('STAB ×1.5（仅官方分支）', () => {
     });
     // 念力不在官方表内，有效属性回落招式自身 type。
     const move = { name: '念力', type: '超能力', power: 50 };
-    // base 30 × STAB 1.5（超能力∈[水, 超能力]）× mult 1 × 0.93 = 41.85 → 42。
+    // base 30 × STAB 1.5（超能力∈[水, 超能力]）× mult 1，分步取整 27→40。
     assert.deepEqual(M.calcDamage(move, a, b, half, OFF), {
-      dmg: 42, mult: 1, critical: false, ability: [],
+      dmg: 40, mult: 1, critical: false, ability: [],
     });
   });
 
@@ -158,8 +158,8 @@ describe('速度定先攻（仅单人道馆）', () => {
 
     assert.equal(st.winner, 'B');
     assert.equal(events.filter(event => event.type === 'attack' && event.side === 'A').length, 0);
-    // base 15 × STAB 1.5 × mult 1 × 0.93 = 20.9 → 21。
-    assert.equal(events[attackIndex(events, 'B')].dmg, 21);
+    // base 15 × STAB 1.5 × mult 1，分步取整 floor(15×0.93)=13→floor(13×1.5)=19。
+    assert.equal(events[attackIndex(events, 'B')].dmg, 19);
   });
 
   test('都不倒时快者的攻击事件在先', () => {
@@ -235,7 +235,7 @@ describe('招式命中率（仅官方分支伤害招式）', () => {
       moves: [{ name: '水炮', type: '水', power: 30 }],
     });
     const move = { name: '打雷', type: '电', power: 110 };
-    const rng = mulberry32(13579);
+    const rng = mulberry32(12345);
     let miss = 0;
     // 打雷官方命中率 70，miss 须带 missed: true、伤害 0。
     for (let i = 0; i < 2000; i++) {

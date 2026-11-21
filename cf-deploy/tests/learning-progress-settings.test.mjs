@@ -38,15 +38,19 @@ function functionBlock(name) {
 }
 
 function saveBlock() {
-  return fn(app, 'window.saveLearningProgress', 'window.saveSecurity');
+  return fn(app, 'window.saveSettings = async', 'window.saveSecurity');
 }
 
-describe('三门分块渲染', () => {
-  test('学习进度详情函数存在，并使用学习进度标题', () => {
-    const block = functionBlock('parentSettingsLearningHtml');
-    assert.match(block, /function\s+parentSettingsLearningHtml\s*\(\s*s\s*\)/);
-    assert.ok(block.includes('学习进度'), '详情缺学习进度标题');
-
+// 2026-11-16：学习进度页并入用户管理页（每孩一块：名字、年级标签、三科进度；五项打卡设置全站共用一块）
+// 2026-11-16 任务 130：用户管理改一级-二级栏目——每孩设置与打卡设置各进独立详情页，
+// parentSettingsFieldsHtml 拆为 parentChildSettingsHtml（单孩）与 parentCheckinSettingsHtml（五项）；
+// saveSettings 只保存当前页在 DOM 里的区块（后端本就支持分段更新）。
+describe('三门分块渲染（在用户管理页里）', () => {
+  test('学习进度独立页、别名与保存入口已删除，helper 仍在', () => {
+    assert.doesNotMatch(app, /parentSettingsLearningHtml|parentSettingsMathHtml/);
+    assert.doesNotMatch(app, /saveLearningProgress|saveMathProgress/);
+    assert.doesNotMatch(app, /psetOpen\('math'\)/);
+    assert.doesNotMatch(app, /case 'math'/);
     for (const helper of [
       'gradeNumFromGradeLabel',
       'chineseUnitOptions',
@@ -58,59 +62,63 @@ describe('三门分块渲染', () => {
     }
   });
 
-  test('每个孩子有语文、数学、英语三个下拉及对应 label', () => {
-    const block = functionBlock('parentSettingsLearningHtml');
-
-    for (const id of ["'cp-' + c.id", "'mp-' + c.id", "'ep-' + c.id"]) {
-      assert.ok(block.includes(id), '详情缺下拉 id：' + id);
+  test('每个孩子块里有名字、年级标签和语文、数学、英语三个下拉及对应 label', () => {
+    const block = functionBlock('parentChildSettingsHtml');
+    for (const id of ['nm-${c.id}', 'gr-${c.id}', "'cp-' + c.id", "'mp-' + c.id", "'ep-' + c.id"]) {
+      assert.ok(block.includes(id), '用户管理缺 id：' + id);
     }
-
     for (const label of [
       '${esc(c.name)}的语文进度',
       '${esc(c.name)}的数学进度',
       '${esc(c.name)}的英语进度',
     ]) {
-      assert.ok(block.includes(label), '详情缺 label：' + label);
+      assert.ok(block.includes(label), '缺 label：' + label);
     }
-  });
-
-  test('孩子分块上下排列，不使用 grid2；数学不使用本地列表', () => {
-    const block = functionBlock('parentSettingsLearningHtml');
-    assert.doesNotMatch(block, /grid2/);
+    // 三个下拉在名字/年级行之后；数学不使用本地列表；超前提示在单孩页
+    assert.ok(block.indexOf("'cp-' + c.id") > block.indexOf('gr-${c.id}'));
     assert.match(block, /progressView\(\s*c\.mathProgress\s*,\s*null\s*,/);
+    assert.ok(block.includes('题目只会从学到过的单元里出，不会超前。改完从明天的题目开始生效（今天已出的题单不变）。'));
   });
 
-  test('旧数学详情函数保留为学习进度详情的薄别名', () => {
-    const block = functionBlock('parentSettingsMathHtml');
-    assert.match(
-      block,
-      /function\s+parentSettingsMathHtml\s*\(\s*s\s*\)\s*\{\s*return\s+parentSettingsLearningHtml\(s\);\s*\}/
-    );
+  test('五项打卡设置与范围说明只出现一次（全站共用，单独一页）；数学不使用本地列表', () => {
+    const block = functionBlock('parentCheckinSettingsHtml');
+    assert.equal((block.match(/<div class="grid2 formgrid">/g) || []).length, 1);
+    for (const id of ['subjectxp', 'basexp', 'quizxp', 'quizrepeat', 'cutoff']) {
+      assert.equal((block.match(new RegExp(`id="${id}"`, 'g')) || []).length, 1, id);
+    }
+    assert.equal((block.match(/范围：每科 1–100、基础 10–200、问答 0–100、不重复 7–90 天；基础经验兼容旧口径/g) || []).length, 1);
+    // 打卡设置页不含孩子循环与三科下拉
+    assert.doesNotMatch(block, /kids\.map|learningSelectHtml|nm-\$\{c\.id\}/);
+  });
+
+  test('打卡设置页只有一个保存按钮：保存设置；单孩页有自己的保存按钮', () => {
+    const block = functionBlock('parentCheckinSettingsHtml');
+    assert.equal((block.match(/<button class="bigbtn"/g) || []).length, 1);
+    assert.ok(block.includes('<button class="bigbtn" onclick="saveSettings()">保存设置</button>'));
+    const childBlock = functionBlock('parentChildSettingsHtml');
+    assert.ok(childBlock.includes('<button class="bigbtn" onclick="saveSettings()">保存</button>'));
   });
 });
 
 describe('学习进度改名与摘要', () => {
-  test('列表行保留 math 路由，学习进度行只有标题无小字（§83 形态，§92 回归）', () => {
-    assert.match(
-      app,
-      /<button class="pset-row" onclick="psetOpen\('math'\)"><span class="pset-ic">[\s\S]*?<span class="pset-t">学习进度<\/span><\/span><span class="pset-c">›<\/span><\/button>/
-    );
+  test('设置列表没有学习进度行；列表无摘要小字', () => {
+    const listBlock = fn(app, 'function parentSettingsListHtml', 'function parentChildSettingsHtml');
+    assert.doesNotMatch(listBlock, /学习进度/);
+    assert.ok(listBlock.includes('用户管理'));
     assert.doesNotMatch(app, /learningSummary/);
     assert.doesNotMatch(app, /summaryChild/);
-    const listBlock = fn(app, 'function parentSettingsListHtml', 'function learningSelectHtml');
-    assert.doesNotMatch(listBlock, /学习进度<\/span><span class="pset-s">/);
   });
 
   test('全文不再使用数学学习进度或保存数学进度旧文案', () => {
     assert.doesNotMatch(app, /数学学习进度/);
     assert.doesNotMatch(app, /保存数学进度/);
+    assert.doesNotMatch(app, /保存学习进度/);
   });
 });
 
-describe('一次保存发三数组', () => {
+describe('分段保存（任务 130：只发当前页在的区块）', () => {
   test('保存循环分别收集数学、语文、英语下拉值', () => {
     const block = saveBlock();
-
     for (const [array, element] of [
       ['mathProgress', 'mpEl'],
       ['chineseProgress', 'cpEl'],
@@ -118,25 +126,34 @@ describe('一次保存发三数组', () => {
     ]) {
       const pattern = new RegExp(
         '\\b' + array +
-        '\\.push\\(\\s*\\{\\s*id:\\s*c\\.id\\s*,\\s*chapter:\\s*' +
+        '\\.push\\(\\s*\\{\\s*id:\\s*c\\.id\\s*,\\s*chapter:\\s*reset\\s*\\?\\s*\'\'\\s*:\\s*' +
         element + '\\.value\\s*\\}\\s*\\)'
       );
       assert.match(block, pattern);
     }
-
-    assert.equal((block.match(/\.push\s*\(/g) || []).length, 3);
+    assert.equal((block.match(/Progress\.push\s*\(/g) || []).length, 3);
   });
 
-  test('三数组通过一次设置更新请求提交', () => {
+  test('年级标签被改动时，该孩子三科进度这次清回默认', () => {
+    const block = saveBlock();
+    assert.match(block, /const reset = grade\.trim\(\) !== String\(c\.grade \|\| ''\)\.trim\(\);/);
+  });
+
+  test('一次设置更新请求提交 body；只含当前页在的区块', () => {
     const block = saveBlock();
     assert.equal(
       (block.match(/\/api\/parent\/settings\/update/g) || []).length,
       1
     );
-    assert.match(
-      block,
-      /api\(\s*'\/api\/parent\/settings\/update'\s*,\s*\{\s*mathProgress\s*,\s*chineseProgress\s*,\s*englishProgress\s*\}\s*\)/
-    );
+    assert.match(block, /api\(\s*'\/api\/parent\/settings\/update'\s*,\s*body\s*\)/);
+    // 不在当前页的孩子跳过（输入不在 DOM 里）
+    assert.match(block, /const nmEl = document\.getElementById\('nm-' \+ c\.id\);/);
+    assert.match(block, /if \(!nmEl\) continue;/);
+    // 五项只在输入在 DOM 里时才进 body
+    assert.match(block, /const xpMap = \{ basexp: 'baseXp', subjectxp: 'subjectXp', quizxp: 'quizXp', quizrepeat: 'quizRepeatDays', cutoff: 'cutoffTime' \};/);
+    assert.match(block, /if \(!el\) continue;/);
+    // 当前页无可保存项时不发请求
+    assert.match(block, /if \(!Object\.keys\(body\)\.length\) return;/);
   });
 
   test('保存保留失败提示，且不通过 filter 丢弃空值', () => {
@@ -147,30 +164,14 @@ describe('一次保存发三数组', () => {
     );
     assert.doesNotMatch(block, /\.filter\s*\(/);
   });
-
-  test('旧保存入口指向新的学习进度保存入口', () => {
-    const block = saveBlock();
-    assert.ok(
-      block.includes('window.saveMathProgress = window.saveLearningProgress;'),
-      '缺旧保存入口别名'
-    );
-  });
 });
 
 describe('390px 无截断相关源码断言', () => {
   test('完整保存按钮存在，按钮所在行没有 nowrap 或 ellipsis', () => {
-    const button =
-      '<button class="bigbtn" onclick="saveLearningProgress()">保存学习进度</button>';
-
-    assert.ok(app.includes(button), '缺完整保存学习进度按钮');
-    assert.ok(
-      app.includes('onclick="saveLearningProgress()">保存学习进度</button>'),
-      '保存按钮文案或 onclick 不完整'
-    );
-
+    const button = '<button class="bigbtn" onclick="saveSettings()">保存设置</button>';
+    assert.ok(app.includes(button), '缺完整保存设置按钮');
     const buttonLines = app.split(/\r?\n/).filter((line) => line.includes(button));
     assert.ok(buttonLines.length > 0, '未找到保存按钮所在行');
-
     for (const line of buttonLines) {
       assert.doesNotMatch(line, /nowrap|ellipsis/i);
     }

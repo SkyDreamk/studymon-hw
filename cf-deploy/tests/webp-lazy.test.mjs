@@ -1,12 +1,13 @@
 // tests/webp-lazy.test.mjs
 import test from 'node:test';
+import { readBackendSource } from './backend-src.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { assetPath, assetHash } from './asset-path.mjs';
 
 const H = assetHash();
 assert.match(H || '', /^[0-9a-f]{8}$/, '先跑 node scripts/hash-assets.mjs');
-const server = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const server = readBackendSource();
 const app = readFileSync(assetPath('app.js'), 'utf8');
 const images = readdirSync(assetPath('img'));
 
@@ -19,6 +20,11 @@ test('pet URLs use WebP exclusively', () => {
   const expected = [
     '/apple-touch-icon-precomposed.png',
     '/apple-touch-icon.png',
+    // MP-15 §6.1：DAILY_MODULES 的卡片图标是小程序本地包文件（小程序图片一律 PNG，不走 WebP），
+    // 仅作路径字符串下发给小程序，网站本身并不提供这些图
+    '/images/icon-chinese.png',
+    '/images/icon-english.png',
+    '/images/icon-math.png',
     `/static/icon-180.${H}.png`,
     `/static/icon-192.${H}.png`,
   ];
@@ -41,7 +47,7 @@ test('noncritical images use lazy loading', () => {
   const snippets = [
     '<img loading="lazy" src="${img}">',
     '<img loading="lazy" class="evo-img" src="${p.img}">',
-    '<img loading="lazy" class="${cls}" src="${form.img}" alt="">',
+    // 任务 95：avatarHtml 已删（零调用死代码），其 lazy img 串随之消失，不再断言
     '<img loading="lazy" src="${moveIconSrc(m)}" alt="" onerror="this.remove()">', // 2026-11-13 任务 106：两处 moveicons 改走 moveIconSrc（专属图标优先、其余仍用属性图标）
     '<img loading="lazy" class="bigimg" src="${src}">',
     '<img loading="lazy" src="${srcOf(p)}" onclick="viewPhoto(\'${srcOf(p)}\')">',

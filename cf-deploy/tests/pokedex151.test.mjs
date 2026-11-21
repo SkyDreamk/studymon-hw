@@ -12,7 +12,7 @@ const M = await import(new URL('../src/index.js', import.meta.url));
 const MIGRATIONS = [
   '0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql',
   '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql',
-  '0010_pvp_rematch.sql', '0019_evo_items.sql',
+  '0010_pvp_rematch.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql',
 ];
 
 function makeEnv() {
@@ -169,14 +169,19 @@ describe('151 图鉴接口', () => {
     const cookie = await parentCookie();
     const j = await pokedex(1, cookie);
     assert.deepEqual(j.progress, { owned: 0, total: 151, pct: 0 });
-    assert.equal(j.dex151.length, 151);
-    assert.deepEqual(j.dex151.map((e) => e.no), Array.from({ length: 151 }, (_, i) => i + 1));
-    for (const e of j.dex151) {
-      assert.deepEqual(e, { no: e.no, unlocked: false, name: null, img: `/static/img/p${e.no}.${H}.webp` });
+    assert.deepEqual(j.dex151Owned, []);
+    // 151 行的骨架（编号/名字/图片/属性）随静态骨架下发；是否获得只看动态 dex151Owned
+    const skel = M.pokedexStaticSkeleton().data;
+    assert.equal(skel.dex151.length, 151);
+    assert.deepEqual(skel.dex151.map((e) => e.no), Array.from({ length: 151 }, (_, i) => i + 1));
+    for (const e of skel.dex151) {
+      assert.equal(e.name, M.speciesName(e.no));
+      assert.equal(e.img, `/static/img/p${e.no}.${H}.webp`);
     }
-    for (const field of ['lineEntries', 'wild', 'others', 'eggSpecies']) {
-      assert.ok(Array.isArray(j[field]));
-    }
+    // 锁定项的卡片端拒绝（名字不泄露；合并后锁定行形如 {no, unlocked:false, name:null, img} 的精确断言见 pokedex-split.test.mjs）
+    const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key: 'dex151:1' }, cookie });
+    assert.equal(r.status, 403);
+    assert.equal(r.j.error, 'LOCKED');
     assert.equal(j.currentLine, 'pikachu');
   });
 
@@ -194,23 +199,33 @@ describe('151 图鉴接口', () => {
     const obtainedAt = raw.prepare(
       "SELECT unlocked_at FROM pokedex WHERE child_id=1 AND entry_key='wild:54'",
     ).get().unlocked_at;
-    assert.deepEqual(j.dex151[53], {
-      no: 54, unlocked: true, name: '可达鸭', img: `/static/img/p54.${H}.webp`,
+    const skel = M.pokedexStaticSkeleton().data;
+    const card = async (key) => {
+      const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key }, cookie });
+      assert.equal(r.status, 200, key);
+      return r.j.details;
+    };
+    // 151 行的骨架字段（名字/图片/属性）随静态骨架下发；详情（招式/特性/种族值/进化/克制/获得时间）走卡片端（Fable 优化 #2）
+    assert.deepEqual(skel.dex151[53], {
+      no: 54, name: '可达鸭', img: `/static/img/p54.${H}.webp`,
+      type: '水', types: ['水'],
+    });
+    assert.deepEqual(await card('dex151:54'), {
       type: '水',
       types: ['水'],
       // 2026-11-05 招式系统升级：备战卡片展示物种完整招式表（带学会等级），取代旧 2 招固定招式。
       // 2026-11-07 备战独有招升级入口：招式对象追加 learned/skillLevel（已学会的带真实等级与威力，未学会的恒 1 级）。
       moves: [
         { level: 2, name: '水枪', desc: '喷出一道小水枪，浇得瞌睡虫直打喷嚏', type: '水', damage_class: '特殊', power: 37, learned: false, skillLevel: 1 },
-        { level: 3, name: '抓', desc: '扁扁的小爪子挠一挠，瞌睡虫全跑光', type: '普通', damage_class: '物理', power: 43, learned: false, skillLevel: 1 },
-        { level: 4, name: '泡沫', desc: '吐出一串亮晶晶的泡泡，拖延被包起来浮走了', type: '水', damage_class: '特殊', power: 49, learned: false, skillLevel: 1 },
+        { level: 3, name: '精神强念', desc: '头一疼强念力冲出来，拦路的难题全被震飞', type: '超能力', damage_class: '特殊', power: 43, learned: false, skillLevel: 1 }, // 2026-11-17 设计定稿 8.md 热修：抓→精神强念（破 S5 飘浮毒系）
+        { level: 4, name: '水流尾', desc: '甩起水花四溅的尾巴，作业本开心地笑起来', type: '水', damage_class: '物理', power: 49, learned: false, skillLevel: 1 },
         { level: 5, name: '念力', desc: '头一疼念力就冒出来，铅笔自己飘了起来', type: '超能力', damage_class: '特殊', power: 55, learned: false, skillLevel: 1 },
         { level: 6, name: '水之波动', desc: '掀起一圈圈水波纹，把分心推得远远的', type: '水', damage_class: '特殊', power: 61, learned: false, skillLevel: 1 },
         { level: 7, name: '摇尾巴', desc: '尾巴摇得像小扇子，难题看得直发晕', type: '普通', damage_class: '变化', power: 67, learned: false, skillLevel: 1 },
         { level: 8, name: '冲浪', desc: '踩着浪花冲过去，作业写得比浪还快', type: '水', damage_class: '特殊', power: 73, learned: false, skillLevel: 1 },
         { level: 9, name: '水炮', desc: '轰出一发大水炮，错题被冲得干干净净', type: '水', damage_class: '特殊', power: 79, learned: false, skillLevel: 1 },
         { level: 10, name: '求雨', desc: '下一场凉凉的及时雨，瞌睡虫全被浇醒了', type: '水', damage_class: '变化', power: 85, learned: false, skillLevel: 1 },
-        { level: 11, name: '加农水炮', desc: '终极水炮轰隆发射，最后一页作业也写完了', type: '水', damage_class: '特殊', power: 91, learned: false, skillLevel: 1 },
+        { level: 11, name: '快速折返', desc: '踩着水花冲过去打一下，转身又冲回作业本前', type: '水', damage_class: '物理', power: 91, learned: false, skillLevel: 1 },
       ],
       abilities: [
         { name: '湿气', hidden: false, effect: '在场时，自爆、大爆炸和引爆无法生效。' },
@@ -228,11 +243,14 @@ describe('151 图鉴接口', () => {
         ],
         branches: null,
       },
-      matchups: { strong: ['火', '地面', '岩石'], weak: ['电', '草'], resist: ['水', '火'], immune: [] },
+      matchups: { strong: ['火', '地面', '岩石'], weak: ['电', '草'], resist: ['火', '水', '冰', '钢'], immune: [] }, // 2026-11-17 方案 A：水系 resist 补冰/钢，顺序按 TYPES18
       obtainedAt,
     });
-    assert.deepEqual(j.dex151[24], {
-      no: 25, unlocked: true, name: '皮卡丘', img: `/static/img/p25.${H}.webp`,
+    assert.deepEqual(skel.dex151[24], {
+      no: 25, name: '皮卡丘', img: `/static/img/p25.${H}.webp`,
+      type: '电', types: ['电'],
+    });
+    assert.deepEqual(await card('dex151:25'), {
       type: '电', level: 1, moves: [], obtainedAt,
       types: ['电'],
       abilities: [
@@ -248,24 +266,26 @@ describe('151 图鉴接口', () => {
         ],
         branches: null,
       },
-      matchups: { strong: ['水', '飞行'], weak: ['地面'], resist: ['电', '飞行'], immune: [] },
+      matchups: { strong: ['水', '飞行'], weak: ['地面'], resist: ['电', '飞行', '钢'], immune: [] }, // 2026-11-17 方案 A：电系 resist 补钢
       friendship: 0, // 任务 93：主宠线 detail 带友好度（本例无 pet_instances 行，默认 0）
     });
     // 2026-11-14 全量 151 批：150 已进名册（SPECIES＋COLLECTION_LEARNSET＋DEX_DETAILS 均有条目），
     // 图鉴详情完整展示真实名字与招式表，不再是"未知名字"。
-    assert.deepEqual(j.dex151[149], {
-      no: 150, unlocked: true, name: '超梦', img: `/static/img/p150.${H}.webp`,
-      type: '普通',
+    assert.deepEqual(skel.dex151[149], {
+      no: 150, name: '超梦', img: `/static/img/p150.${H}.webp`,
+      type: '超能力', types: ['超能力'],
+    });
+    assert.deepEqual(await card('dex151:150'), {
+      type: '超能力', // 2026-11-17 方案 A：SPECIES[150] 改回官方主属性超能力（此前为普通）
       types: ['超能力'],
       moves: [
-        { level: 2, name: '撞击', desc: '轻轻一撞，拦路的难题全让开', type: '普通', damage_class: '物理', power: 37, learned: false, skillLevel: 1 },
-        { level: 3, name: '叫声', desc: '低沉地叫一声，整间屋子都安静了', type: '普通', damage_class: '变化', power: 43, learned: false, skillLevel: 1 },
-        { level: 4, name: '电光一闪', desc: '身影快如一道紫光，难题还没看清就输了', type: '普通', damage_class: '物理', power: 49, learned: false, skillLevel: 1 },
+        { level: 2, name: '太晶爆发', desc: '化作一道晶光冲出去，拦路的难题全被撞开', type: '普通', damage_class: '特殊', power: 37, learned: false, skillLevel: 1 },
+        { level: 3, name: '求雨', desc: '抬起头喊来一片雨云，瞌睡虫乖乖缩成一团', type: '水', damage_class: '变化', power: 43, learned: false, skillLevel: 1 },
+        { level: 4, name: '气象球', desc: '扔出一颗天气球，难题被砸得晕头转向', type: '普通', damage_class: '特殊', power: 49, learned: false, skillLevel: 1 },
         { level: 5, name: '高速星星', desc: '紫色星星纷纷落下，藏起来的错题全现形', type: '普通', damage_class: '特殊', power: 55, learned: false, skillLevel: 1 },
-        { level: 6, name: '影子分身', desc: '影子一分为四，作业再多也不怕', type: '普通', damage_class: '变化', power: 61, learned: false, skillLevel: 1 },
-        { level: 7, name: '巨声', desc: '一声巨吼震动四壁，连走廊尽头都听见了', type: '普通', damage_class: '特殊', power: 67, learned: false, skillLevel: 1 },
-        { level: 8, name: '劈开', desc: '手刀凌厉一劈，挡路的难题应声而断', type: '普通', damage_class: '物理', power: 73, learned: false, skillLevel: 1 },
-        { level: 9, name: '高速旋转', desc: '身影转成紫色陀螺，磨蹭被卷得无影无踪', type: '普通', damage_class: '物理', power: 79, learned: false, skillLevel: 1 },
+        { level: 7, name: '泰山压顶', desc: '像大山一样压下来，生字排着队坐端正', type: '普通', damage_class: '物理', power: 67, learned: false, skillLevel: 1 },
+        { level: 8, name: '硬撑', desc: '鼓起劲一口气撑住，拖延被顶得远远的', type: '普通', damage_class: '物理', power: 73, learned: false, skillLevel: 1 },
+        { level: 9, name: '舍身冲撞', desc: '不顾一切地撞上去，错字吓得躲进橡皮里', type: '普通', damage_class: '物理', power: 79, learned: false, skillLevel: 1 },
         { level: 10, name: '预知未来', desc: '闭上眼睛预见未来，错题还没写就输了', type: '超能力', damage_class: '特殊', power: 85, learned: false, skillLevel: 1 },
         { level: 11, name: '精神强念', desc: '意念轰然爆发，整页作业在精神力下臣服', type: '超能力', damage_class: '特殊', power: 91, learned: false, skillLevel: 1 },
       ],
@@ -283,7 +303,7 @@ describe('151 图鉴接口', () => {
         ],
         branches: null,
       },
-      matchups: { strong: [], weak: [], resist: [], immune: [] },
+      matchups: { strong: ['格斗', '毒'], weak: ['虫', '幽灵', '恶'], resist: ['格斗', '超能力'], immune: [] }, // 2026-11-17 方案 A：超能力现返回真实克制（此前 9 种集内无超能力，四字段全空）
       obtainedAt,
     });
   });
@@ -302,9 +322,10 @@ describe('151 图鉴接口', () => {
     const second = await pokedex(2, cookie);
     assert.equal(first.progress.owned, 1);
     assert.deepEqual(second.progress, { owned: 0, total: 151, pct: 0 });
-    assert.deepEqual(second.dex151[53], {
-      no: 54, unlocked: false, name: null, img: `/static/img/p54.${H}.webp`,
-    });
+    assert.equal(second.dex151Owned.includes(54), false);
+    const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 2, key: 'dex151:54' }, cookie });
+    assert.equal(r.status, 403);
+    assert.equal(r.j.error, 'LOCKED');
     assert.equal(count(), before);
   });
 
@@ -312,11 +333,14 @@ describe('151 图鉴接口', () => {
     await toProd();
     const cookie = await parentCookie();
     const j = await pokedex(1, cookie);
+    const skel = M.pokedexStaticSkeleton().data;
     for (const no of [1, 42, 151]) {
-      const e = j.dex151[no - 1];
-      assert.equal(e.unlocked, false);
-      assert.equal(e.name, null);
-      assert.equal(e.img, `/static/img/p${no}.${H}.webp`);
+      assert.equal(j.dex151Owned.includes(no), false);
+      // 骨架带真实名字与图片；合并后锁定行名字置 null（精确断言见 pokedex-split.test.mjs），卡片端拒绝
+      assert.equal(skel.dex151[no - 1].name, M.speciesName(no));
+      assert.equal(skel.dex151[no - 1].img, `/static/img/p${no}.${H}.webp`);
+      const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key: 'dex151:' + no }, cookie });
+      assert.equal(r.status, 403, `dex151:${no} 应 LOCKED`);
     }
   });
 });

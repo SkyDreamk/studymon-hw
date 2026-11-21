@@ -14,7 +14,7 @@ const M = await import(new URL('../src/index.js', import.meta.url));
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
-  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql']) {
+  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql']) {
     raw.exec(readFileSync(new URL('../migrations/' + f, import.meta.url), 'utf8'));
   }
   raw.exec("ALTER TABLE quiz_questions ADD COLUMN oak_episode TEXT");
@@ -37,7 +37,7 @@ function makeEnv() {
   };
   return {
     env: { DB: db, TEST_MODE: '1', ASSETS: { fetch: async () => new Response('<html>app</html>', { headers: { 'Content-Type': 'text/html' } }) },
-      IFLYTEK_APPID: 'test-appid', IFLYTEK_API_KEY: 'test-apikey-fedcba9876543210', IFLYTEK_API_SECRET: 'test-secret-dummy-fedcba9876543210' },
+      IFLYTEK_APPID: 'test-appid', IFLYTEK_API_KEY: 'test-apikey-0123456789abcdef', IFLYTEK_API_SECRET: 'test-secret-dummy-0123456789abcdef' },
     raw,
   };
 }
@@ -187,17 +187,17 @@ describe('XML 解析', () => {
 
 describe('签名与鉴权 URL', () => {
   test('固定向量与 openssl 独立计算一致', async () => {
-    const sig = await M.iflytekSignature('test-secret-dummy-fedcba9876543210', 'Wed, 04 Nov 2026 03:00:00 GMT');
-    assert.equal(sig, '+DnDwXmdftrcNYecGCrNlC29ToB/jAdsOin9qSG/I2E=');
+    const sig = await M.iflytekSignature('test-secret-dummy-0123456789abcdef', 'Wed, 04 Nov 2026 03:00:00 GMT');
+    assert.equal(sig, 'VaT+VjN6YU5FIT4tF+D5TkjJfLaHI3SB12zlEtZHFC0=');
   });
   test('URL 含 host/date/authorization，解码后含 api_key 与算法', async () => {
-    const url = await M.iflytekAuthUrl('test-appid', 'test-apikey-fedcba9876543210', 'test-secret-dummy-fedcba9876543210');
+    const url = await M.iflytekAuthUrl('test-appid', 'test-apikey-0123456789abcdef', 'test-secret-dummy-0123456789abcdef');
     const u = new URL(url);
     assert.equal(u.hostname, 'ise-api.xfyun.cn');
     assert.equal(u.searchParams.get('host'), 'ise-api.xfyun.cn');
     assert.ok(u.searchParams.get('date'));
     const auth = Buffer.from(u.searchParams.get('authorization'), 'base64').toString('utf8');
-    assert.match(auth, /api_key="test-apikey-fedcba9876543210"/);
+    assert.match(auth, /api_key="test-apikey-0123456789abcdef"/);
     assert.match(auth, /algorithm="hmac-sha256"/);
     assert.match(auth, /headers="host date request-line"/);
     assert.match(auth, /signature="[^"]+"/);

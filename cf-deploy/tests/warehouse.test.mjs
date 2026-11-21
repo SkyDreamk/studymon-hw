@@ -12,7 +12,7 @@ const MIGRATIONS = [
   '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql',
   '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql',
   '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql',
-  '0021_skill_levels.sql', '0022_warehouse.sql',
+  '0021_skill_levels.sql', '0022_warehouse.sql', '0043_pet_instances_ability.sql',
 ];
 
 function makeEnv(skip0022 = false) {
@@ -65,18 +65,18 @@ async function loginBothChildren(env) {
     cookie: parentCookie,
     body: {
       childPasswords: [
-        { id: 1, password: '0000' },
-        { id: 2, password: '0000' },
+        { id: 1, password: '1111' },
+        { id: 2, password: '2222' },
       ],
     },
   });
   const c1 = await rawCall(env, '/api/child/login', {
     method: 'POST',
-    body: { childId: 1, password: '0000' },
+    body: { childId: 1, password: '1111' },
   });
   const c2 = await rawCall(env, '/api/child/login', {
     method: 'POST',
-    body: { childId: 2, password: '0000' },
+    body: { childId: 2, password: '2222' },
   });
   return { cookie1: c1.cookie, cookie2: c2.cookie };
 }
@@ -380,5 +380,133 @@ describe('大木博士精灵仓库与随身携带 (0022_warehouse)', () => {
     assert.equal(row144.carried, 1);
     const row16 = raw.prepare("SELECT entry_key, carried FROM pokedex WHERE child_id=1 AND entry_key='wild:16'").get();
     assert.equal(row16.carried, 0);
+  });
+
+  /* ---- 清仓库表与 #127 尾巴：迁移提示（warehouse_moved）与对局中换出拦截（IN_BATTLE）----
+   * 测试站默认 GATES_OPEN：仓库会补出合成条目（stored 恒非空），所以这两组都先关门槛
+   * （debug_open_gates='0'）——stored 只剩真实仓库宠，“没有仓库宠则不推”的对照才测得到。 */
+  const closeGates = (raw) => raw.exec("INSERT OR REPLACE INTO settings(key,value) VALUES('debug_open_gates','0')");
+  const noticeRows = (raw, childId) => raw.prepare("SELECT * FROM child_notices WHERE child_id=? AND kind='warehouse_moved'").all(childId);
+
+  test('11. 迁移提示：首次打开仓库且仓库有宠 → 推一条 warehouse_moved，第二次不重复；标记位按孩子独立', async () => {
+    const { raw, env } = makeEnv();
+    closeGates(raw);
+    const { cookie1, cookie2 } = await loginBothChildren(env);
+    raw.exec(`
+      INSERT INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES
+        (1, 'wild:16', '2026-01-01', 1),
+        (1, 'wild:50', '2026-01-01', 0),
+        (1, 'wild:54', '2026-01-01', 0);
+    `);
+    const a = await callApi(env, '/api/warehouse/status?child_id=1', { cookie: cookie1 });
+    assert.equal(a.status, 200);
+    assert.equal(a.json.stored.length, 2);
+    let rows = noticeRows(raw, 1);
+    assert.equal(rows.length, 1, '首次应推一条');
+    assert.deepEqual(JSON.parse(rows[0].payload), { stored: 2 });
+    assert.equal(rows[0].shown, 0);
+    assert.equal(raw.prepare("SELECT value FROM settings WHERE key='warehouse_moved_notice_1'").get().value, '1');
+
+    await callApi(env, '/api/warehouse/status?child_id=1', { cookie: cookie1 });
+    assert.equal(noticeRows(raw, 1).length, 1, '第二次不重复');
+
+    // 通知被确认（shown=1）之后再开仓库也不再推（标记位去重，不靠 child_notices）
+    raw.exec("UPDATE child_notices SET shown=1 WHERE kind='warehouse_moved'");
+    await callApi(env, '/api/warehouse/status?child_id=1', { cookie: cookie1 });
+    assert.equal(noticeRows(raw, 1).length, 1, '确认后不再推');
+
+    // 对照：孩子 2 仓库为空 → 不推、不置标记
+    const b = await callApi(env, '/api/warehouse/status?child_id=2', { cookie: cookie2 });
+    assert.equal(b.status, 200);
+    assert.equal(b.json.stored.length, 0);
+    assert.equal(noticeRows(raw, 2).length, 0, '仓库为空不推');
+    assert.equal(raw.prepare("SELECT value FROM settings WHERE key='warehouse_moved_notice_2'").get(), undefined, '仓库为空不置标记');
+
+    // 孩子 2 后来有了仓库宠 → 自己的标记位独立，照推一次
+    raw.exec("INSERT INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES (2, 'wild:74', '2026-01-01', 0)");
+    await callApi(env, '/api/warehouse/status?child_id=2', { cookie: cookie2 });
+    assert.equal(noticeRows(raw, 2).length, 1);
+    assert.equal(noticeRows(raw, 1).length, 1, '孩子 1 不受影响');
+  });
+
+  test('12. 迁移提示经 /api/child 的 notices 取得（kind=warehouse_moved，payload.stored），确认后清掉', async () => {
+    const { raw, env } = makeEnv();
+    closeGates(raw);
+    const cookie = await loginChild(env, 1);
+    raw.exec("INSERT INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES (1, 'wild:50', '2026-01-01', 0)");
+    await callApi(env, '/api/warehouse/status?child_id=1', { cookie });
+    const c = await callApi(env, '/api/child?id=1', { cookie });
+    assert.equal(c.status, 200, JSON.stringify(c.json));
+    const n = (c.json.child.notices || []).find((x) => x.kind === 'warehouse_moved');
+    assert.ok(n, '/api/child 应带 warehouse_moved 通知');
+    assert.equal(n.payload.stored, 1);
+    const ack = await callApi(env, '/api/notices/ack', { method: 'POST', cookie, body: { ids: [n.id] } });
+    assert.equal(ack.json.ok, true);
+    const c2 = await callApi(env, '/api/child?id=1', { cookie });
+    assert.ok(!(c2.json.child.notices || []).some((x) => x.kind === 'warehouse_moved'), '确认后不再返回');
+  });
+
+  const addBattle = (raw, { mode = 'gym', a = 1, b = null, status = 'active' } = {}) => raw.prepare(
+    "INSERT INTO battles(mode, week_start, stage, child_a, child_b, state, status, created_epoch) VALUES(?, '2026-11-16', ?, ?, ?, '{}', ?, 0)"
+  ).run(mode, mode === 'gym' ? 1 : null, a, b, status);
+  const carriedOf = (raw, childId) => raw.prepare("SELECT entry_key FROM pokedex WHERE child_id=? AND carried=1 ORDER BY entry_key").all(childId).map((r) => r.entry_key);
+
+  test('13. 对局中换出拦截：进行中道馆局 → store / take / swap / take+replace 全部 400 IN_BATTLE 且不改库；打完后放行', async () => {
+    const { raw, env } = makeEnv();
+    const cookie = await loginChild(env, 1);
+    raw.exec(`
+      INSERT INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES
+        (1, 'wild:16', '2026-01-01', 1),
+        (1, 'wild:50', '2026-01-01', 1),
+        (1, 'wild:54', '2026-01-01', 0),
+        (1, 'wild:37', '2026-01-01', 0);
+    `);
+    const before = carriedOf(raw, 1);
+    const g = addBattle(raw, { mode: 'gym', a: 1 });
+
+    const post = (path, body) => callApi(env, path, { method: 'POST', cookie, body: { child_id: 1, ...body } });
+    for (const [label, res] of [
+      ['store', await post('/api/warehouse/store', { no: 16 })],
+      ['take', await post('/api/warehouse/take', { no: 54 })],
+      ['swap', await post('/api/warehouse/swap', { take_no: 54, store_no: 16 })],
+      ['take+replace', await post('/api/warehouse/take', { no: 54, replace_no: 16 })],
+    ]) {
+      assert.equal(res.status, 400, `${label} 应 400：${JSON.stringify(res.json)}`);
+      assert.equal(res.json.error, 'IN_BATTLE', `${label} 错误码`);
+    }
+    assert.deepEqual(carriedOf(raw, 1), before, '被拦截的操作不得改库');
+
+    // 局打完 → 放行（对照）
+    raw.prepare("UPDATE battles SET status='finished' WHERE id=?").run(Number(g.lastInsertRowid));
+    const ok = await post('/api/warehouse/store', { no: 16 });
+    assert.equal(ok.status, 200, JSON.stringify(ok.json));
+    const ok2 = await post('/api/warehouse/take', { no: 54 });
+    assert.equal(ok2.status, 200, JSON.stringify(ok2.json));
+    const ok3 = await post('/api/warehouse/swap', { take_no: 37, store_no: 50 });
+    assert.equal(ok3.status, 200, JSON.stringify(ok3.json));
+  });
+
+  test('14. 对局中换出拦截：PvP waiting 局按 child_a / child_b 两头都拦；已放弃的局不拦；别的孩子不受影响', async () => {
+    const { raw, env } = makeEnv();
+    const { cookie1, cookie2 } = await loginBothChildren(env);
+    raw.exec(`
+      INSERT INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES
+        (1, 'wild:16', '2026-01-01', 1),
+        (2, 'wild:50', '2026-01-01', 1);
+    `);
+    const pvp = addBattle(raw, { mode: 'pvp', a: 1, b: 2, status: 'waiting' });
+    const s1 = await callApi(env, '/api/warehouse/store', { method: 'POST', cookie: cookie1, body: { child_id: 1, no: 16 } });
+    assert.equal(s1.json.error, 'IN_BATTLE', '发起方（child_a）被拦');
+    const s2 = await callApi(env, '/api/warehouse/store', { method: 'POST', cookie: cookie2, body: { child_id: 2, no: 50 } });
+    assert.equal(s2.json.error, 'IN_BATTLE', '加入方（child_b）被拦');
+
+    raw.prepare("UPDATE battles SET status='abandoned' WHERE id=?").run(Number(pvp.lastInsertRowid));
+    const s3 = await callApi(env, '/api/warehouse/store', { method: 'POST', cookie: cookie1, body: { child_id: 1, no: 16 } });
+    assert.equal(s3.status, 200, '放弃的局不拦');
+
+    // 只有孩子 1 在局里时，孩子 2 照常存取
+    addBattle(raw, { mode: 'gym', a: 1 });
+    const s4 = await callApi(env, '/api/warehouse/store', { method: 'POST', cookie: cookie2, body: { child_id: 2, no: 50 } });
+    assert.equal(s4.status, 200, JSON.stringify(s4.json));
   });
 });

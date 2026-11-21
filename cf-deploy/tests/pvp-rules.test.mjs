@@ -11,7 +11,7 @@ const M = await import(new URL('../src/index.js', import.meta.url));
 const APP_JS = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
 const STYLE_CSS = readFileSync(new URL('../public/static/style.css.orig', import.meta.url), 'utf8');
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0022_warehouse.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -68,10 +68,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 
 function realTodayStr() {
@@ -97,7 +97,8 @@ function seedApprovedDays(childId, weekStart, n = 4) {
 }
 function setXp(childId, xp) { raw.prepare('UPDATE children SET total_xp=? WHERE id=?').run(xp, childId); }
 function giveDex(childId, key) {
-  raw.prepare("INSERT OR IGNORE INTO pokedex(child_id, entry_key, unlocked_at) VALUES(?,?,'2026-01-01')").run(childId, key);
+  // 清仓库表 #5/#10：MIGRATIONS 已含 0022（carried 列默认 0＝仓库）；这里给的收藏宠按“随身携带”入账，既有测试语义不变
+  raw.prepare("INSERT OR IGNORE INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES(?,?,'2026-01-01',1)").run(childId, key);
 }
 async function pvpFixture() {
   const s = await setup();
@@ -228,17 +229,44 @@ describe('对战规则阶段 1：出战选择器', () => {
     const battleId = create.j.battle.battleId;
     assert.equal(create.j.battle.sides.A.pets.length, 2);
     assert.equal(create.j.battle.sides.A.pets[1].no, 54);
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000', benchNo: 50 } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222', benchNo: 50 } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     assert.equal(join.j.battle.sides.B.pets.length, 2);
     assert.equal(join.j.battle.sides.B.pets[1].no, 50);
+  });
+
+  test('房号模式：建局存 roomCode，加入输对房号进、输错被拒；无房号老局仍用加入方自己的小密码', async () => {
+    const { c1, c2 } = await pvpFixture();
+    giveDex(1, 'wild:54');
+    giveDex(2, 'wild:50');
+    const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54, roomCode: '0000' } });
+    assert.equal(create.j.ok, true, JSON.stringify(create.j));
+    const battleId = create.j.battle.battleId;
+    assert.equal(create.j.battle.roomCode, '0000', '建局回执应带房号（发起方道馆页显示用）');
+    const wrong = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '9999', benchNo: 50 } });
+    assert.equal(wrong.j.ok, false);
+    assert.ok(String(wrong.j.error || '').includes('房号'), JSON.stringify(wrong.j));
+    // 1234 不是小宝的小密码 2222，输对房号能进就证明房号替代了小密码
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '0000', benchNo: 50 } });
+    assert.equal(join.j.ok, true, JSON.stringify(join.j));
+    assert.equal(join.j.battle.status, 'active');
   });
 
   test('前端静态守卫：两栏选择器在位、对方栏禁用、旧单栏选择器已撤', () => {
     assert.ok(APP_JS.includes('function pvpTeamPickerHtml'));
     assert.ok(APP_JS.includes('的出战伙伴'));
     assert.ok(APP_JS.includes('对方加入时自己选'));
-    assert.ok(APP_JS.includes('已选好，加入后开战'));
+    // 房号模式：旧加入表单已撤（pvpJoinFormHtml 含「已选好，加入后开战」），统一走「开始对战」输房号入口
+    assert.ok(!APP_JS.includes('pvpJoinFormHtml'), '旧加入表单应已撤');
+    assert.ok(!APP_JS.includes('已选好，加入后开战'), '旧加入表单的对方栏文案应已撤');
+    // 2026-11-16 实测教训：删 joinPvp 函数后残留 window.joinPvp = joinPvp，导致整包 ReferenceError、首页白屏；旧函数名必须零残留（joinPvpDirect 是保留的直连函数，不算）
+    assert.ok(!/joinPvp(?!Direct)/.test(APP_JS), '已删的 joinPvp 应零残留（含 window 赋值）');
+    assert.ok(!APP_JS.includes('pickBenchJoin'), '已删的 pickBenchJoin 应零残留');
+    assert.ok(APP_JS.includes('输入对战房号'), '房号模式：开始对战先输房号');
+    assert.ok(APP_JS.includes('roomCode'), '房号应随建局存入、加入时校验');
+    // 2026-11-16 补：发起方在等对方加入的等待画面里必须一眼看到房号（道馆页的房号在首屏下，得翻页才看到）
+    assert.ok(APP_JS.includes("v.roomCode ?"), '等待画面应显示房号');
+    assert.ok(APP_JS.includes('告诉'), '等待画面的房号行应写明告诉对方');
     assert.ok(APP_JS.includes('主宠固定出战，选 1 只备战宠'));
     assert.ok(APP_JS.includes('pvpCounter'), '克制角标应读后端 pvpCounter');
     assert.ok(APP_JS.includes('克制'), '角标文案应含“克制”');
@@ -279,7 +307,7 @@ describe('对战规则修复：加入方 status 看得到对方 waiting 局', ()
     const n = raw.prepare("SELECT COUNT(*) n FROM battles WHERE mode='pvp' AND week_start=? AND status='waiting'").get(ps2.j.weekStart).n;
     assert.equal(n, 1, '本周 waiting 局应只有一局');
     // 加入后：双方 status 都是同一局，mySide 各为 A/B
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000', benchNo: 50 } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222', benchNo: 50 } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     const ps1 = await call('/api/battle/pvp/status', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(ps1.j.myMatch.battleId, battleId);
@@ -297,7 +325,7 @@ describe('对战规则修复：加入方 status 看得到对方 waiting 局', ()
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000', benchNo: 50 } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222', benchNo: 50 } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     await playPvpToEnd(c1, c2, battleId, join.j.battle);
     const req = await call('/api/battle/pvp/rematch/request', { method: 'POST', cookie: c1, body: { childId: 1 } });
@@ -350,7 +378,7 @@ describe('对战规则阶段 2：荣誉墙', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     let v = join.j.battle;
     // 打完：遇防守挂起就按题库正确答案作答（防守题可能是历史科目题，也可能是 2026-11-09 起混入的脑筋急转弯），否则出招
@@ -407,5 +435,126 @@ describe('对战规则阶段 2：荣誉墙', () => {
     assert.ok(APP_JS.includes('上周冠军'));
     assert.ok(APP_JS.includes('查看荣誉墙 ›'));
     assert.ok(APP_JS.includes('href="#pvp-honor"'));
+  });
+
+  test('前端静态守卫：无热身跳过、备战回道馆不丢、兄弟对战固定中文', () => {
+    // 2026-11-16 用户定：取消热身，先攻第一回合直接出招；“跳过这一回合”按钮与 skip_first 事件应零残留
+    assert.ok(!APP_JS.includes('跳过这一回合'), '热身跳过按钮应已删除');
+    assert.ok(!APP_JS.includes('Skip this round'), '热身跳过按钮（英文）应已删除');
+    assert.ok(!APP_JS.includes('skip_first'), 'skip_first 热身事件应零残留');
+    assert.ok(!APP_JS.includes('第一个回合不能出招'), '热身提示文案应已删除');
+    // 备战保留：goGym 三处建 _gymPage 都应沿用 keepBenchPvp，而不是写死 null
+    assert.ok(APP_JS.includes('benchPvp: keepBenchPvp'), 'goGym 应保留已选备战');
+    assert.ok(!/benchPvp: null, benchJoin: null/.test(APP_JS), 'goGym 不应再写死备战为 null');
+    // 兄弟对战固定中文：renderBattleView 里 PvP 强制 state.lang = zh，学习功能不受影响
+    assert.ok(APP_JS.includes("view.mode === 'pvp') state.lang = 'zh'"), '兄弟对战应强制中文界面');
+  });
+
+});
+
+/* ---------------- 清仓库表 #5/#10：道馆／兄弟对战 benchNo 须在随身携带中 ----------------
+ * 测试站默认 GATES_OPEN 时任意收藏种可当备战（2026-11-06 调试口径，bench-test-mode-full 等测试依赖），
+ * 所以这组先关门槛（debug_open_gates='0'）——关门槛后 ownsSpecies 只查 pokedex 行存在、不看 carried，
+ * 仓库宠（行在、carried=0）能过旧校验，正好测得出新校验。 */
+describe('备战宠须在随身携带中（仓库表第 5/10 项）', () => {
+  const closeGates = () => raw.prepare("INSERT OR REPLACE INTO settings(key,value) VALUES('debug_open_gates','0')").run();
+  const giveDexCarried = (childId, key, carried) => raw.prepare(
+    "INSERT OR REPLACE INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES(?,?,'2026-01-01',?)"
+  ).run(childId, key, carried);
+  const battleCount = () => raw.prepare('SELECT COUNT(*) AS n FROM battles').get().n;
+  const WAREHOUSE_MSG = '先把它带回随身队伍';
+  const NOT_OWNED_MSG = '还没有收集到';
+
+  test('建局：benchNo 是仓库宠（carried=0）→ 400 提示先带回；未拥有 → 旧文案；携带宠 → 200', async () => {
+    closeGates();
+    const { c1 } = await pvpFixture();
+    giveDexCarried(1, 'wild:54', 0); // 可达鸭在仓库
+    const n0 = battleCount();
+    const wh = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54 } });
+    assert.equal(wh.status, 400, JSON.stringify(wh.j));
+    assert.ok(String(wh.j.error).includes(WAREHOUSE_MSG), wh.j.error);
+    assert.equal(battleCount(), n0, '被拒不建局');
+
+    const unowned = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 50 } });
+    assert.equal(unowned.status, 400);
+    assert.ok(String(unowned.j.error).includes(NOT_OWNED_MSG), unowned.j.error);
+
+    giveDexCarried(1, 'wild:54', 1); // 对照：带回随身
+    const ok = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54 } });
+    assert.equal(ok.j.ok, true, JSON.stringify(ok.j));
+    assert.equal(ok.j.battle.sides.A.pets[1].no, 54);
+  });
+
+  test('加入：benchNo 是仓库宠 → 400 且局仍是 waiting；携带宠 → 200', async () => {
+    closeGates();
+    const { c1, c2 } = await pvpFixture();
+    giveDexCarried(1, 'wild:54', 1); // 建局方带可达鸭（双方都带备战宠，加入后队伍才不会被裁成只剩主宠）
+    const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54 } });
+    assert.equal(create.j.ok, true, JSON.stringify(create.j));
+    const battleId = create.j.battle.battleId;
+    giveDexCarried(2, 'wild:50', 0); // 地鼠在仓库
+    const wh = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222', benchNo: 50 } });
+    assert.equal(wh.status, 400, JSON.stringify(wh.j));
+    assert.ok(String(wh.j.error).includes(WAREHOUSE_MSG), wh.j.error);
+    assert.equal(raw.prepare('SELECT status FROM battles WHERE id=?').get(battleId).status, 'waiting', '被拒不改局');
+
+    giveDexCarried(2, 'wild:50', 1);
+    const ok = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222', benchNo: 50 } });
+    assert.equal(ok.j.ok, true, JSON.stringify(ok.j));
+    assert.equal(ok.j.battle.sides.B.pets[1].no, 50);
+  });
+
+  test('先发：leadNo＝仓库宠（同时作 benchNo）→ 400 不建局；leadNo＝携带备战宠 → 200（参照 gym-lead 的 leadNo 校验）', async () => {
+    closeGates();
+    const { c1 } = await pvpFixture();
+    giveDexCarried(1, 'wild:54', 0);
+    const n0 = battleCount();
+    const bad = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54, leadNo: 54 } });
+    assert.equal(bad.status, 400, JSON.stringify(bad.j));
+    assert.equal(bad.j.ok, false);
+    assert.equal(battleCount(), n0, '被拒不建局');
+    // 只传 leadNo＝仓库宠、不传 benchNo：leadNo 既非主宠也非 benchNo → 仍是 LEAD_NOT_CARRIED
+    const lead = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, leadNo: 54 } });
+    assert.equal(lead.status, 400);
+    assert.equal(lead.j.code, 'LEAD_NOT_CARRIED');
+    assert.equal(battleCount(), n0);
+
+    giveDexCarried(1, 'wild:54', 1);
+    const ok = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54, leadNo: 54 } });
+    assert.equal(ok.j.ok, true, JSON.stringify(ok.j));
+    assert.equal(ok.j.battle.sides.A.pets[0].no, 54, '携带备战宠可先发');
+  });
+
+  test('加入方先发：leadNo＝仓库宠 → 400；局仍 waiting', async () => {
+    closeGates();
+    const { c1, c2 } = await pvpFixture();
+    const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
+    const battleId = create.j.battle.battleId;
+    giveDexCarried(2, 'wild:50', 0);
+    const bad = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222', benchNo: 50, leadNo: 50 } });
+    assert.equal(bad.status, 400, JSON.stringify(bad.j));
+    assert.equal(raw.prepare('SELECT status FROM battles WHERE id=?').get(battleId).status, 'waiting');
+  });
+
+  test('道馆开局：benchNo 是仓库宠 → 400 不建局；携带宠 → 200（API 直调口径）', async () => {
+    closeGates();
+    const { c1 } = await pvpFixture();
+    giveDexCarried(1, 'wild:54', 0);
+    const n0 = battleCount();
+    const wh = await call('/api/battle/gym/start', { method: 'POST', cookie: c1, body: { childId: 1, stage: 1, benchNo: 54 } });
+    assert.equal(wh.status, 400, JSON.stringify(wh.j));
+    assert.ok(String(wh.j.error).includes(WAREHOUSE_MSG), wh.j.error);
+    assert.equal(battleCount(), n0, '被拒不建局');
+
+    giveDexCarried(1, 'wild:54', 1);
+    const ok = await call('/api/battle/gym/start', { method: 'POST', cookie: c1, body: { childId: 1, stage: 1, benchNo: 54 } });
+    assert.equal(ok.j.ok, true, JSON.stringify(ok.j));
+  });
+
+  test('测试站调试口径不变：门槛全开（默认）时仓库宠／未拥有种仍可当备战', async () => {
+    const { c1 } = await pvpFixture();
+    giveDexCarried(1, 'wild:54', 0);
+    const ok = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 54 } });
+    assert.equal(ok.j.ok, true, JSON.stringify(ok.j));
   });
 });

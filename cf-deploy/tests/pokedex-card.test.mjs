@@ -10,7 +10,7 @@ const M = await import(new URL('../src/index.js', import.meta.url));
 const MIGRATIONS = [
   '0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql',
   '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql',
-  '0010_pvp_rematch.sql', '0019_evo_items.sql', '0023_care_qa_and_friendship.sql',
+  '0010_pvp_rematch.sql', '0019_evo_items.sql', '0023_care_qa_and_friendship.sql', '0043_pet_instances_ability.sql',
 ];
 let raw, env;
 function makeEnv() {
@@ -50,6 +50,17 @@ async function pokedex(childId, cookie) {
   assert.equal(r.j.ok, true);
   return r.j;
 }
+/* 单张卡片详情（Fable 优化 #2）：列表不再内联详情，卡片详情走 /api/pokedex/card 按需取。 */
+async function cardRaw(key, cookie) {
+  const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key }, cookie });
+  return r;
+}
+async function card(key, cookie) {
+  const r = await cardRaw(key, cookie);
+  assert.equal(r.status, 200, key);
+  assert.equal(r.j.ok, true, key);
+  return r.j.details;
+}
 function insertEntry(childId, key) {
   const columns = raw.prepare('PRAGMA table_info(pokedex)').all().filter((c) => c.name !== 'id');
   const names = columns.map((c) => `"${c.name}"`).join(', ');
@@ -77,27 +88,46 @@ describe('pokedex cards', () => {
     const j = await pokedex(1, cookie);
     assert.equal(j.level, 2);
     assert.deepEqual(j.xp, { total: 40, intoLevel: 0, span: 80, toNext: 80 });
-    const line = j.lineEntries.find((e) => e.current && e.no != null && e.unlocked);
-    assert.equal(line.level, 2);
+    // 详情已拆到 /api/pokedex/card：列表只回动态数据，卡片详情按需取（Fable 优化 #2）
+    const line = await card('form:pikachu:1', cookie);
     assert.equal(line.type, '电');
     assert.ok(line.moves.some((m) => m.level === 2 && m.desc));
-    const other = j.lineEntries.find((e) => e.key === 'form:charmander:1');
+    const other = await card('form:charmander:1', cookie);
     assert.equal(other.type, '火');
     assert.equal(Object.hasOwn(other, 'level'), false);
-    const egg = j.lineEntries.find((e) => e.current && e.no == null);
-    for (const field of ['type', 'types', 'moves', 'abilities', 'stats', 'evo', 'level', 'obtainedAt']) assert.equal(Object.hasOwn(egg, field), false);
-    const wild = j.wild.find((e) => e.no === 54);
+    const egg = await cardRaw('form:pikachu:0', cookie);
+    assert.equal(egg.status, 404, '蛋形态没有卡片');
+    const wild = await card('wild:54', cookie);
     assert.equal(wild.type, '水');
     assert.equal(wild.obtainedAt, '2026-01-02');
     assert.ok(wild.moves.every((m) => m.name && m.power));
-    const gym = j.others.find((e) => e.no === 95);
-    assert.deepEqual(gym.moves[0], { name: '岩石猛击', type: '岩石', power: 28 });
-    assert.equal(j.dex151[53].obtainedAt, wild.obtainedAt);
-    assert.deepEqual(j.dex151[53].moves, wild.moves);
-    const locked = j.dex151.find((e) => !e.unlocked);
-    assert.deepEqual(locked, { no: locked.no, unlocked: false, name: null, img: `/static/img/p${locked.no}.${H}.webp` });
-    for (const e of [...j.wild, ...j.others, ...j.eggSpecies, ...j.lineEntries].filter((e) => !e.unlocked)) {
-      for (const field of ['type', 'types', 'moves', 'abilities', 'stats', 'evo', 'level', 'obtainedAt']) assert.equal(Object.hasOwn(e, field), false);
+    const gym = await card('gym:95', cookie);
+    assert.deepEqual(gym.moves[0], { name: '落石', type: '岩石', power: 50, damage_class: '物理' }); // 2026-11-17 数据集校对：官方落石 50（原自定义岩石猛击 55）；官方招带 damage_class
+    // dex151:N 与源条目是同一张卡
+    const via151 = await card('dex151:54', cookie);
+    assert.deepEqual(via151, wild);
+    assert.equal(via151.obtainedAt, wild.obtainedAt);
+    // 未获得的 151 行：动态列表不含该编号，卡片端返回 LOCKED（详情不泄露）
+    const ownedSet = new Set(j.dex151Owned);
+    const lockedNo = Array.from({ length: 151 }, (_, i) => i + 1).find((n) => !ownedSet.has(n));
+    assert.ok(lockedNo != null && !ownedSet.has(lockedNo));
+    const lockedCard = await cardRaw('dex151:' + lockedNo, cookie);
+    assert.equal(lockedCard.status, 403);
+    assert.equal(lockedCard.j.error, 'LOCKED');
+    // 未获得条目一律取不到详情：本孩的骨架 key 中不在 unlocked 里的，卡片端全部 LOCKED
+    //（静态骨架的 eggSpecies 是跨线并集，须按本孩的 eggSpeciesKeys 取子集——自家线蛋不在其中）
+    const skel = M.pokedexStaticSkeleton().data;
+    const skelByKey = new Map([...skel.lineEntries, ...skel.wild, ...skel.others, ...skel.eggSpecies].map((e) => [e.key, e]));
+    const allKeys = [...skel.lineEntries, ...skel.wild, ...skel.others].map((e) => e.key)
+      .concat(j.eggSpeciesKeys);
+    const unlockedSet = new Set(j.unlocked);
+    for (const key of allKeys) {
+      if (unlockedSet.has(key)) continue;
+      const e = skelByKey.get(key);
+      if (e && e.no == null) continue; // 蛋形态走 NOT_FOUND，见上
+      const r = await cardRaw(key, cookie);
+      assert.equal(r.status, 403, key + ' 应 LOCKED');
+      assert.equal(r.j.error, 'LOCKED');
     }
   });
   test('enriched details: dual types, abilities, stats, App-rule evo chain', async () => {
@@ -105,8 +135,7 @@ describe('pokedex cards', () => {
     const cookie = await parentCookie();
     await pokedex(1, cookie);
     for (const key of ['wild:111', 'wild:43', 'form:eevee:1', 'rare:151', 'form:pikachu:1']) insertEntry(1, key);
-    const j = await pokedex(1, cookie);
-    const rhy = j.wild.find((e) => e.no === 111);
+    const rhy = await card('wild:111', cookie);
     assert.deepEqual(rhy.types, ['地面', '岩石']);
     assert.deepEqual(rhy.abilities, [
       { name: '避雷针', hidden: false, effect: '把单体电属性招式引到自己身上，吸收后特攻提升1级。' },
@@ -122,7 +151,7 @@ describe('pokedex cards', () => {
       ],
       branches: null,
     });
-    const odd = j.wild.find((e) => e.no === 43);
+    const odd = await card('wild:43', cookie);
     assert.deepEqual(odd.types, ['草', '毒']);
     assert.deepEqual(odd.evo, {
       chain: [
@@ -134,17 +163,17 @@ describe('pokedex cards', () => {
     });
     // 官方有美丽花分支，App 内无 #182、不展示
     assert.equal(JSON.stringify(odd.evo).includes('美丽花'), false);
-    const eevee = j.lineEntries.find((e) => e.key === 'form:eevee:1');
+    const eevee = await card('form:eevee:1', cookie);
     assert.deepEqual(eevee.types, ['普通']);
     assert.equal(eevee.evo.chain.length, 1);
     assert.equal(eevee.evo.chain[0].name, '伊布');
     // 未获得任何分支时，本体卡片不列分支路线（进化路线由孩子自己发现）；只列已获得分支的断言见 dex-eevee-hidden.test.mjs
     assert.equal(eevee.evo.branches, null);
-    const mew = j.others.find((e) => e.no === 151);
+    const mew = await card('rare:151', cookie);
     assert.deepEqual(mew.evo, { chain: [{ no: 151, name: '梦幻', cond: null }], branches: null });
     assert.deepEqual(mew.stats, { hp: 100, attack: 100, defense: 100, sp_attack: 100, sp_defense: 100, speed: 100, total: 600 });
     // 主宠线：官方 16/36 级终极改为 App 的 10 级中段、16 级＋石终极
-    const pichu = j.lineEntries.find((e) => e.key === 'form:pikachu:1');
+    const pichu = await card('form:pikachu:1', cookie);
     assert.deepEqual(pichu.evo, {
       chain: [
         { no: 172, name: '皮丘', cond: null },
@@ -170,20 +199,19 @@ describe('pokedex cards', () => {
     raw.exec("INSERT OR IGNORE INTO pet_instances (child_id, line_key, species_no, form_idx, source, has_been_main, created_epoch, updated_epoch, friendship) VALUES (1, 'pikachu', 172, 0, 'main', 1, 0, 0, 120)");
     raw.exec("UPDATE pet_instances SET friendship=120 WHERE child_id=1 AND line_key='pikachu'");
     for (const key of ['wild:54', 'form:charmander:1', 'form:pikachu:1']) insertEntry(1, key);
-    const j = await pokedex(1, cookie);
-    const main = j.lineEntries.find((e) => e.current && e.no != null && e.unlocked);
+    const main = await card('form:pikachu:1', cookie);
     assert.equal(main.friendship, 120);
-    const other = j.lineEntries.find((e) => e.key === 'form:charmander:1');
+    const other = await card('form:charmander:1', cookie);
     assert.equal(Object.hasOwn(other, 'friendship'), false);
-    const wild = j.wild.find((e) => e.no === 54);
+    const wild = await card('wild:54', cookie);
     assert.equal(Object.hasOwn(wild, 'friendship'), false);
     // 主宠无 pet_instances 行时默认 0（仍带字段，前端显示 0/255）
     raw.exec("DELETE FROM pet_instances WHERE child_id=1 AND line_key='pikachu'");
-    const j2 = await pokedex(1, cookie);
-    const main2 = j2.lineEntries.find((e) => e.current && e.no != null && e.unlocked);
+    const main2 = await card('form:pikachu:1', cookie);
     assert.equal(main2.friendship, 0);
   });
 });
+
 test('frontend card guards and styling', () => {
   const app = readFileSync(assetPath('app.js'), 'utf8');
   const css = readFileSync(assetPath('style.css'), 'utf8');

@@ -14,7 +14,7 @@ const defaultGates = () => ({
   chineseGate: M.chineseGateFor(3, M.defaultChineseChapter(3)),
   englishGate: M.englishGateFor(3, M.defaultEnglishChapter(3)),
 });
-const seeded = (s) => () => (s = (s * 1103515245 + 13579) % 2147483648) / 2147483648;
+const seeded = (s) => () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
 const toRow = (r, id) => ({
   id, kind: 'study', grade: 3, subject: '语文', question: r.q,
   options_json: JSON.stringify(r.options), answer_idx: r.answer, explain: r.explain,

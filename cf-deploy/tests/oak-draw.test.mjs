@@ -1,8 +1,10 @@
 /* 大木博士跟读奖励单测：node --test tests/oak-draw.test.mjs
- * 两档：没到 4 句 5 星只有听完的 10 XP；6 句里至少 4 句 5 星（每句 pron ≥85，按当日最好成绩）时
- * 在 10 XP 之外再抽一次，每天一次。奖池（2026-11-07 转盘升级扩池，权重和 100）：
- * 经验+10 20%、普通球 10%、care 食物 6 种各 5%、care 洗澡 4 种各 3%、
- * 伤药 6%/好伤药 4%/树果汁 3%/美味之水 3%、雷火水叶四石各 3%。
+ * 两档：没到 4 句 5 星只有听完的 10 XP；6 句里至少 4 句 5 星（每句 pron ≥85，按当日最好成绩）
+ * 且 6 句全 ≥75（每句 pron ≥75）时，在 10 XP 之外再发 1 次普通转盘机会，每天一次。
+ * 奖池（2026-11-07 转盘升级扩池，权重和 100）：经验+10 20%、普通球 10%、care 食物 6 种各 5%、
+ * care 洗澡 4 种各 3%、伤药 6%/好伤药 4%/树果汁 3%/美味之水 3%、活力碎片 6%、高级球 6%。
+ * 2026-11-17 用户定：够格不再当场掷骰、不再记 oak_draws 行，只发机会（oak_wheel_chances，
+ * 迁移 0040），孩子去大木博士之家 → 转盘中心扭一下才掷骰、才发奖。
  * 抽奖服务端做、每天一次、幂等。点评接口用 mock 讯飞分数，真实讯飞调用 0 次。 */
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +13,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0018_oak_draw.sql', '0017_diagnosis.sql', '0019_evo_items.sql', '0020_sync.sql', '0025_oak_draw_item.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0018_oak_draw.sql', '0017_diagnosis.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0040_oak_wheel_chances.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -35,13 +37,23 @@ function makeEnv(migrations = MIGRATIONS) {
   };
   return {
     env: { DB: db, TEST_MODE: '1', ASSETS: { fetch: async () => new Response('<html>app</html>', { headers: { 'Content-Type': 'text/html' } }) },
-      IFLYTEK_APPID: 'test-appid', IFLYTEK_API_KEY: 'test-apikey-fedcba9876543210', IFLYTEK_API_SECRET: 'test-secret-dummy-fedcba9876543210' },
+      IFLYTEK_APPID: 'test-appid', IFLYTEK_API_KEY: 'test-apikey-0123456789abcdef', IFLYTEK_API_SECRET: 'test-secret-dummy-0123456789abcdef' },
     raw,
   };
 }
 
 let env, raw;
-beforeEach(() => { ({ env, raw } = makeEnv()); });
+beforeEach(async () => {
+  ({ env, raw } = makeEnv());
+  // 夹具孩子密码（与 care-wheel.test 同一做法）：家长登录后经设置接口下发，转盘 spin 用孩子会话
+  const parent = await call('/api/parent/login', { method: 'POST', body: { pin: '0000' } });
+  assert.equal(parent.status, 200);
+  const set = await call('/api/parent/settings/update', {
+    method: 'POST', cookie: parent.cookie,
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
+  });
+  assert.equal(set.j.ok, true);
+});
 
 async function call(path, { method = 'GET', body, cookie } = {}) {
   const headers = { 'Content-Type': 'application/json' };
@@ -66,6 +78,12 @@ async function callRaw(path, { method = 'POST', body, headers = {}, cookie } = {
 async function parentCookie() {
   const r = await call('/api/parent/login', { method: 'POST', body: { pin: '0000' } });
   assert.equal(r.status, 200);
+  return r.cookie;
+}
+
+async function childCookie(id, pw) {
+  const r = await call('/api/child/login', { method: 'POST', body: { childId: id, password: pw } });
+  assert.equal(r.status, 200, `child ${id} 登录应成功：${JSON.stringify(r.j)}`);
   return r.cookie;
 }
 
@@ -134,12 +152,26 @@ async function listen(cookie, childId, questionId) {
   return call('/api/oak/listen', { method: 'POST', cookie, body: { child_id: childId, question_id: questionId } });
 }
 
+async function backpackChances(childId, cookie) {
+  const r = await call('/api/evo/backpack?childId=' + childId, { cookie });
+  assert.equal(r.status, 200, `child ${childId} 背包应可读：${JSON.stringify(r.j)}`);
+  return { wheel: r.j.wheelChances, rare: r.j.rareWheelChances, care: r.j.careWheelChances, oak: r.j.oakWheelChances };
+}
+
+async function spin(childId, cookie) {
+  return call('/api/oak-wheel/spin', { method: 'POST', body: { childId }, cookie });
+}
+
 function childState(id) {
   return raw.prepare('SELECT total_xp, balls, balls_super FROM children WHERE id=?').get(id);
 }
-function draws() { return raw.prepare('SELECT * FROM oak_draws ORDER BY created_epoch').all(); }
+function oakChances(childId = 1) { return raw.prepare('SELECT * FROM oak_wheel_chances WHERE child_id=? ORDER BY id').all(childId); }
 function assessments() { return raw.prepare('SELECT * FROM oak_assessments ORDER BY question_id').all(); }
 function ballGrants() { return raw.prepare('SELECT * FROM ball_grants ORDER BY id').all(); }
+function invQty(childId, key) {
+  const r = raw.prepare('SELECT qty FROM item_inventory WHERE child_id=? AND item_key=?').get(childId, key);
+  return r ? r.qty : 0;
+}
 
 describe('跟读奖励：星级与掷骰（纯函数）', () => {
   test('oakStarsFromPron 阈值与前端同口径', () => {
@@ -173,8 +205,8 @@ describe('跟读奖励：星级与掷骰（纯函数）', () => {
   });
 });
 
-describe('跟读奖励：触发与发放（HTTP＋mock 讯飞）', () => {
-  test('点评 90 分记 5 星、五星数 1，不抽奖', async () => {
+describe('跟读奖励：触发与发机会（HTTP＋mock 讯飞）', () => {
+  test('点评 90 分记 5 星、五星数 1，不发机会', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
     const r = await assess(cookie, 1, t.sentences[0].en, 90);
@@ -183,124 +215,121 @@ describe('跟读奖励：触发与发放（HTTP＋mock 讯飞）', () => {
     assert.equal(r.j.stars, 5);
     assert.equal(r.j.fiveStarCount, 1);
     assert.equal(r.j.fiveStarTotal, 6);
-    assert.equal(r.j.draw, null);
+    assert.equal(r.j.drawGranted, false);
+    assert.equal(r.j.justGranted, false);
     const rows = assessments();
     assert.equal(rows.length, 1);
     assert.equal(rows[0].best_pron, 90);
     assert.equal(rows[0].attempts, 1);
-    assert.equal(draws().length, 0);
+    assert.equal(oakChances().length, 0);
   });
 
-  test('3 句 5 星＋3 句 4 星不抽奖', async () => {
+  test('3 句 5 星＋3 句 4 星不发机会', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
     for (let i = 0; i < 3; i++) {
       const r = await assess(cookie, 1, t.sentences[i].en, 90);
       assert.equal(r.j.stars, 5);
-      assert.equal(r.j.draw, null);
+      assert.equal(r.j.drawGranted, false);
     }
     let last;
     for (let i = 3; i < 6; i++) {
       last = await assess(cookie, 1, t.sentences[i].en, 75);
       assert.equal(last.j.stars, 4);
-      assert.equal(last.j.draw, null);
+      assert.equal(last.j.drawGranted, false);
     }
     assert.equal(last.j.fiveStarCount, 3);
     assert.equal(last.j.fiveStarTotal, 6);
-    assert.equal(last.j.draw, null);
-    assert.equal(draws().length, 0);
+    assert.equal(last.j.drawGranted, false);
+    assert.equal(oakChances().length, 0);
     assert.equal(childState(1).total_xp, 0);
   });
 
-  test('4 句 5 星够格但不发奖：6 句读完那一刻才抽', async () => {
+  test('4 句 5 星够格但不发机会：6 句读完那一刻才发', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
     const before = childState(1);
-    await withRandom(0.1, async () => {
-      // 前 4 句 5 星：已够格（4 句 5 星），但只读了 4 句、未读完 6 句，不抽
-      for (let i = 0; i < 4; i++) {
-        const r = await assess(cookie, 1, t.sentences[i].en, 90);
-        assert.equal(r.j.stars, 5);
-        assert.equal(r.j.fiveStarCount, i + 1);
-        assert.equal(r.j.draw, null);
-      }
-      assert.equal(draws().length, 0);
-      assert.equal(childState(1).total_xp, before.total_xp);
-      // 第 5 句 4 星：5 星仍 4 句，已读 5 句，仍未读完，不抽
-      const fifth = await assess(cookie, 1, t.sentences[4].en, 75);
-      assert.equal(fifth.j.stars, 4);
-      assert.equal(fifth.j.fiveStarCount, 4);
-      assert.equal(fifth.j.draw, null);
-      assert.equal(draws().length, 0);
-      // 第 6 句 4 星：6 句都读完，5 星 4 句已够格，抽
-      const sixth = await assess(cookie, 1, t.sentences[5].en, 75);
-      assert.equal(sixth.j.stars, 4);
-      assert.equal(sixth.j.fiveStarCount, 4);
-      assert.deepEqual(sixth.j.draw, { prize: 'xp', prizeKey: 'xp', prizeName: '经验+10', prizeEmoji: '⭐', xpAwarded: 10, ballsAwarded: 0, justDrawn: true, wheel: M.oakWheelFor('xp') });
-      assert.equal(draws().length, 1);
-      assert.equal(childState(1).total_xp, before.total_xp + 10);
-    });
+    // 前 4 句 5 星：已够格（4 句 5 星），但只读了 4 句、未读完 6 句，不发
+    for (let i = 0; i < 4; i++) {
+      const r = await assess(cookie, 1, t.sentences[i].en, 90);
+      assert.equal(r.j.stars, 5);
+      assert.equal(r.j.fiveStarCount, i + 1);
+      assert.equal(r.j.drawGranted, false);
+    }
+    assert.equal(oakChances().length, 0);
+    assert.equal(childState(1).total_xp, before.total_xp);
+    // 第 5 句 4 星：5 星仍 4 句，已读 5 句，仍未读完，不发
+    const fifth = await assess(cookie, 1, t.sentences[4].en, 75);
+    assert.equal(fifth.j.stars, 4);
+    assert.equal(fifth.j.fiveStarCount, 4);
+    assert.equal(fifth.j.drawGranted, false);
+    assert.equal(oakChances().length, 0);
+    // 第 6 句 4 星：6 句都读完，5 星 4 句已够格，发机会（只发机会，不掷骰、不发奖）
+    const sixth = await assess(cookie, 1, t.sentences[5].en, 75);
+    assert.equal(sixth.j.stars, 4);
+    assert.equal(sixth.j.fiveStarCount, 4);
+    assert.equal(sixth.j.drawGranted, true);
+    assert.equal(sixth.j.justGranted, true);
+    assert.equal(oakChances().length, 1);
+    assert.equal(oakChances()[0].source, 'oak');
+    assert.equal(childState(1).total_xp, before.total_xp, '发机会时不加经验，经验等转盘里转到才发');
+    assert.equal(childState(1).balls, before.balls, '发机会时不发球');
   });
 
-  test('6 句 5 星抽中经验：+10 XP，每天只一注', async () => {
+  test('4 句 5 星＋1 句 3 星（60 分）不发机会：6 句须全 ≥75', async () => {
+    const cookie = await parentCookie();
+    const t = await today(cookie, 1);
+    const before = childState(1);
+    // 前 4 句 5 星（90 分）
+    for (let i = 0; i < 4; i++) {
+      const r = await assess(cookie, 1, t.sentences[i].en, 90);
+      assert.equal(r.j.stars, 5);
+      assert.equal(r.j.drawGranted, false);
+    }
+    // 第 5 句 4 星（75 分）
+    const fifth = await assess(cookie, 1, t.sentences[4].en, 75);
+    assert.equal(fifth.j.stars, 4);
+    assert.equal(fifth.j.drawGranted, false);
+    // 第 6 句 3 星（60 分）：6 句读完、5 星 4 句已够格，但有一句 <75，不发
+    const sixth = await assess(cookie, 1, t.sentences[5].en, 60);
+    assert.equal(sixth.j.stars, 3);
+    assert.equal(sixth.j.fiveStarCount, 4);
+    assert.equal(sixth.j.fourStarCount, 5);
+    assert.equal(sixth.j.drawGranted, false);
+    assert.equal(oakChances().length, 0);
+    assert.equal(childState(1).total_xp, before.total_xp);
+  });
+
+  test('6 句 5 星发机会：不发经验、不发球，每天只一次', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
     const before = childState(1);
     let last;
-    await withRandom(0.1, async () => {
-      for (let i = 0; i < 6; i++) {
-        last = await assess(cookie, 1, t.sentences[i].en, 90);
-        assert.equal(last.j.stars, 5);
-        if (i === 5) {
-          assert.deepEqual(last.j.draw, { prize: 'xp', prizeKey: 'xp', prizeName: '经验+10', prizeEmoji: '⭐', xpAwarded: 10, ballsAwarded: 0, justDrawn: true, wheel: M.oakWheelFor('xp') });
-        }
+    for (let i = 0; i < 6; i++) {
+      last = await assess(cookie, 1, t.sentences[i].en, 90);
+      assert.equal(last.j.stars, 5);
+      if (i === 5) {
+        assert.equal(last.j.drawGranted, true);
+        assert.equal(last.j.justGranted, true);
       }
-    });
+    }
     assert.equal(last.j.fiveStarCount, 6);
-    assert.equal(childState(1).total_xp, before.total_xp + 10);
-    const ds = draws();
-    assert.equal(ds.length, 1);
-    assert.equal(ds[0].prize, 'xp');
-    assert.equal(ds[0].xp_awarded, 10);
-    assert.equal(ds[0].balls_awarded, 0);
+    assert.deepEqual(childState(1), before, '发机会时不加经验、不加球');
+    assert.equal(oakChances().length, 1);
     assert.equal(ballGrants().length, 0);
   });
 
-  test('6 句 5 星抽中普通球：球 +1、有发球审计行', async () => {
+  test('幂等：发机会后重评不重复发', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
-    const before = childState(1);
-    let last;
-    await withRandom(0.25, async () => {
-      for (let i = 0; i < 6; i++) {
-        last = await assess(cookie, 1, t.sentences[i].en, 92);
-        if (i === 5) {
-          assert.deepEqual(last.j.draw, { prize: 'ball', prizeKey: 'ball', prizeName: '普通精灵球', prizeEmoji: '🔴', xpAwarded: 0, ballsAwarded: 1, justDrawn: true, wheel: M.oakWheelFor('ball') });
-        }
-      }
-    });
-    assert.equal(childState(1).total_xp, before.total_xp);
-    assert.equal(childState(1).balls, before.balls + 1);
-    const gs = ballGrants();
-    assert.equal(gs.length, 1);
-    assert.equal(gs[0].kind, 'normal');
-    assert.equal(gs[0].qty, 1);
-    assert.equal(gs[0].checkin_id, null);
-    assert.equal(draws().length, 1);
-  });
-
-  test('幂等：抽奖后重评不重复发', async () => {
-    const cookie = await parentCookie();
-    const t = await today(cookie, 1);
-    await withRandom(0.1, async () => {
-      for (let i = 0; i < 6; i++) await assess(cookie, 1, t.sentences[i].en, 90);
-    });
-    assert.equal(draws().length, 1);
+    for (let i = 0; i < 6; i++) await assess(cookie, 1, t.sentences[i].en, 90);
+    assert.equal(oakChances().length, 1);
     const mid = childState(1);
     const again = await assess(cookie, 1, t.sentences[0].en, 95);
     assert.equal(again.j.fiveStarCount, 6);
-    assert.deepEqual(again.j.draw, { prize: 'xp', prizeKey: 'xp', prizeName: '经验+10', prizeEmoji: '⭐', xpAwarded: 10, ballsAwarded: 0, justDrawn: false, wheel: M.oakWheelFor('xp') });
-    assert.equal(draws().length, 1);
+    assert.equal(again.j.drawGranted, true);
+    assert.equal(again.j.justGranted, false, '重评只复读已发状态，不重复发机会');
+    assert.equal(oakChances().length, 1);
     assert.deepEqual(childState(1), mid);
   });
 
@@ -319,52 +348,174 @@ describe('跟读奖励：触发与发放（HTTP＋mock 讯飞）', () => {
     assert.equal(rows[0].attempts, 2);
   });
 
-  test('today 返回五星进度与抽奖态', async () => {
+  test('today 返回五星进度与发机会态', async () => {
     const cookie = await parentCookie();
     const t0 = await today(cookie, 1);
     assert.equal(t0.fiveStarCount, 0);
     assert.equal(t0.fiveStarTotal, 6);
-    assert.equal(t0.draw, null);
+    assert.equal(t0.drawGranted, false);
     for (let i = 0; i < 3; i++) await assess(cookie, 1, t0.sentences[i].en, 90);
     const t1 = await today(cookie, 1);
     assert.equal(t1.fiveStarCount, 3);
     assert.equal(t1.fiveStarTotal, 6);
-    assert.equal(t1.draw, null);
-    await withRandom(0.1, async () => {
-      await assess(cookie, 1, t0.sentences[3].en, 90);
-      await assess(cookie, 1, t0.sentences[4].en, 90);
-    });
+    assert.equal(t1.drawGranted, false);
+    await assess(cookie, 1, t0.sentences[3].en, 90);
+    await assess(cookie, 1, t0.sentences[4].en, 90);
     const t4 = await today(cookie, 1);
     assert.equal(t4.fiveStarCount, 5);
-    assert.equal(t4.draw, null);
-    await withRandom(0.1, async () => {
-      await assess(cookie, 1, t0.sentences[5].en, 90);
-    });
+    assert.equal(t4.drawGranted, false);
+    await assess(cookie, 1, t0.sentences[5].en, 90);
     const t2 = await today(cookie, 1);
     assert.equal(t2.fiveStarCount, 6);
-    assert.deepEqual(t2.draw, { prize: 'xp', prizeKey: 'xp', prizeName: '经验+10', prizeEmoji: '⭐', xpAwarded: 10, ballsAwarded: 0, wheel: M.oakWheelFor('xp') });
+    assert.equal(t2.drawGranted, true);
   });
 
-  test('抽奖与听完奖励叠加：抽中经验后再听完 6 句，共 +20 XP', async () => {
+  test('发机会与听完奖励叠加：发机会不加经验，听完 6 句 +10 XP', async () => {
     const cookie = await parentCookie();
     const t = await today(cookie, 1);
     const before = childState(1);
-    await withRandom(0.1, async () => {
-      for (let i = 0; i < 6; i++) await assess(cookie, 1, t.sentences[i].en, 90);
-    });
-    assert.equal(childState(1).total_xp, before.total_xp + 10);
+    for (let i = 0; i < 6; i++) await assess(cookie, 1, t.sentences[i].en, 90);
+    assert.equal(childState(1).total_xp, before.total_xp, '发机会不加经验');
     assert.equal(raw.prepare('SELECT COUNT(*) n FROM quiz_attempts').get().n, 0);
     for (const s of t.sentences) {
       const r = await listen(cookie, 1, s.id);
       assert.equal(r.status, 200);
       assert.equal(r.j.ok, true);
     }
-    assert.equal(childState(1).total_xp, before.total_xp + 20);
+    assert.equal(childState(1).total_xp, before.total_xp + 10);
     const after = await today(cookie, 1);
     assert.equal(after.listenedCount, 6);
     assert.equal(after.completed, true);
     assert.equal(after.xpAwardedToday, 10);
     assert.equal(after.fiveStarCount, 6);
-    assert.deepEqual(after.draw, { prize: 'xp', prizeKey: 'xp', prizeName: '经验+10', prizeEmoji: '⭐', xpAwarded: 10, ballsAwarded: 0, wheel: M.oakWheelFor('xp') });
+    assert.equal(after.drawGranted, true);
+  });
+});
+
+describe('普通转盘：转盘中心扭一下才掷骰（HTTP）', () => {
+  async function grantFor(childId, cookie, pron = 90) {
+    const t = await today(cookie, childId);
+    for (let i = 0; i < 6; i++) await assess(cookie, childId, t.sentences[i].en, pron);
+    assert.equal(oakChances(childId).length, 1);
+  }
+
+  test('转盘中心能看到普通盘次数：发机会后背包 oakWheelChances 为 1，高级/养成盘不动', async () => {
+    const pc = await parentCookie();
+    const c1 = await childCookie(1, '1111');
+    const before = await backpackChances(1, c1);
+    assert.equal(before.oak, 0);
+    assert.equal(before.wheel, 0);
+    assert.equal(before.care, 0);
+    await grantFor(1, pc);
+    const after = await backpackChances(1, c1);
+    assert.equal(after.oak, 1);
+    assert.equal(after.wheel, 0, 'Oak 机会不占高级转盘机会');
+    assert.equal(after.care, 0, 'Oak 机会不占养成转盘机会');
+  });
+
+  test('扭一下才掷骰：抽中经验 +10、机会清零、再抽报无机会', async () => {
+    const pc = await parentCookie();
+    const c1 = await childCookie(1, '1111');
+    const before = childState(1);
+    await grantFor(1, pc);
+    assert.equal(childState(1).total_xp, before.total_xp, '没扭之前不发奖');
+    const r = await withRandom(0.1, () => spin(1, c1));
+    assert.equal(r.status, 200, JSON.stringify(r.j));
+    assert.equal(r.j.ok, true);
+    assert.deepEqual(r.j.prize, { kind: 'xp', key: 'xp', name: '经验+10', emoji: '⭐' });
+    assert.equal(r.j.chancesLeft, 0);
+    assert.equal(r.j.wheel.sectors.length, 18);
+    assert.equal(r.j.wheel.total, 100);
+    assert.equal(r.j.wheel.sectors[r.j.wheel.winnerIndex].key, 'xp');
+    assert.equal(childState(1).total_xp, before.total_xp + 10);
+    assert.notEqual(oakChances(1)[0].used_epoch, null, '机会行应标记已用');
+    const again = await spin(1, c1);
+    assert.equal(again.status, 400);
+    assert.match(again.j.error, /没有普通转盘机会/);
+    assert.equal(childState(1).total_xp, before.total_xp + 10, '再抽失败不得重复发奖');
+  });
+
+  test('抽中普通球：球 +1、有发球审计行', async () => {
+    const pc = await parentCookie();
+    const c1 = await childCookie(1, '1111');
+    const before = childState(1);
+    await grantFor(1, pc, 92);
+    const r = await withRandom(0.25, () => spin(1, c1));
+    assert.equal(r.status, 200, JSON.stringify(r.j));
+    assert.deepEqual(r.j.prize, { kind: 'ball', key: 'ball', name: '普通精灵球', emoji: '🔴' });
+    assert.equal(r.j.wheel.sectors[r.j.wheel.winnerIndex].key, 'ball');
+    assert.equal(childState(1).total_xp, before.total_xp);
+    assert.equal(childState(1).balls, before.balls + 1);
+    const gs = ballGrants();
+    assert.equal(gs.length, 1);
+    assert.equal(gs[0].kind, 'normal');
+    assert.equal(gs[0].qty, 1);
+    assert.equal(gs[0].checkin_id, null);
+  });
+
+  test('抽中 care:apple：背包 +1、流水 reason oak-wheel', async () => {
+    const pc = await parentCookie();
+    const c1 = await childCookie(1, '1111');
+    await grantFor(1, pc);
+    const r = await withRandom(0.32, () => spin(1, c1));
+    assert.equal(r.status, 200, JSON.stringify(r.j));
+    assert.equal(r.j.prize.kind, 'item');
+    assert.equal(r.j.prize.key, 'care:apple');
+    assert.equal(r.j.prize.name, '红苹果');
+    assert.equal(invQty(1, 'care:apple'), 1);
+    const led = raw.prepare("SELECT * FROM item_ledger WHERE child_id=1 AND item_key='care:apple'").all();
+    assert.equal(led.length, 1);
+    assert.equal(led[0].delta, 1);
+    assert.equal(led[0].reason, 'oak-wheel');
+    assert.equal(led[0].ref_type, 'oak_wheel_chance');
+  });
+
+  test('抽中活力碎片：走 addItem 进背包、奖品名/emoji 正确', async () => {
+    const pc = await parentCookie();
+    const c1 = await childCookie(1, '1111');
+    await grantFor(1, pc);
+    const r = await withRandom(0.89, () => spin(1, c1));
+    assert.equal(r.status, 200, JSON.stringify(r.j));
+    assert.equal(r.j.prize.kind, 'item');
+    assert.equal(r.j.prize.key, 'medicine:revive');
+    assert.equal(r.j.prize.name, '活力碎片');
+    assert.equal(r.j.prize.emoji, '✨');
+    assert.equal(invQty(1, 'medicine:revive'), 1);
+  });
+
+  test('没机会时不发奖、不动库存', async () => {
+    const c1 = await childCookie(1, '1111');
+    const r = await spin(1, c1);
+    assert.equal(r.status, 400);
+    assert.match(r.j.error, /没有普通转盘机会/);
+    for (const [key] of M.OAK_WHEEL_POOL) {
+      if (key === 'xp' || key === 'ball') continue;
+      assert.equal(invQty(1, key), 0, `${key} 不应凭空进库存`);
+    }
+  });
+
+  test('未登录拒绝、跨孩拒绝', async () => {
+    const pc = await parentCookie();
+    const c1 = await childCookie(1, '1111');
+    await grantFor(1, pc);
+    const anon = await call('/api/oak-wheel/spin', { method: 'POST', body: { childId: 1 } });
+    assert.equal(anon.status, 401);
+    const cross = await call('/api/oak-wheel/spin', { method: 'POST', body: { childId: 2 }, cookie: c1 });
+    assert.equal(cross.status, 403);
+    assert.equal(oakChances(1).length, 1, '拒绝的请求不得消耗机会');
+    assert.equal(oakChances(1)[0].used_epoch, null);
+  });
+
+  test('两孩互不干扰', async () => {
+    const pc = await parentCookie();
+    const c1 = await childCookie(1, '1111');
+    const c2 = await childCookie(2, '2222');
+    await grantFor(1, pc);
+    const b1 = await backpackChances(1, c1);
+    const b2 = await backpackChances(2, c2);
+    assert.equal(b1.oak, 1);
+    assert.equal(b2.oak, 0, '大宝够格不应给小宝发机会');
+    const r = await spin(2, c2);
+    assert.equal(r.status, 400);
   });
 });

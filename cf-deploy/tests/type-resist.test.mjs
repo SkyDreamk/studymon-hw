@@ -20,7 +20,7 @@ const EXPECTED_ROWS = {
   龙:   [1,   1,   1,   1,   1,   1,   1,   2,   1],
   普通: [1,   1,   1,   1,   1,   0.5, 1,   1,   1],
 };
-const FAIRY_ROW = { 龙: 2, 火: 0.5 };
+const FAIRY_ROW = { 火: 0.5, 格斗: 2, 毒: 0.5, 龙: 2, 恶: 2, 钢: 0.5 };
 const fixedRng = () => 0.5;
 const damageOpts = { range: [1, 1] };
 
@@ -36,16 +36,17 @@ describe('官方 PvE 属性表', () => {
     }
   });
 
-  test('妖精仅有攻击行，龙为 ×2、火为 ×0.5，其余为 ×1', () => {
+  test('妖精攻击行已补全（2026-11-17 OFFICIAL_MULT 18 属性）：火 0.5、格斗/龙/恶 2、毒/钢 0.5；妖精作防御属性时龙 0、恶/虫/钢 0.5', () => {
     assert.deepEqual(M.OFFICIAL_MULT.妖精, FAIRY_ROW);
     for (const def of TYPES) {
       const expected = FAIRY_ROW[def] ?? 1;
       assert.equal(M.OFFICIAL_MULT.妖精[def] ?? 1, expected, `妖精→${def}`);
       assert.equal(M.typeMultOfficial('妖精', def), expected, `妖精→${def} 查表`);
     }
-    for (const atk of [...TYPES, '妖精']) {
-      assert.equal(Object.hasOwn(M.OFFICIAL_MULT[atk], '妖精'), false);
-    }
+    assert.equal(M.typeMultOfficial('龙', '妖精'), 0);
+    assert.equal(M.typeMultOfficial('恶', '妖精'), 0.5);
+    assert.equal(M.typeMultOfficial('虫', '妖精'), 0.5);
+    assert.equal(M.typeMultOfficial('钢', '妖精'), 2);
   });
 
   test('硬编码表与 data/type-chart.json 官方矩阵逐格一致', () => {
@@ -73,7 +74,7 @@ describe('官方 PvE 属性表', () => {
       ['妖精', '水', 1],
       ['龙', '龙', 2],
       ['普通', '电', 1],
-      ['冰', '水', 1],
+      ['冰', '水', 0.5],
       ['电', '妖精', 1],
     ];
     for (const [atk, def, expected] of cases) {
@@ -94,14 +95,14 @@ describe('calcDamage 的 chart 分叉', () => {
   const normal = { type: '普通', power: 60 };
   const officialOpts = { ...damageOpts, chart: 'official' };
 
-  test('官方火打水伤害减半且享 STAB：base 60 ×1.5 ×0.5 ×0.93 = 42', () => {
+  test('官方火打水伤害减半且享 STAB：base 60，分步取整 floor(60×0.93)=55 → floor(55×1.5)=82 → floor(82×0.5)=41', () => {
     const classic = M.calcDamage(fire, { level: 10, type: '火', stats: null }, { level: 10, type: '水', stats: null }, fixedRng, damageOpts);
     const resisted = M.calcDamage(fire, { level: 10, type: '火', stats: null }, { level: 10, type: '水', stats: null }, fixedRng, officialOpts);
     assert.equal(classic.mult, 1);
     assert.equal(classic.critical, false);
     assert.equal(resisted.mult, 0.5);
     assert.equal(resisted.critical, false);
-    assert.equal(resisted.dmg, 42); // base 60（无 stats 回落）× STAB 1.5（火招火宠）× mult 0.5 × 区间 0.93 = 41.85 → 42；officialOpts 的 range [1,1] 在官方分支已不再生效。
+    assert.equal(resisted.dmg, 41); // base 60（无 stats 回落）；旧单次 round(60×1.5×0.5×0.93)=round(41.85)=42，App.md 分步取整为 41。officialOpts 的 range [1,1] 在官方分支已不再生效。
   });
 
   test('官方电打地面免疫，伤害为零且不掷暴击', () => {
@@ -135,58 +136,96 @@ describe('calcDamage 的 chart 分叉', () => {
 });
 
 describe('官方属性展示与道馆克制', () => {
+  // 2026-11-17 方案 A：18 种全量，期望值由 data/type-chart.json 官方 18×18 矩阵独立算出，按 TYPES18 顺序排列。
   const expectedMatchups = {
-    电: {
-      strong: ['水', '飞行'], weak: ['地面'],
-      resist: ['电', '飞行'], immune: [],
+    普通: {
+      strong: [], weak: ['格斗'],
+      resist: [], immune: ['幽灵'],
+    },
+    火: {
+      strong: ['草', '冰', '虫', '钢'], weak: ['水', '地面', '岩石'],
+      resist: ['火', '草', '冰', '虫', '钢', '妖精'], immune: [],
     },
     水: {
       strong: ['火', '地面', '岩石'], weak: ['电', '草'],
-      resist: ['水', '火'], immune: [],
+      resist: ['火', '水', '冰', '钢'], immune: [],
     },
-    火: {
-      strong: ['草'], weak: ['水', '地面', '岩石'],
-      resist: ['火', '草'], immune: [],
+    电: {
+      strong: ['水', '飞行'], weak: ['地面'],
+      resist: ['电', '飞行', '钢'], immune: [],
     },
     草: {
-      strong: ['水', '地面', '岩石'], weak: ['火', '飞行'],
-      resist: ['电', '水', '草', '地面'], immune: [],
+      strong: ['水', '地面', '岩石'], weak: ['火', '冰', '毒', '飞行', '虫'],
+      resist: ['水', '电', '草', '地面'], immune: [],
+    },
+    冰: {
+      strong: ['草', '地面', '飞行', '龙'], weak: ['火', '格斗', '岩石', '钢'],
+      resist: ['冰'], immune: [],
+    },
+    格斗: {
+      strong: ['普通', '冰', '岩石', '恶', '钢'], weak: ['飞行', '超能力', '妖精'],
+      resist: ['虫', '岩石', '恶'], immune: [],
+    },
+    毒: {
+      strong: ['草', '妖精'], weak: ['地面', '超能力'],
+      resist: ['草', '格斗', '毒', '虫', '妖精'], immune: [],
     },
     地面: {
-      strong: ['电', '火', '岩石'], weak: ['水', '草'],
-      resist: ['岩石'], immune: ['电'],
-    },
-    岩石: {
-      strong: ['火', '飞行'], weak: ['水', '草', '地面'],
-      resist: ['火', '飞行', '普通'], immune: [],
+      strong: ['火', '电', '毒', '岩石', '钢'], weak: ['水', '草', '冰'],
+      resist: ['毒', '岩石'], immune: ['电'],
     },
     飞行: {
-      strong: ['草'], weak: ['电', '岩石'],
-      resist: ['草'], immune: ['地面'],
+      strong: ['草', '格斗', '虫'], weak: ['电', '冰', '岩石'],
+      resist: ['草', '格斗', '虫'], immune: ['地面'],
+    },
+    超能力: {
+      strong: ['格斗', '毒'], weak: ['虫', '幽灵', '恶'],
+      resist: ['格斗', '超能力'], immune: [],
+    },
+    虫: {
+      strong: ['草', '超能力', '恶'], weak: ['火', '飞行', '岩石'],
+      resist: ['草', '格斗', '地面'], immune: [],
+    },
+    岩石: {
+      strong: ['火', '冰', '飞行', '虫'], weak: ['水', '草', '格斗', '地面', '钢'],
+      resist: ['普通', '火', '毒', '飞行'], immune: [],
+    },
+    幽灵: {
+      strong: ['超能力', '幽灵'], weak: ['幽灵', '恶'],
+      resist: ['毒', '虫'], immune: ['普通', '格斗'],
     },
     龙: {
-      strong: ['龙'], weak: ['龙'],
-      resist: ['电', '水', '火', '草'], immune: [],
+      strong: ['龙'], weak: ['冰', '龙', '妖精'],
+      resist: ['火', '水', '电', '草'], immune: [],
     },
-    普通: {
-      strong: [], weak: [], resist: [], immune: [],
+    恶: {
+      strong: ['超能力', '幽灵'], weak: ['格斗', '虫', '妖精'],
+      resist: ['幽灵', '恶'], immune: ['超能力'],
+    },
+    钢: {
+      strong: ['冰', '岩石', '妖精'], weak: ['火', '格斗', '地面'],
+      resist: ['普通', '草', '冰', '飞行', '超能力', '虫', '岩石', '龙', '钢', '妖精'], immune: ['毒'],
+    },
+    妖精: {
+      strong: ['格斗', '龙', '恶'], weak: ['毒', '钢'],
+      resist: ['格斗', '虫', '恶'], immune: ['龙'],
     },
   };
 
-  test('九种属性的四字段列表及顺序完整匹配', () => {
-    for (const type of TYPES) {
+  test('十八种属性的四字段列表及顺序完整匹配', () => {
+    for (const type of M.TYPES18) {
       assert.deepEqual(M.matchupsForType(type), expectedMatchups[type], type);
     }
   });
 
   test('未知与空属性返回四个空数组', () => {
     const empty = { strong: [], weak: [], resist: [], immune: [] };
-    assert.deepEqual(M.matchupsForType('冰'), empty);
+    assert.deepEqual(M.matchupsForType('不存在'), empty);
     assert.deepEqual(M.matchupsForType(null), empty);
   });
 
   test('countersForType 逐属性、逐关卡与官方双属性总倍率 ≥2 对齐', () => {
-    for (const type of TYPES) {
+    for (const type of M.TYPES18) {
       const counters = M.countersForType(type);
       for (const g of M.GYM_STAGES) {
         assert.equal(
@@ -198,11 +237,11 @@ describe('官方属性展示与道馆克制', () => {
     }
   });
 
-  test('现有六关的硬编码克制结果保持不变', () => {
+  test('现有八关的硬编码克制结果保持不变（2026-11-17 8 关扩围）', () => {
     assert.deepEqual(M.countersForType('电'), [2]);
     assert.deepEqual(M.countersForType('火'), [4]);
-    assert.deepEqual(M.countersForType('地面'), [1, 3, 5, 6]);
-    assert.deepEqual(M.countersForType('水'), [1, 5, 6]);
+    assert.deepEqual(M.countersForType('地面'), [1, 3, 5, 7, 8]);
+    assert.deepEqual(M.countersForType('水'), [1, 7, 8]);
     assert.deepEqual(M.countersForType('飞行'), [4]);
   });
 });
@@ -216,7 +255,8 @@ describe('PvP 与道馆回合的实际分叉', () => {
     const petA = testPet('小火龙', '火', 200, [{ name: '火花', type: '火', power: 40 }]);
     const petB = testPet('杰尼龟', '水', 200, [{ name: '水枪', type: '水', power: 40 }]);
     const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: testSide(1, '大宝', [petA]), B: testSide(2, '小宝', [petB]) } });
-    M.applyBattleAction(st, 'B', null);
+    // 2026-11-16 取消热身：B 先攻直接出招（水枪），回合轮到 A；旧写法传 null 跳过已失效（MUST_CHOOSE_MOVE）
+    M.applyBattleAction(st, 'B', '水枪', fixedRng);
     const staged = M.stagePvpAttack(st, 'A', '火花', fixedRng);
     assert.equal(staged.mult, 1);
     const result = M.applyBattleAction(st, 'A', '火花', fixedRng, {

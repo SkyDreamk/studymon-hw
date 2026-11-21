@@ -123,7 +123,7 @@ describe('A2 打卡页进度条标签', () => {
     assert.doesNotMatch(APP, /已交 \$\{doneCount\}\/\$\{subs\.length\} 科 · 已通过/);
     assert.doesNotMatch(APP, /今日打卡 \$\{doneCount\}/);
     assert.match(CSS, /\.checkin-progress \.xpbar\{background:var\(--track\)\}/);
-    assert.match(CSS, /--track:#E3CFAF/);
+    assert.match(CSS, /--track:#D9E0EA/);
     assert.match(CSS, /\.checkin-head\{display:flex;justify-content:space-between;align-items:baseline;margin:2px 0 6px\}/);
   });
   test('已交 = 非驳回（待审核 + 已通过）；进度条仍按已交填充（已通过数只在各科卡片显示）', () => {

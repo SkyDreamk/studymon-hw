@@ -10,7 +10,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -66,10 +66,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 async function pokedex(childId, cookie) {
   const r = await call('/api/pokedex', { method: 'POST', body: { childId }, cookie });
@@ -90,8 +90,10 @@ const S1 = ['岩石', '地面'];
 const S2 = ['水', '超能力'];
 const S3 = ['电'];
 const S4 = ['草', '毒'];
-const S5 = ['火'];
-const S6 = ['地面', '岩石'];
+const S5 = ['毒']; // 2026-11-17 8 关扩围：S5 毒（双弹瓦斯）
+const S6 = ['超能力']; // S6 超能力（胡地）
+const S7 = ['火']; // 旧 S5 火顺延为 S7（风速狗）
+const S8 = ['地面', '岩石']; // 旧 S6 地面顺延为 S8（铁甲暴龙）
 
 describe('双属性倍率乘法（typeMultOfficialMulti）', () => {
   test('4 倍：水/草打岩石/地面均为 2×2', () => {
@@ -117,11 +119,12 @@ describe('双属性倍率乘法（typeMultOfficialMulti）', () => {
     assert.equal(M.typeMultOfficial('超能力', '水'), 1);
     assert.equal(M.typeMultOfficial('超能力', '岩石'), 1);
   });
-  test('毒补表：毒打草 ×2、打地面 ×0.5；妖精打毒 ×0.5', () => {
+  test('毒补表：毒打草 ×2、打地面 ×0.5；妖精打毒 ×0.5；毒打 [草,毒] 为 2×0.5=1（旧表缺毒 vs 毒 0.5 项、误算为 2）', () => {
     assert.equal(M.typeMultOfficial('毒', '草'), 2);
     assert.equal(M.typeMultOfficial('毒', '地面'), 0.5);
     assert.equal(M.typeMultOfficial('妖精', '毒'), 0.5);
-    assert.equal(M.typeMultOfficialMulti('毒', S4), 2);
+    assert.equal(M.typeMultOfficial('毒', '毒'), 0.5);
+    assert.equal(M.typeMultOfficialMulti('毒', S4), 1);
   });
   test('单字符串输入等价 typeMultOfficial；9×9 子矩阵与改前一致（抽查）', () => {
     assert.equal(M.typeMultOfficialMulti('电', '地面'), 0);
@@ -137,8 +140,8 @@ describe('bossDefTypes：六关馆主各取官方双属性', () => {
     assert.deepEqual(M.bossDefTypes(121), S2);
     assert.deepEqual(M.bossDefTypes(125), S3);
     assert.deepEqual(M.bossDefTypes(45), S4);
-    assert.deepEqual(M.bossDefTypes(59), S5);
-    assert.deepEqual(M.bossDefTypes(112), S6);
+    assert.deepEqual(M.bossDefTypes(59), S7);
+    assert.deepEqual(M.bossDefTypes(112), S8);
   });
   test('无官方双属性时回落 SPECIES 单属性；未知编号为空数组', () => {
     assert.deepEqual(M.bossDefTypes(54), ['水']);
@@ -147,19 +150,23 @@ describe('bossDefTypes：六关馆主各取官方双属性', () => {
 });
 
 describe('克制判定按双属性（countersForType）', () => {
-  test('八属性克制关集合（六关口径）', () => {
+  test('八属性克制关集合（八关口径，2026-11-17 8 关扩围：火 S5→S7、地面 S6→S8，新增毒 S5/超能力 S6）', () => {
     assert.deepEqual(M.countersForType('电'), [2]);
-    assert.deepEqual(M.countersForType('水'), [1, 5, 6]);
+    assert.deepEqual(M.countersForType('水'), [1, 7, 8]);
     assert.deepEqual(M.countersForType('火'), [4]);
-    assert.deepEqual(M.countersForType('草'), [1, 2, 6]);
-    assert.deepEqual(M.countersForType('地面'), [1, 3, 5, 6]);
+    assert.deepEqual(M.countersForType('草'), [1, 2, 8]);
+    assert.deepEqual(M.countersForType('地面'), [1, 3, 5, 7, 8]);
     assert.deepEqual(M.countersForType('飞行'), [4]);
     assert.deepEqual(M.countersForType('龙'), []);
+    assert.deepEqual(M.countersForType('虫'), [2, 6]); // 虫克水/超能 S2 与超能 S6
+    assert.deepEqual(M.countersForType('恶'), [2, 6]); // 恶克水/超能 S2 与超能 S6
+    assert.deepEqual(M.countersForType('幽灵'), [2, 6]); // 幽灵克水/超能 S2 与超能 S6
+    assert.deepEqual(M.countersForType('毒'), []); // 毒克草/妖精：S4 草/毒为 2×0.5=1，不克制
+    assert.deepEqual(M.countersForType('超能力'), [4, 5]); // 超能克草/毒 S4（毒 2×）与毒 S5
     assert.deepEqual(M.countersForType('普通'), []);
   });
   test('与 typeMultOfficialMulti 同源：逐属性×逐关比对', () => {
-    const TYPES = ['电', '水', '火', '草', '地面', '岩石', '飞行', '龙', '普通'];
-    for (const atk of TYPES) {
+    for (const atk of M.TYPES18) {
       for (const g of M.GYM_STAGES) {
         assert.equal(
           M.countersForType(atk).includes(g.stage),
@@ -172,24 +179,30 @@ describe('克制判定按双属性（countersForType）', () => {
 });
 
 describe('matchupsForTypes：双属性克制关系', () => {
-  test('S1 大岩蛇：弱水/草/地面，抗火/岩石/飞行/普通，免疫电', () => {
+  // 2026-11-17 方案 A：列表扩到 18 种、按 TYPES18 顺序排列；期望值由 data/type-chart.json 官方 18×18 矩阵独立算出。
+  test('S1 大岩蛇：弱水/草/冰/格斗/地面/钢，抗普通/火/毒/飞行/岩石，免疫电', () => {
     assert.deepEqual(M.matchupsForTypes(S1), {
-      strong: ['电', '火', '岩石', '飞行'],
-      weak: ['水', '草', '地面'],
-      resist: ['火', '岩石', '飞行', '普通'],
+      strong: ['火', '电', '冰', '毒', '飞行', '虫', '岩石', '钢'],
+      weak: ['水', '草', '冰', '格斗', '地面', '钢'],
+      resist: ['普通', '火', '毒', '飞行', '岩石'],
       immune: ['电'],
     });
   });
-  test('S4 霸王花：弱火/飞行，抗电/水/草（含 0.25 双抗的草），无免疫', () => {
+  test('S4 霸王花：弱火/冰/飞行/超能力，抗水/电/草/格斗/妖精（含 0.25 双抗的草），无免疫', () => {
     assert.deepEqual(M.matchupsForTypes(S4), {
-      strong: ['水', '草', '地面', '岩石'],
-      weak: ['火', '飞行'],
-      resist: ['电', '水', '草'],
+      strong: ['水', '草', '地面', '岩石', '妖精'],
+      weak: ['火', '冰', '飞行', '超能力'],
+      resist: ['水', '电', '草', '格斗', '妖精'],
       immune: [],
     });
   });
-  test('S2 与单属性水一致；S3 与单属性电一致；空输入四空', () => {
-    assert.deepEqual(M.matchupsForTypes(S2), M.matchupsForType('水'));
+  test('S2 为水/超能力双属性（不再与单属性水一致：超能力副属性新增虫/幽灵/恶弱点与格斗/毒/岩石克制）；S3 与单属性电一致；空输入四空', () => {
+    assert.deepEqual(M.matchupsForTypes(S2), {
+      strong: ['火', '格斗', '毒', '地面', '岩石'],
+      weak: ['电', '草', '虫', '幽灵', '恶'],
+      resist: ['火', '水', '冰', '格斗', '超能力', '钢'],
+      immune: [],
+    });
     assert.deepEqual(M.matchupsForTypes(S3), M.matchupsForType('电'));
     assert.deepEqual(M.matchupsForTypes([]), { strong: [], weak: [], resist: [], immune: [] });
     assert.deepEqual(M.matchupsForTypes(null), { strong: [], weak: [], resist: [], immune: [] });
@@ -206,13 +219,16 @@ describe('makePet defTypes', () => {
     defs.push('水');
     assert.deepEqual(boss.defTypes, S1);
   });
-  test('非法 defTypes 抛错：空数组、未知属性、妖精（不在防守白名单内）', () => {
+  test('非法 defTypes 抛错：空数组、未知属性；钢/妖精现为合法防御属性（2026-11-17 TYPES18）', () => {
     const base = { key: 'a', name: '皮丘', type: '电', level: 5, moves: [{ name: '电击', type: '电', power: 50 }] };
     assert.throws(() => M.makePet({ ...base, defTypes: [] }), TypeError);
-    assert.throws(() => M.makePet({ ...base, defTypes: ['钢'] }), TypeError);
-    assert.throws(() => M.makePet({ ...base, defTypes: ['妖精'] }), TypeError);
+    assert.throws(() => M.makePet({ ...base, defTypes: ['暗影'] }), TypeError);
+    assert.throws(() => M.makePet({ ...base, defTypes: ['???'] }), TypeError);
+    assert.doesNotThrow(() => M.makePet({ ...base, defTypes: ['钢'] }));
+    assert.doesNotThrow(() => M.makePet({ ...base, defTypes: ['妖精'] }));
     assert.doesNotThrow(() => M.makePet({ ...base, defTypes: ['水', '超能力'] }));
     assert.doesNotThrow(() => M.makePet({ ...base, defTypes: ['草', '毒'] }));
+    assert.doesNotThrow(() => M.makePet({ ...base, defTypes: ['虫', '飞行'] }));
   });
 });
 
@@ -222,7 +238,7 @@ describe('resolveGymRound 经 gymStrike 用双属性算伤', () => {
   const boss95 = () => M.makePet({ key: 'boss', name: '大岩蛇', type: '岩石', no: 95, level: 12, defTypes: M.bossDefTypes(95), moves: [{ name: '岩石猛击', type: '岩石', power: 28 }] });
   const boss45 = () => M.makePet({ key: 'boss', name: '霸王花', type: '草', no: 45, level: 12, defTypes: M.bossDefTypes(45), moves: [{ name: '飞叶快刀', type: '草', power: 56 }] });
 
-  test('水枪打大岩蛇：×4，STAB ×1.5，伤害 28（官方公式 base 5 ×4，Lv.12 馆主 30 血不击倒）', () => {
+  test('水枪打大岩蛇：×4，STAB ×1.5，伤害 24（官方公式 base 5 ×4，分步取整 floor(5×0.93)=4→floor(4×1.5)=6→floor(6×4)=24；Lv.12 馆主 30 血不击倒）', () => {
     const player = M.makePet({ key: 'main', name: '杰尼龟', type: '水', no: 7, level: 8, moves: [{ name: '水枪', type: '水', power: 40 }] });
     const st = gymState(player, boss95());
     const hpBefore = st.sides.B.pets[0].hp;
@@ -231,9 +247,9 @@ describe('resolveGymRound 经 gymStrike 用双属性算伤', () => {
     const ev = r.events.find((e) => e.type === 'attack' && e.side === 'A');
     assert.ok(ev, '应有玩家攻击事件');
     assert.equal(ev.mult, 4);
-    assert.equal(ev.dmg, 28); // 5×1.5×4×0.93=27.9→28。
+    assert.equal(ev.dmg, 24); // 分步取整：floor(5×0.93)=4→floor(4×1.5)=6→floor(6×4)=24。
     assert.equal(ev.superEffective, true);
-    assert.equal(st.sides.B.pets[0].hp, hpBefore - 28);
+    assert.equal(st.sides.B.pets[0].hp, hpBefore - 24);
   });
   test('电击打大岩蛇：免疫 ×0，不扣血，事件写“没有效果”', () => {
     const player = M.makePet({ key: 'main', name: '皮丘', type: '电', no: 172, level: 8, moves: [{ name: '电击', type: '电', power: 50 }] });
@@ -267,7 +283,7 @@ describe('resolveGymRound 经 gymStrike 用双属性算伤', () => {
     assert.equal(r.error, undefined, JSON.stringify(r));
     const ev = r.events.find((e) => e.type === 'attack' && e.side === 'A');
     assert.equal(ev.mult, 2);
-    assert.equal(ev.dmg, 100); // 无 stats 回落 base 36 × STAB 1.5 × mult 2 × 0.93 = 100.44 → 100。
+    assert.equal(ev.dmg, 98); // 无 stats 回落 base 36，分步取整 floor(36×0.93)=33→floor(33×1.5)=49→floor(49×2)=98。
   });
 });
 
@@ -287,8 +303,7 @@ describe('PvP 行为与旧版一致（经典单属性 ×2-only）', () => {
     const petA = { key: 'a', name: '皮丘', type: '电', no: null, img: null, level: 5, maxHp: 200, hp: 200, moves: [{ name: '电击', type: '电', power: 50 }] };
     const petB = { key: 'b', name: '穿山鼠', type: '地面', no: null, img: null, level: 5, maxHp: 200, hp: 200, moves: [{ name: '挖洞', type: '地面', power: 40 }] };
     const side = (childId, childName, pets) => ({ childId, childName, battleLevel: 5, activeIdx: 0, pets });
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
-    M.applyBattleAction(st, 'B', null);
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
     const r = M.applyBattleAction(st, 'A', '电击', half);
     const ev = (Array.isArray(r) ? r : r.events).find((e) => e && e.type === 'attack');
     assert.ok(ev, '应有攻击事件');
@@ -296,56 +311,65 @@ describe('PvP 行为与旧版一致（经典单属性 ×2-only）', () => {
   });
 });
 
-describe('卡片口径区分（HTTP：/api/pokedex）', () => {
+describe('卡片口径区分（HTTP：/api/pokedex/card）', () => {
   test('馆主条目带 matchupsDual 且按双属性；普通条目无此标记', async () => {
     const cookie = await parentCookie();
     await pokedex(1, cookie); // 先调一次，服务端生成 form 源行，insertEntry 才能从中复制
-    for (const key of ['gym:95', 'gym:45', 'gym:121', 'gym:125', 'wild:54', 'form:charmander:1', 'form:pikachu:1']) insertEntry(1, key);
+    for (const key of ['gym:95', 'gym:45', 'gym:121', 'gym:26', 'wild:54', 'form:charmander:1', 'form:pikachu:1']) insertEntry(1, key); // 2026-11-17 8 关扩围：电击兽 #125 随旧 S3 退役，S3 王牌改为雷丘 #26
     raw.exec("UPDATE pokedex SET unlocked_at='2026-01-02' WHERE child_id=1");
-    const j = await pokedex(1, cookie);
-    const g95 = j.others.find((e) => e.no === 95);
+    // 克制关系是卡片详情（Fable 优化 #2）：按 key 逐张取卡片断言
+    const card = async (key) => {
+      const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key }, cookie });
+      assert.equal(r.status, 200, key);
+      return r.j.details;
+    };
+    const g95 = await card('gym:95');
     assert.equal(g95.matchupsDual, true);
     assert.equal(g95.type, '岩石');
     assert.deepEqual(g95.types, ['岩石', '地面']);
-    assert.deepEqual(g95.matchups.weak, ['水', '草', '地面']);
+    assert.deepEqual(g95.matchups.weak, ['水', '草', '冰', '格斗', '地面', '钢']);
     assert.deepEqual(g95.matchups.immune, ['电']);
-    const g45 = j.others.find((e) => e.no === 45);
+    const g45 = await card('gym:45');
     assert.equal(g45.matchupsDual, true);
-    assert.deepEqual(g45.matchups.weak, ['火', '飞行']);
+    assert.deepEqual(g45.matchups.weak, ['火', '冰', '飞行', '超能力']);
     assert.ok(g45.matchups.resist.includes('草'));
-    const g121 = j.others.find((e) => e.no === 121);
+    const g121 = await card('gym:121');
     assert.equal(g121.matchupsDual, true);
-    assert.deepEqual(g121.matchups.weak, ['电', '草']);
-    const g125 = j.others.find((e) => e.no === 125);
-    assert.equal(g125.matchupsDual, true);
-    assert.deepEqual(g125.matchups.weak, ['地面']);
-    const wild = j.wild.find((e) => e.no === 54);
+    assert.deepEqual(g121.matchups.weak, ['电', '草', '虫', '幽灵', '恶']);
+    const g26 = await card('gym:26'); // 雷丘（S3 王牌，电系）
+    assert.equal(g26.matchupsDual, true);
+    assert.deepEqual(g26.matchups.weak, ['地面']);
+    const wild = await card('wild:54');
     assert.equal(Object.hasOwn(wild, 'matchupsDual'), false);
     assert.deepEqual(wild.matchups.weak, ['电', '草']);
-    const line = j.lineEntries.find((e) => e.current && e.no != null && e.unlocked);
+    const line = await card('form:pikachu:1');
     assert.equal(Object.hasOwn(line, 'matchupsDual'), false);
     assert.deepEqual(line.matchups.weak, ['地面']);
   });
 });
 
 describe('道馆页数据（HTTP：/api/gym/status）', () => {
-  test('六关 bossTypes 为官方双属性，type 仍为关卡主题单属性', async () => {
+  test('八关 bossTypes 为官方双属性，type 仍为关卡主题单属性（2026-11-17 8 关扩围：S5 毒、S6 超能力、旧火/地面顺延为 S7/S8）', async () => {
     const { c1 } = await setup();
     const r = await call('/api/gym/status', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(r.j.ok, true, JSON.stringify(r.j));
     const stages = r.j.stages;
-    assert.equal(stages.length, 6);
+    assert.equal(stages.length, 8);
     assert.deepEqual(stages[0].bossTypes, ['岩石', '地面']);
     assert.deepEqual(stages[1].bossTypes, ['水', '超能力']);
     assert.deepEqual(stages[2].bossTypes, ['电']);
     assert.deepEqual(stages[3].bossTypes, ['草', '毒']);
-    assert.deepEqual(stages[4].bossTypes, ['火']);
-    assert.deepEqual(stages[5].bossTypes, ['地面', '岩石']);
+    assert.deepEqual(stages[4].bossTypes, ['毒']); // 双弹瓦斯纯毒
+    assert.deepEqual(stages[5].bossTypes, ['超能力']); // 胡地纯超能力
+    assert.deepEqual(stages[6].bossTypes, ['火']);
+    assert.deepEqual(stages[7].bossTypes, ['地面', '岩石']);
     assert.equal(stages[0].type, '岩石');
     assert.equal(stages[1].type, '水');
     assert.equal(stages[2].type, '电');
     assert.equal(stages[3].type, '草');
-    assert.equal(stages[4].type, '火');
-    assert.equal(stages[5].type, '地面');
+    assert.equal(stages[4].type, '毒'); // SPECIES 双弹瓦斯现为毒（2026-11-17 方案 A 改回官方主属性）
+    assert.equal(stages[5].type, '超能力'); // 同上，胡地现为超能力
+    assert.equal(stages[6].type, '火');
+    assert.equal(stages[7].type, '地面');
   });
 });

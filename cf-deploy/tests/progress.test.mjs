@@ -3,7 +3,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const M = await import(new URL('../src/index.js', import.meta.url));
-const seeded = (s) => () => (s = (s * 1103515245 + 13579) % 2147483648) / 2147483648;
+const seeded = (s) => () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
 
 const C = {
   S3U1: '三年级上册 第1单元 混合运算',

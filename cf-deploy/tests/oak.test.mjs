@@ -8,7 +8,7 @@ const OAK_BUNDLE = new Set(readdirSync(new URL('../public/static/audio/oak', imp
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0032_oak_dialogue.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0032_oak_dialogue.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -70,8 +70,8 @@ function mkWavBody(totalLen = 2000) {
 
 function setIflytekEnv() {
   env.IFLYTEK_APPID = 'test-appid';
-  env.IFLYTEK_API_KEY = 'test-apikey-fedcba9876543210';
-  env.IFLYTEK_API_SECRET = 'test-secret-dummy-fedcba9876543210';
+  env.IFLYTEK_API_KEY = 'test-apikey-0123456789abcdef';
+  env.IFLYTEK_API_SECRET = 'test-secret-dummy-0123456789abcdef';
 }
 
 async function assessFixture() {
@@ -121,9 +121,27 @@ const assessXml = '<?xml version="1.0" encoding="utf-8" ?>'
   + '<word content="world" dp_message="16"/>'
   + '</sentence></read_sentence></FinalResult>';
 const assessExpected = { ok: true, pron: 81.3, acc: 82, flu: 83, comp: 84, pros: 85, provider: 'iflytek',
-  stars: 4, fiveStarCount: 0, fiveStarTotal: 6, draw: null,
+  stars: 4, fiveStarCount: 0, fourStarCount: 1, fiveStarTotal: 6, assessedCount: 1, drawGranted: false, justGranted: false,
+  /* MP-15 §2：assess 回包新增 completed/xpAwarded/listenedCount；单句跟读、未听时不完成、不发经验。 */
+  completed: false, xpAwarded: 0, listenedCount: 0,
   words: [{ w: 'Hello', score: 55, err: 'None' }, { w: 'world', score: null, err: 'Omission' }] };
 const assessPath = '/api/oak/assess?child_id=1';
+
+/* MP-15 §2：按指定 pron 点评某句（mock 讯飞回指定 total_score 的 XML）。 */
+async function assessAt(cookie, childId, refText, pron) {
+  setIflytekEnv();
+  const xml = '<?xml version="1.0" encoding="utf-8" ?>'
+    + '<FinalResult><ret value="0"/>'
+    + `<read_sentence content="x" total_score="${pron}" accuracy_score="${pron}" fluency_score="${pron}" integrity_score="100" standard_score="${pron}">`
+    + `<sentence content="x" total_score="${pron}">`
+    + '<word content="Hello" dp_message="0" total_score="80"/>'
+    + '</sentence></read_sentence></FinalResult>';
+  return withIflytek(xml, async () => callRaw(`/api/oak/assess?child_id=${childId}`, {
+    body: mkWavBody(2000),
+    headers: { 'Content-Type': 'audio/wav', 'x-ref-text': encodeURIComponent(refText) },
+    cookie,
+  }));
+}
 
 test('oak assess: missing key', async () => {
   const r = await callRaw(assessPath, await assessFixture());
@@ -241,8 +259,10 @@ test('oak assess: parent setting defaults on and follows updates', async () => {
   assert.equal((await call('/api/parent/settings', { cookie })).j.settings.oakAssess, true);
   assert.equal((await call('/api/oak/today?child_id=1', { cookie })).j.assessEnabled, true);
   for (const oakAssess of [false, true]) {
-    const r = await call('/api/parent/settings/update', { method: 'POST', cookie, body: { oakAssess } });
-    assert.equal(r.status, 200);
+    // 全站开关需 settings.global 权限：旧版（无账号）家长会话改不了（403，值不变）；开关值直接写库后验证读取跟随
+    const denied = await call('/api/parent/settings/update', { method: 'POST', cookie, body: { oakAssess } });
+    assert.equal(denied.status, 403);
+    raw.prepare("INSERT INTO settings(key,value) VALUES('oak_assess',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(oakAssess ? '1' : '0');
     assert.equal((await call('/api/parent/settings', { cookie })).j.settings.oakAssess, oakAssess);
     assert.equal((await call('/api/oak/today?child_id=1', { cookie })).j.assessEnabled, oakAssess);
   }
@@ -285,10 +305,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 
 /* 真实上海日期（不能用 M.shDateStr——它读的是模块内虚拟时钟，拨过一次后基准会漂移） */
@@ -551,7 +571,7 @@ describe('大木博士每日英语', () => {
     }
   });
 
-  test('顺序听完一集只奖励一次 +10 XP，不增加答对、碎片、球或遭遇', async () => {
+  test('顺序听完一集只奖励一次 +10 XP，不增加答对、碎片、球或遭遇（MP-15 §2：只听不完成，跟读 4×5★+2×4★ 才完成）', async () => {
     const { c1 } = await setup();
     const today = await todayFor(c1, 1);
     assert.equal(Number(today.quizXp), 10);
@@ -559,23 +579,50 @@ describe('大木博士每日英语', () => {
     const untouched = protectedState();
     const n = today.sentences.length;
 
+    // 只听 6 句：不完成、不发经验（MP-15 §2：4×5★+2×4★）
     for (let i = 0; i < n; i++) {
       const r = await listen(c1, 1, today.sentences[i].id);
       assert.equal(r.status, 200);
       assert.equal(r.j.ok, true);
       assert.equal(r.j.listened, true);
       assert.equal(r.j.listenedCount, i + 1);
-      assert.equal(r.j.completed, i === n - 1);
-      assert.equal(r.j.xpAwarded, i === n - 1 ? 10 : 0);
+      assert.equal(r.j.completed, false);
+      assert.equal(r.j.xpAwarded, 0);
       assert.ok(Object.hasOwn(r.j, 'level'));
-      assert.equal(childXp(1), initialXp + (i === n - 1 ? 10 : 0));
+      assert.equal(childXp(1), initialXp);
       assert.deepEqual(protectedState(), untouched);
     }
 
     const duplicate = await listen(c1, 1, today.sentences[n - 1].id);
     assert.equal(duplicate.status, 400);
+    assert.equal(childXp(1), initialXp);
+    assert.deepEqual(protectedState(), untouched);
+
+    // 再跟读 6 句（4 句 90 分 5★＋2 句 80 分 4★）：最后一句跟读落下最后一块拼图，只发一次 10 XP
+    const mixScores = [90, 90, 90, 90, 80, 80];
+    for (let i = 0; i < n; i++) {
+      const a = await assessAt(c1, 1, today.sentences[i].en, mixScores[i]);
+      assert.equal(a.status, 200);
+      assert.equal(a.j.ok, true);
+      assert.equal(a.j.completed, i === n - 1);
+      assert.equal(a.j.xpAwarded, i === n - 1 ? 10 : 0);
+      assert.equal(childXp(1), initialXp + (i === n - 1 ? 10 : 0));
+    }
+    // 完成后复读不再发经验
+    const again = await assessAt(c1, 1, today.sentences[n - 1].en, 90);
+    assert.equal(again.status, 200);
+    assert.equal(again.j.completed, true);
+    assert.equal(again.j.xpAwarded, 0);
     assert.equal(childXp(1), initialXp + 10);
     assert.deepEqual(protectedState(), untouched);
+
+    const after = await todayFor(c1, 1);
+    assert.equal(after.listenedCount, n);
+    assert.equal(after.completed, true);
+    assert.equal(after.xpAwardedToday, 10);
+    assert.equal(after.fourStarCount, n);
+    assert.equal(after.fiveStarCount, 5); // 复读把第 6 句从 80 提到了 90
+    assert.equal(after.assessedCount, n);
   });
 
   test('未听第一句直接听第二句返回 400', async () => {
@@ -603,16 +650,34 @@ describe('大木博士每日英语', () => {
     assert.equal(after.completed, false);
   });
 
-  test('听完后 GET today 显示完成状态', async () => {
+  test('听完且跟读达标后 GET today 显示完成状态（MP-15 §2：只听不完成）', async () => {
     const { c1 } = await setup();
     const today = await todayFor(c1, 1);
     await finishEpisode(c1, 1, today);
 
-    const after = await todayFor(c1, 1);
+    // 只听 6 句：未完成、0 经验
+    let after = await todayFor(c1, 1);
+    assert.equal(after.episodeId, today.episodeId);
+    assert.equal(after.listenedCount, today.sentences.length);
+    assert.equal(after.completed, false);
+    assert.equal(after.xpAwardedToday, 0);
+    assert.ok(after.sentences.every(s => s.listened === true));
+
+    // 6 句跟读 4×5★+2×4★ 后完成、+10 XP
+    const mixScores = [90, 90, 90, 90, 80, 80];
+    for (let i = 0; i < today.sentences.length; i++) {
+      const a = await assessAt(c1, 1, today.sentences[i].en, mixScores[i]);
+      assert.equal(a.status, 200);
+      assert.equal(a.j.ok, true);
+    }
+
+    after = await todayFor(c1, 1);
     assert.equal(after.episodeId, today.episodeId);
     assert.equal(after.listenedCount, today.sentences.length);
     assert.equal(after.completed, true);
     assert.equal(after.xpAwardedToday, 10);
+    assert.equal(after.fourStarCount, 6);
+    assert.equal(after.fiveStarCount, 4);
     assert.equal(after.sentences.length, today.sentences.length);
     assert.ok(after.sentences.every(s => s.listened === true));
   });
@@ -668,8 +733,13 @@ describe('大木博士每日英语', () => {
   test('无 0014 的旧迁移链：总览与孩子详情不 500，oakToday 为空组', async () => {
     // 回归：oakToday 装配点（apiOverview／apiChildDetail）曾直接查 oak_episode 列，
     // 导致迁移链不含 0014 的库（如 access／subjects 测试）整个总览 500。
-    // oakGroupForChild 现先按 kind='oak' 计数守卫，无种子行时返回空组、不碰 oak_* 列。
-    ({ env, raw } = makeEnv(['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0011_parent_grants.sql']));
+    // oakGroupForChild 现先按 kind='oak' 做 LIMIT 1 探针（Fable #1；原 COUNT(*) 全表），
+    // 无种子行时返回空组、不碰 oak_* 列。
+    // Fable #4：夹具补 0019——pet_instances / reward_eggs 由迁移 0019（v11 进化道具，
+    // 2026-10-26）创建，测试站与正式站早已应用，热路径不再为这两表做 sqlite_master
+    // 守卫；本测试只钉“无 0014”的 Oak 行为，0019 必须在链上，否则总览会在 unlockForms
+    // 取实例时直接报缺表。
+    ({ env, raw } = makeEnv(['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0011_parent_grants.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql']));
     const { pc } = await setup();
     const ov = await call('/api/overview', { cookie: pc });
     assert.equal(ov.status, 200);
@@ -835,15 +905,25 @@ describe('Oak 对话集（2026-11-13）', () => {
       for (let i = 0; i < 6; i++) {
         const r = await listen(c2, 2, today.sentences[i].id);
         assert.equal(r.status, 200);
-        assert.equal(r.j.completed, i === 5);
-        assert.equal(r.j.xpAwarded, i === 5 ? 10 : 0);
+        assert.equal(r.j.completed, false);
+        assert.equal(r.j.xpAwarded, 0);
         assert.equal(r.j.listenedCount, i + 1);
+      }
+      assert.equal(childXp(2), initialXp);
+      const mixScores = [90, 90, 90, 90, 80, 80];
+      for (let i = 0; i < 6; i++) {
+        const a = await assessAt(c2, 2, today.sentences[i].en, mixScores[i]);
+        assert.equal(a.status, 200);
+        assert.equal(a.j.completed, i === 5);
+        assert.equal(a.j.xpAwarded, i === 5 ? 10 : 0);
       }
       assert.equal(childXp(2), initialXp + 10);
       const after = await todayFor(c2, 2);
       assert.equal(after.listenedCount, 6);
       assert.equal(after.completed, true);
       assert.equal(after.fiveStarTotal, 6);
+      assert.equal(after.fourStarCount, 6);
+      assert.equal(after.fiveStarCount, 4);
     } finally {
       setOffset(0);
     }

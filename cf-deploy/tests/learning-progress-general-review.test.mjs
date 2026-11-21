@@ -22,7 +22,7 @@ const migrations = [
   '0017_diagnosis.sql',
   '0018_oak_draw.sql',
   '0019_evo_items.sql',
-  '0020_sync.sql',
+  '0020_sync.sql', '0043_pet_instances_ability.sql',
 ];
 
 function wrap(raw) {

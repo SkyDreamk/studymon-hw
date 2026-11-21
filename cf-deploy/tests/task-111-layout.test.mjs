@@ -2,8 +2,8 @@
  * node --test tests/task-111-layout.test.mjs
  * 覆盖：① 首页新顺序（伙伴小卡 → 统计独立成行 → 今日任务三行 → Go check in → 招式首行＋展开 → 四宫格 → 上传成绩 → 队伍）；
  * ② 招式只露首行 4 格（任务 118，2026-11-14：用户报技能栏右空 16px 且卡挤——任务 111 的 66px 定宽按 347px 内容宽算错，实测内容宽 362px，5×66＋4×4=346 留 16px 右空；66px 卡格内宽仅 58px，4 字名 56px 贴边。改 4 列等宽 grid 撑满内容宽，每格约 84px、格内宽约 72px；首行 slice(0,4)，其余 slice(4) 收进 #movesRest，展开条件改 >4；展开按钮移到「Moves learned」标题行右侧，照图鉴 .dex151-head 做法——侧边空隙实测仅 19px，放不下按钮）；对战选技能同日跟进：battleMovePickerHtml 也加 .moves5，改 4 列宽格（用户 17:38 反馈对战页仍是 4 列、右侧留白），道馆与 PvP 共用同一函数；
- * ③ 道馆新顺序（吸顶「已选」→ 顶栏 → 徽章墙 → 候补选择 → Stage 1–6 → 收藏馆 → 兄妹对战）；
- * ④ 候补只列随身队（主宠＋携带列表 j.collection，最多 4 只，合计 5 球），仓库里的不显示，「全部 151 只」折叠已删（2026-11-14 仓库口径，用户亲口定：5 只里点一只当备战）；选中态 3px #B54A00 描边＋右上角 20px 勾；
+ * ③ 道馆新顺序（任务 127：顶栏 → 徽章墙 → Stage 1–6 → 收藏馆 → 兄妹对战；吸顶「已选」与候补选择已撤，随身 5 球即全部可用，换备战去仓库换携带）；
+ * ④ 候补选择区已撤（任务 127）；选中态 3px #B54A00 描边＋右上角 20px 勾仍在（PvP 两栏选择器共用 .pokeball.on）；
  * ⑤ 徽章墙删 "Lit"、未点亮灰底；关卡标题拆两层；克制提示已删（用户 2026-11-14：图鉴卡片已注明克制关系）；VS 卡英文模式全英文；
  * ⑥ 图鉴筛选行右缘渐隐；桌面底栏 520px 居中。
  * 说明：读取的是带哈希的构建产物（assetPath），不是 .orig；先轮换哈希再跑。
@@ -97,26 +97,29 @@ describe('首页招式展开', () => {
     assert.match(CSS, /\.moveicons\.moves5 \.moveicon img\{width:48px;height:48px\}/);
   });
 
-  test('展开按钮在标题行：标题与按钮同行、首行在标题行下方、碎片行在全部招式下方', () => {
+  test('展开按钮在标题行：标题与按钮同行、首行在标题行下方、碎片行已移出孩子页（进招式详情）', () => {
     const moveBtn = APP.indexOf('const moveBtn = (m, i) =>');
     assert.ok(moveBtn >= 0);
     const title = childBody.indexOf('biTitle(...LANG.childSlice2Moves)');
     const btn = childBody.indexOf('id="movesExpandBtn"');
     const first = childBody.indexOf('moves.slice(0, 4)');
     const rest = childBody.indexOf('moves.slice(4)');
-    const frag = childBody.indexOf('quiz.fragments >= 3');
     // 2026-11-15 用户纠正：碎片注释须在全部技能下方，不得夹在首行与 #movesRest 之间截断招式网格。
-    assert.ok(title > 0 && title < btn && btn < first && first < rest && rest < frag);
+    // 2026-11-20 用户令：孩子页的碎片说明行已隐藏，移到招式展开页（renderMoveDetail 的 _fragLine）里显示；
+    // goChild 里不再有碎片行，标题/按钮/首行/其余行的顺序仍须保持。
+    const frag = childBody.indexOf('quiz.fragments >= 3');
+    assert.ok(title > 0 && title < btn && btn < first && first < rest);
+    assert.equal(frag, -1, '碎片行应已移出 goChild');
+    assert.ok(APP.includes('_fragLine'), '碎片行应在招式详情里');
   });
 });
 
 describe('道馆新顺序', () => {
-  test('吸顶「已选」→ 顶栏 → 徽章墙 → 候补选择 → 关卡标题 → 关卡 → 收藏馆 → 对战', () => {
+  test('道馆新顺序（任务 127）：顶栏 → 徽章墙 → 随身队伍 → 关卡标题 → 关卡 → 收藏馆 → 对战（吸顶「已选」与候补选择已撤）', () => {
     const order = [
-      'class="gym-picked"',
       "childTop(biTitle('周末道馆'",
       'class="badgewall"',
-      'id="benchSection"',
+      "biTitle('随身队伍', 'Carried team')",
       'gym-stage-title',
       'j.stages.map(stageCard)',
       'onclick="goEggs(${G.id})"',
@@ -130,12 +133,15 @@ describe('道馆新顺序', () => {
     }
   });
 
-  test('吸顶「已选」：sticky top:0、文案规则、点它滚到候补区', () => {
-    assert.match(CSS, /\.gym-picked\{position:sticky;top:0;z-index:30;/);
-    assert.ok(gymBody.includes("tr('已选：', 'Selected: ')"));
-    assert.ok(gymBody.includes("tr('（主宠）', ' (Main companion)')"));
-    assert.ok(gymBody.includes("document.getElementById('benchSection').scrollIntoView({behavior:'smooth',block:'start'})"));
-    assert.match(CSS, /\.bench-section\{scroll-margin-top:56px\}/);
+  test('吸顶「先发」与候补区已撤（任务 127）：无 gym-picked 行、无 benchSection、无滚动定位', () => {
+    assert.doesNotMatch(CSS, /\.gym-picked\{/);
+    assert.doesNotMatch(CSS, /\.bench-section\{/);
+    assert.ok(!gymBody.includes('class="gym-picked"'));
+    assert.ok(!gymBody.includes('id="benchSection"'));
+    assert.ok(!gymBody.includes("tr('先发：', 'Lead: ')"));
+    assert.ok(!gymBody.includes("tr('备战：未选', 'Backup: none')"));
+    assert.ok(!gymBody.includes("document.getElementById('benchSection').scrollIntoView"));
+    assert.ok(!gymBody.includes('benchBallsWrap'));
   });
 
   test('徽章墙：无 "Lit"/"已点亮" 文案，未点亮灰底＋「未获得」，已点亮不留空行（任务 120 去空白）', () => {
@@ -146,18 +152,22 @@ describe('道馆新顺序', () => {
     assert.ok(gymBody.includes("tr('未获得', 'Not earned')"), '未点亮仍应显示「未获得」');
     const rules = CSS.split('\n').filter((l) => l.startsWith('.badgeslot{'));
     assert.equal(rules.length, 1);
-    assert.ok(rules[0].includes('background:#F0EBE0'));
+    assert.ok(rules[0].includes('background:var(--surface)'));
     assert.ok(rules[0].includes('border:2px dashed'));
     assert.ok(rules[0].includes('padding:8px 2px'), '徽章格内边距不是 8px 2px（任务 120 收紧）');
   });
 
-  test('候补只列随身队：benchList 取 j.collection（携带）去主宠，不用 benchOptions；已选备战换出携带队即清掉', () => {
+  test('候补选择区已撤、随身队伍展示在（任务 127）：5 球是查看携带的窗口，无选中态；随身 5 球即全部可用', () => {
+    // 2026-11-16 用户纠正：5 球不能撤——benchList 回来只供展示（gymPartyBallsHtml），不选备战。
     assert.ok(gymBody.includes('const benchList = (j.collection || []).filter((c) => c.no !== mainNo);'));
+    assert.ok(gymBody.includes('gymPartyBallsHtml(mainPet, benchList, G.id)'));
+    assert.ok(gymBody.includes("biTitle('随身队伍', 'Carried team')"));
+    assert.ok(!gymBody.includes('benchPickerHtml(benchList,'));
+    assert.ok(!gymBody.includes('id="benchBallsWrap"'));
+    assert.ok(!gymBody.includes('id="benchSection"'));
+    assert.ok(!gymBody.includes('带哪只当备战'));
     assert.ok(!gymBody.includes('j.benchOptions'), '道馆选择器不得再吃 benchOptions 调试全量');
     assert.ok(!gymBody.includes('ownedList'), 'ownedList/dex 交集逻辑已删，随身队即携带列表');
-    assert.ok(gymBody.includes("if (G.benchGym != null && !benchList.some((c) => c.no === G.benchGym)) G.benchGym = null;"));
-    assert.ok(gymBody.includes('benchPickerHtml(benchList,'));
-    assert.ok(gymBody.includes('id="benchBallsWrap"'));
   });
 
   test('「全部 151 只」折叠已删：无折叠按钮、无 toggle、无 _benchFull/_benchOwned，标题行只剩标题', () => {
@@ -168,7 +178,8 @@ describe('道馆新顺序', () => {
     assert.ok(!gymBody.includes('_benchOwned'));
     assert.ok(!gymBody.includes('全部 151 只'));
     assert.ok(!APP.includes('window.toggleGymBenchFold = function (btn)'));
-    assert.ok(gymBody.includes('class="section-title" style="margin-top:2px"'));
+    // 任务 127：备战区标题（带哪只当备战）随选择器一并撤掉，不再断言它存在。
+    assert.ok(!gymBody.includes('带哪只当备战'));
   });
 
   test('选中态：3px #B54A00 描边＋右上角 20px 勾，金色光环已删', () => {
@@ -204,9 +215,9 @@ describe('道馆新顺序', () => {
 
 describe('对战选技能 4 列（任务 118：与首页同款 grid 撑满；2026-11-14 跟进：用户反馈对战页仍是 4 列留白）', () => {
   test('battleMovePickerHtml 复用首页 .moves5：一行 4 个，道馆与 PvP 共用', () => {
-    assert.ok(APP.includes('function battleMovePickerHtml(moves) {'));
+    assert.ok(APP.includes('function battleMovePickerHtml(moves, disabledMove) {'));
     assert.ok(APP.includes('return `<div class="moveicons moves5 battle-moves">'), '对战选技能容器应带 moves5（battle-moves 供出招中置灰用）');
-    const calls = APP.split('battleMovePickerHtml(active.moves)').length - 1;
+    const calls = APP.split('battleMovePickerHtml(active.moves, active.disabledMove)').length - 1;
     assert.equal(calls, 2, '道馆与 PvP 各一处调用');
   });
 });

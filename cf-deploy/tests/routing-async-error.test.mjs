@@ -14,7 +14,7 @@ const MIGRATIONS = [
   '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql',
   '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql',
   '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql',
-  '0021_skill_levels.sql', '0022_warehouse.sql', '0023_care_qa_and_friendship.sql',
+  '0021_skill_levels.sql', '0022_warehouse.sql', '0023_care_qa_and_friendship.sql', '0043_pet_instances_ability.sql',
 ];
 
 function makeEnv() {
@@ -89,11 +89,11 @@ async function loginChild1(env) {
   await rawCall(env, '/api/parent/settings/update', {
     method: 'POST',
     cookie: pLogin.cookie,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   const cLogin = await rawCall(env, '/api/child/login', {
     method: 'POST',
-    body: { childId: 1, password: '0000' },
+    body: { childId: 1, password: '1111' },
   });
   return cLogin.cookie;
 }
@@ -127,7 +127,7 @@ describe('任务 29：路由异步抛错收敛为 500 JSON SERVER_ERROR', () => 
     try {
       const res = await rawCall(env, '/api/child/login', {
         method: 'POST',
-        body: { childId: 1, password: '0000' },
+        body: { childId: 1, password: '1111' },
       });
       assert.equal(res.status, 500);
       assert.ok(res.contentType.includes('application/json'));

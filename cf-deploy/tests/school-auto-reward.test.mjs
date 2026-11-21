@@ -1,6 +1,8 @@
-/* 学校成绩奖励自动发放单测（2026-10-29 §87）：node --test tests/school-auto-reward.test.mjs
- * 覆盖：普通随机三类（球／经验+20／回血药四段权重）、95+ 两份都得、活力碎片进转盘且可领取、
- * 手动发放 UI 已删、孩子端不再显示“等爸爸妈妈发奖励”、重复发放 CAS 挡住、周 caps／照片条件未动。
+/* 学校成绩奖励自动发放单测（2026-10-29 §87；2026-11-21 奖励改走转盘）：
+ * node --test tests/school-auto-reward.test.mjs
+ * 覆盖：85+ 自动发 1 次普通转盘机会（不再随机发球／经验／回血药）、95+ 两份都得（普通＋高级）、
+ * 活力碎片进转盘且可领取、手动发放 UI 已删、孩子端不再显示“等爸爸妈妈发奖励”、重复发放 CAS 挡住、
+ * 周 caps 未动、96 分无照片不记高级转盘（95+ 必须传照片，2026-11-21 用户定）。
  * 脚手架与 tests/evo-items.test.mjs 同款（真实 Azure 调用 0 次）。 */
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,7 +11,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0040_oak_wheel_chances.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -122,56 +124,60 @@ describe('rollSchoolOrdinary', () => {
 });
 
 describe('rollWheelPrize revive', () => {
-  test('0.72 落活力碎片段（147 权重下 105.8 落 100~110 段）', () => {
-    const prize = M.rollWheelPrize(() => 0.72, new Set(), new Set());
+  test('0.367 落活力碎片段（15 权重下 5.5 落 5~6 段）', () => {
+    const prize = M.rollWheelPrize(() => 0.367, new Set(), new Set());
     assert.equal(prize.kind, 'medicine');
     assert.equal(prize.key, 'medicine:revive');
   });
 });
 
 describe('school auto reward review/save/grant', () => {
-  test('审核 88 分无照片：自动发普通球，无转盘机会', async () => {
+  test('审核 88 分无照片：自动发 1 次普通转盘机会，无高级转盘机会', async () => {
     const cookie = await parentCookie();
     const rec = insertPendingSchoolTest(1, '数学', '第一单元', 88, 100, null);
-    const before = raw.prepare('SELECT balls FROM children WHERE id=1').get().balls;
-    const r = await withRandom(0.1, () => call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } }));
+    const r = await call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.equal(r.j.ordinary.granted.kind, 'ball', JSON.stringify(r.j));
+    assert.equal(r.j.ordinary.granted.kind, 'wheel', JSON.stringify(r.j));
+    assert.equal(r.j.ordinary.granted.key, 'wheel:oak', JSON.stringify(r.j));
     assert.equal(raw.prepare('SELECT reward_granted FROM school_test_records WHERE id=?').get(rec).reward_granted, 1);
-    assert.equal(raw.prepare('SELECT balls FROM children WHERE id=1').get().balls - before, 1);
-    assert.equal(raw.prepare("SELECT COUNT(*) n FROM ball_grants WHERE child_id=1 AND kind='normal'").get().n, 1);
+    assert.equal(raw.prepare("SELECT reward_item_key FROM school_test_records WHERE id=?").get(rec).reward_item_key, 'wheel:oak');
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 1);
+    assert.equal(r.j.wheelChance, false);
     assert.equal(raw.prepare('SELECT COUNT(*) n FROM wheel_chances').get().n, 0);
   });
 
-  test('审核 90 分：自动发经验+20 并补 item_grants 审计行', async () => {
+  test('审核 90 分：自动发 1 次普通转盘机会，不加经验', async () => {
     const cookie = await parentCookie();
     const rec = insertPendingSchoolTest(1, '数学', '第一单元', 90, 100, null);
     const before = raw.prepare('SELECT total_xp FROM children WHERE id=1').get().total_xp;
-    const r = await withRandom(0.5, () => call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } }));
+    const r = await call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.equal(r.j.ordinary.granted.kind, 'xp', JSON.stringify(r.j));
-    assert.equal(raw.prepare('SELECT total_xp FROM children WHERE id=1').get().total_xp - before, 20);
-    assert.equal(raw.prepare("SELECT COUNT(*) n FROM item_grants WHERE child_id=1 AND item_key='xp:20'").get().n, 1);
+    assert.equal(r.j.ordinary.granted.kind, 'wheel', JSON.stringify(r.j));
+    assert.equal(raw.prepare('SELECT total_xp FROM children WHERE id=1').get().total_xp - before, 0);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 1);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM item_grants WHERE child_id=1 AND item_key='xp:20'").get().n, 0);
   });
 
-  test('审核 92 分：自动发回血药（伤药）并写 item_ledger', async () => {
+  test('审核 92 分：自动发 1 次普通转盘机会，不发回血药', async () => {
     const cookie = await parentCookie();
     const rec = insertPendingSchoolTest(1, '数学', '第一单元', 92, 100, null);
-    const r = await withSeqRandom([0.9, 0.0], () => call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } }));
+    const r = await call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.equal(r.j.ordinary.granted.key, 'medicine:potion', JSON.stringify(r.j));
-    assert.equal(invQty(1, 'medicine:potion'), 1);
-    assert.equal(raw.prepare("SELECT COUNT(*) n FROM item_ledger WHERE child_id=1 AND item_key='medicine:potion' AND reason='school-test'").get().n, 1);
+    assert.equal(r.j.ordinary.granted.key, 'wheel:oak', JSON.stringify(r.j));
+    assert.equal(invQty(1, 'medicine:potion'), 0);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM item_ledger WHERE child_id=1 AND item_key='medicine:potion' AND reason='school-test'").get().n, 0);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 1);
   });
 
   test('审核 96 分+照片：普通＋转盘两份都得；重复审核 400', async () => {
     const cookie = await parentCookie();
     const rec = insertPendingSchoolTest(1, '数学', '期中考试', 96, 100, 'school/1/1.jpg');
-    const r = await withRandom(0.1, () => call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } }));
+    const r = await call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.equal(r.j.ordinary.granted.kind, 'ball', JSON.stringify(r.j));
+    assert.equal(r.j.ordinary.granted.kind, 'wheel', JSON.stringify(r.j));
     assert.equal(r.j.wheelChance, true);
     assert.equal(raw.prepare('SELECT COUNT(*) n FROM wheel_chances').get().n, 1);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 1);
     assert.equal(raw.prepare('SELECT reward_granted FROM school_test_records WHERE id=?').get(rec).reward_granted, 1);
     const r2 = await call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } });
     assert.equal(r2.status, 400);
@@ -189,13 +195,15 @@ describe('school auto reward review/save/grant', () => {
     assert.match(g.j.error, /85 分以上/);
   });
 
-  test('补发入口：active 未发记录补发一次普通；再发 409', async () => {
+  test('补发入口：active 未发记录补发一次普通转盘机会；再发 409', async () => {
     const cookie = await parentCookie();
     const rec = insertActiveSchoolTest(1, '数学', '第3单元', 100, 100);
-    const r = await withRandom(0.5, () => call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec } }));
+    const r = await call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.equal(r.j.granted.kind, 'xp', JSON.stringify(r.j));
+    assert.equal(r.j.granted.kind, 'wheel', JSON.stringify(r.j));
+    assert.equal(r.j.granted.key, 'wheel:oak', JSON.stringify(r.j));
     assert.equal(raw.prepare('SELECT reward_granted FROM school_test_records WHERE id=?').get(rec).reward_granted, 1);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 1);
     const r2 = await call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec } });
     assert.equal(r2.status, 409);
   });
@@ -212,23 +220,24 @@ describe('school auto reward review/save/grant', () => {
     assert.match(g2.j.error, /已被驳回/);
   });
 
-  test('家长直登保存 90 分：自动发普通球', async () => {
+  test('家长直登保存 90 分：自动发 1 次普通转盘机会', async () => {
     const cookie = await parentCookie();
-    const r = await withRandom(0.1, () => call('/api/parent/school-test/save', { method: 'POST', cookie, body: { childId: 1, subject: '数学', unit: '期中考试', score: 90, fullScore: 100, examDate: todayStr() } }));
+    const r = await call('/api/parent/school-test/save', { method: 'POST', cookie, body: { childId: 1, subject: '数学', unit: '期中考试', score: 90, fullScore: 100, examDate: todayStr() } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.equal(r.j.ordinary.granted.kind, 'ball', JSON.stringify(r.j));
+    assert.equal(r.j.ordinary.granted.kind, 'wheel', JSON.stringify(r.j));
     assert.equal(r.j.record.rewardGranted, true);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 1);
   });
 
   test('照片条件未动（正式模式）：96 分无照片不记转盘，但普通仍发', async () => {
     await toProd();
     const cookie = await parentCookie();
     const rec = insertPendingSchoolTest(1, '数学', '期中考试', 96, 100, null);
-    const r = await withRandom(0.1, () => call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } }));
+    const r = await call('/api/parent/school-test/review', { method: 'POST', cookie, body: { recordId: rec, decision: 'approve' } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.wheelChance, false);
     assert.match(r.j.wheelReason, /上传试卷照片/);
-    assert.equal(r.j.ordinary.granted.kind, 'ball', JSON.stringify(r.j));
+    assert.equal(r.j.ordinary.granted.kind, 'wheel', JSON.stringify(r.j));
   });
 
   test('周 caps 未动（正式模式）：同科目同周第二条不记转盘，但普通仍发', async () => {
@@ -244,6 +253,7 @@ describe('school auto reward review/save/grant', () => {
     assert.match(b.j.wheelReason, /这门科目本周已经有过一次高级转盘机会啦/);
     assert.equal(raw.prepare('SELECT COUNT(*) n FROM wheel_chances').get().n, 1);
     assert.equal(raw.prepare('SELECT reward_granted FROM school_test_records WHERE id=?').get(rec2).reward_granted, 1);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 2);
   });
 
   test('转盘转到活力碎片：prize medicine，进背包，机会耗尽', async () => {
@@ -251,7 +261,7 @@ describe('school auto reward review/save/grant', () => {
     const today = todayStr();
     const ins = raw.prepare("INSERT INTO school_test_records(child_id, subject, unit, score, full_score, pct, exam_date, status, reward_granted, created_epoch, date_shanghai) VALUES(1,'数学','第3单元',96,100,96,?,'active',0,0,?)").run(today, today);
     raw.prepare('INSERT INTO wheel_chances(child_id, school_test_id, week_start, created_epoch, date_shanghai) VALUES(1,?,?,0,?)').run(Number(ins.lastInsertRowid), M.weekStartMon(today), today);
-    const r = await withRandom(0.72, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
+    const r = await withRandom(0.367, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.prize.kind, 'medicine', JSON.stringify(r.j));
     assert.equal(r.j.prize.key, 'medicine:revive', JSON.stringify(r.j));
@@ -270,7 +280,7 @@ describe('school auto reward frontend', () => {
     assert.doesNotMatch(app, /SCHOOL_GRANT_OPTIONS/);
     assert.doesNotMatch(app, /grantSchoolTest\(/);
     assert.match(app, /schoolRewardLabel/);
-    assert.match(app, /自动发普通奖励/);
+    assert.match(app, /自动发 1 次普通转盘机会/);
     assert.match(app, /活力碎片/);
   });
 });

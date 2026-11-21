@@ -1,8 +1,10 @@
 /* 全站图标统一换卡米猫风格（任务 72，2026-11-09）：
  * 来源：小红书游戏卡米猫《只剩个头》笔记图 1/图 2 技能栏特写（见 icon-style-reference.md）。
  * 属性图标 10 张（9 种＋妖精新补）＋道具图标 31 张，均为生成图 webp（圆角方卡＋同色渐变底＋粗描边＋白高光）。
+ * 2026-11-17：icons/ 再加 1 张 Oak LAB 透明图标（oak-lab.webp，非道具图），目录共 32 张。
  * 只断言前端展示源码（app.js.orig / style.css.orig / hash-assets.mjs）与磁盘图标文件，不碰后端逻辑与规则。 */
 import { test, describe } from 'node:test';
+import { readBackendSource } from './backend-src.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { assetHash } from './asset-path.mjs';
@@ -66,10 +68,11 @@ describe('任务 72：道具图标 31 张 webp，ITEM_ICON 映射全', () => {
     }
   });
 
-  test('磁盘上有 31 张道具图标 webp（轮换后为 hash 名）', () => {
+  test('磁盘上有 32 张 icons webp（31 道具＋oak-lab，轮换后为 hash 名）', () => {
     const files = readdirSync(new URL('../public/static/img/icons', import.meta.url));
-    assert.equal(files.length, 31);
+    assert.equal(files.length, 32);
     for (const slug of ITEM_SLUGS) assert.ok(files.includes(`${slug}.${H}.webp`), slug);
+    assert.ok(files.includes(`oak-lab.${H}.webp`), 'oak-lab');
   });
 
   test('ITEM_ICON_SRC 模板指向 icons 目录 webp', () => {
@@ -90,10 +93,11 @@ describe('任务 72：各处渲染用图（背包／转盘／中奖记录／照�
     assert.match(appSrc, /const img = cur\.prizeImg \|\| itemIconUrl\(curWinner\(\)\.key\);/);
   });
 
-  test('中奖记录文案：prizeKey 有图用图，无图回退 emoji', () => {
-    const fn = appSrc.slice(appSrc.indexOf('function oakDrawPrizeText(d)'), appSrc.indexOf('/* Oak 评测结果框里的抽奖行'));
-    assert.match(fn, /const img = d\.prizeKey \? itemIconUrl\(d\.prizeKey\) : null;/);
-    assert.match(fn, /d\.prizeEmoji \? esc\(d\.prizeEmoji\)/);
+  test('转盘揭示奖品：有服务端图用图，无图用奖品 key 的道具图、无图回退 emoji', () => {
+    // 2026-11-17：Oak 不再当场弹盘、奖品文案随 oakDrawPrizeText 一并移除；奖品揭示只在转盘中心 renderPrize 里
+    const fn = appSrc.slice(appSrc.indexOf('const renderPrize = '), appSrc.indexOf('const resetMachine = '));
+    assert.match(fn, /const img = cur\.prizeImg \|\| itemIconUrl\(curWinner\(\)\.key\);/);
+    assert.match(fn, /<span class="pb-star">\$\{esc\(emoji\)\}<\/span>/);
   });
 
   test('照顾格子与飞行动画用 careFxIconFor（有图用图，无图回退 emoji）', () => {
@@ -113,11 +117,12 @@ describe('任务 72：CSS 白角裁切与 hash 轮换', () => {
     assert.match(cssSrc, /\.care-fx-fly \.item-ic\{width:32px;height:32px\}/);
   });
 
-  test('hash-assets：types 改 webp 计 10，icons 新发现计 31，锚点跟进', () => {
+  test('hash-assets：types 改 webp 计 18，icons 新发现计 32，锚点跟进', () => {
     assert.ok(hashSrc.includes('/^static\\/img\\/types\\/[^/]+\\.webp$/'), 'types 发现正则');
-    assert.ok(hashSrc.includes('if (types.length !== 10)'), 'types 计 10');
+    assert.ok(hashSrc.includes('if (types.length !== 18)'), 'types 计 18'); // 2026-11-17：补齐 18 种属性图标（此前 10 种）
     assert.ok(hashSrc.includes('/^static\\/img\\/icons\\/[^/]+\\.webp$/'), 'icons 发现正则');
-    assert.ok(hashSrc.includes('if (icons.length !== 31)'), 'icons 计 31');
+    assert.ok(hashSrc.includes('if (icons.length !== 32)'), 'icons 计 32'); // 2026-11-17：31 道具＋oak-lab
+    assert.ok(hashSrc.includes("'/static/img/icons/oak-lab.webp', 1"), 'oak-lab 锚点 1 处');
     assert.ok(hashSrc.includes('"/static/img/types/${TYPE_EN[m.type] || \'normal\'}.webp", 1'), '属性锚点 1 处（2026-11-13 任务 106：两处渲染改走 moveIconSrc，只剩兜底）');
     assert.ok(hashSrc.includes("'/static/img/types/${en}.webp', 2"), 'typechip＋筛选 chip 锚点 2 处（任务 74）');
     assert.ok(hashSrc.includes("`/static/img/icons/${slug}.webp`', 1"), '道具图标锚点 1 处');
@@ -147,7 +152,7 @@ describe('任务 72：不动的东西（球 CSS、蛋绘制、ic 线条图标）
   });
 
   test('后端 ITEM_CATALOG 未动（图标只在前端换）', () => {
-    const srv = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+    const srv = readBackendSource();
     assert.match(srv, /'stone:thunder': \{ name: '雷之石', emoji: '⚡'/);
     assert.equal(srv.includes('/static/img/icons/'), false);
   });

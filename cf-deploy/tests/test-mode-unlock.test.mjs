@@ -15,7 +15,7 @@ import { assetHash } from './asset-path.mjs';
 const H = assetHash();
 
 const M = await import(new URL('../src/index.js', import.meta.url));
-const MIGS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql'];
+const MIGS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -66,10 +66,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 /* 正式模式：删 TEST_MODE 后重调 applyDebugTime（debug.test.mjs:130 先例） */
 async function useProd() {
@@ -243,16 +243,20 @@ describe('2 pokedex', () => {
     const beforeAcq = raw.prepare('SELECT COUNT(*) AS n FROM species_acquisitions').get().n;
     const r = await call('/api/pokedex', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.equal(r.j.dex151.length, 151);
-    assert.ok(r.j.dex151.every((x) => x.unlocked === true));
-    assert.equal(r.j.dex151[24].no, 25);
-    assert.ok(Array.isArray(r.j.dex151[24].moves) && r.j.dex151[24].moves.length > 0, '皮卡丘应带招式详情');
-    assert.equal(r.j.dex151[133].no, 134);
-    assert.equal(r.j.dex151[133].name, '水伊布');
-    assert.ok(r.j.lineEntries.every((e) => e.unlocked === true), '主宠线形态卡全放开');
-    assert.ok(r.j.wild.every((e) => e.unlocked === true));
-    assert.ok(r.j.others.every((e) => e.unlocked === true));
-    assert.ok(r.j.eggSpecies.every((e) => e.unlocked === true));
+    // Fable 优化 #2：列表只回动态数据——测试站展开全部骨架键，详情拆到卡片端
+    assert.equal(r.j.dex151Owned.length, 151);
+    assert.ok(r.j.unlocked.includes('form:pikachu:1'));
+    assert.ok(r.j.unlocked.includes('wild:54'));
+    assert.ok(r.j.unlocked.includes('gym:95'));
+    assert.ok(r.j.unlocked.includes('egg:143')); // 道馆蛋 143（卡比兽）不在野外池，键为 egg:143；94/122/126/208 在野外池，键是 wild:N
+    const pika = await call('/api/pokedex/card', { method: 'POST', cookie: c1, body: { childId: 1, key: 'dex151:25' } });
+    assert.equal(pika.status, 200, JSON.stringify(pika.j));
+    assert.ok(Array.isArray(pika.j.details.moves) && pika.j.details.moves.length > 0, '皮卡丘应带招式详情');
+    const vap = await call('/api/pokedex/card', { method: 'POST', cookie: c1, body: { childId: 1, key: 'dex151:134' } });
+    assert.equal(vap.status, 200, JSON.stringify(vap.j));
+    const eevee = await call('/api/pokedex/card', { method: 'POST', cookie: c1, body: { childId: 1, key: 'form:eevee:1' } });
+    assert.equal(eevee.status, 200, JSON.stringify(eevee.j));
+    assert.equal(eevee.j.details.evo.branches.length, 8, '测试模式伊布分支不过滤');
     assert.equal(r.j.progress.owned, 0, 'Lv.5 的 172 不计入 151 进度（>151），form:0 不进计数');
     const r2 = await call('/api/pokedex', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(r2.j.progress.owned, r.j.progress.owned, '只看不写：两次读数一致');
@@ -267,10 +271,16 @@ describe('2 pokedex', () => {
     await useProd();
     const r = await call('/api/pokedex', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
-    assert.deepEqual(r.j.dex151[0], { no: 1, unlocked: false, name: null, img: `/static/img/p1.${H}.webp` });
-    assert.deepEqual(r.j.dex151[133], { no: 134, unlocked: false, name: null, img: `/static/img/p134.${H}.webp` });
-    assert.equal(r.j.wild[0].unlocked, false);
+    // Fable 优化 #2：动态只回已获得集合；锁定行形状由前端合并保证（见 pokedex-split.test.mjs）
+    assert.deepEqual(r.j.dex151Owned, []);
+    assert.ok(!r.j.unlocked.includes('wild:10'));
     assert.equal(r.j.progress.owned, 0);
+    const locked = await call('/api/pokedex/card', { method: 'POST', cookie: c1, body: { childId: 1, key: 'dex151:1' } });
+    assert.equal(locked.status, 403, JSON.stringify(locked.j));
+    // 骨架仍带剪影用图
+    const skel = M.pokedexStaticSkeleton().data;
+    assert.equal(skel.dex151[0].img, `/static/img/p1.${H}.webp`);
+    assert.equal(skel.dex151[133].img, `/static/img/p134.${H}.webp`);
   });
 });
 
@@ -543,17 +553,18 @@ describe('7 unit-test quota', () => {
 
 /* ================= 8 抓捕用球（debug-set 补球路径） ================= */
 describe('8 debug-set balls', () => {
-  test('测试模式：debug-set 可直接设球 5 颗', async () => {
+  test('测试模式：debug-set 可发放球（累加到 5 颗）', async () => {
     const { pc } = await setup();
     await M.applyDebugTime(db, env);
-    const r = await call('/api/parent/debug-set', { method: 'POST', cookie: pc, body: { childId: 1, balls: 5 } });
+    // 出厂 3 颗，发放 2 颗 → 5 颗（问题 2 简化：不再直接设球数，改为下拉发放累加）。
+    const r = await call('/api/parent/debug-set', { method: 'POST', cookie: pc, body: { childId: 1, item: 'balls', qty: 2 } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(raw.prepare('SELECT balls FROM children WHERE id=1').get().balls, 5);
   });
   test('正式模式：debug-set 404', async () => {
     const { pc } = await setup();
     await useProd();
-    const r = await call('/api/parent/debug-set', { method: 'POST', cookie: pc, body: { childId: 1, balls: 5 } });
+    const r = await call('/api/parent/debug-set', { method: 'POST', cookie: pc, body: { childId: 1, item: 'balls', qty: 2 } });
     assert.equal(r.status, 404, JSON.stringify(r.j));
   });
 });
@@ -563,14 +574,14 @@ describe('9 not unlocked: PIN', () => {
   test('正式模式：PIN 错误不发会话', async () => {
     await setup();
     await useProd();
-    const r = await call('/api/parent/login', { method: 'POST', body: { pin: '9999' } });
+    const r = await call('/api/parent/login', { method: 'POST', body: { pin: '0000' } });
     assert.notEqual(r.status, 200);
     assert.ok(!r.cookie || !r.cookie.includes('parent='));
   });
   test('测试模式：PIN 错误同样不发会话（安全不放开）', async () => {
     await setup();
     await M.applyDebugTime(db, env);
-    const r = await call('/api/parent/login', { method: 'POST', body: { pin: '9999' } });
+    const r = await call('/api/parent/login', { method: 'POST', body: { pin: '0000' } });
     assert.notEqual(r.status, 200);
     assert.ok(!r.cookie || !r.cookie.includes('parent='));
   });

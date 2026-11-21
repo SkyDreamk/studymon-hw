@@ -6,6 +6,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { readBackendSource } from './backend-src.mjs';
 
 const appSrc = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
 const cssSrc = readFileSync(new URL('../public/static/style.css.orig', import.meta.url), 'utf8');
@@ -14,7 +15,8 @@ const gymStage = appSrc.slice(appSrc.indexOf('function battleStageHtml(v)'), app
 
 describe('任务 71：兄弟对战棋盘只用于 PvP，道馆舞台不动', () => {
   test('battleStageHtml 在 mode pvp 时走棋盘，其余模式走原舞台', () => {
-    assert.match(gymStage, /if \(v && v\.mode === 'pvp'\) return pvpBoardHtml\(v\);/);
+    // 第三期：线上两机对战改走共享舞台；棋盘只留给离线本地对战（B.local）和舞台加载失败的降级
+    assert.match(gymStage, /if \(v && v\.mode === 'pvp' && !bsWanted\(v\)\) return pvpBoardHtml\(v\);/);
   });
 
   test('道馆舞台仍用完整立绘（对手正面、玩家背身、训练师背身）', () => {
@@ -97,11 +99,11 @@ describe('任务 71：头像取法与动画钩子', () => {
 describe('任务 71：底部技能栏与棋盘样式', () => {
   test('兄弟对战招式选择器包进 pvp-skillbar（结构先搭好，图标沿用现有招式图标）', () => {
     const rv = appSrc.slice(appSrc.indexOf('function renderBattleView()'), appSrc.indexOf('/* 防守剩余时间文案'));
-    assert.match(rv, /<div class="pvp-skillbar">\$\{battleMovePickerHtml\(active\.moves\)\}<\/div>/);
+    assert.match(rv, /<div class="pvp-skillbar">\$\{battleMovePickerHtml\(active\.moves, active\.disabledMove\)\}<\/div>/);
   });
 
   test('棋盘为浅色底＋细格纹（道馆深色木质舞台不动）', () => {
-    assert.match(cssSrc, /\.battle-stage\.pvp-board\{[^}]*background:linear-gradient\(180deg,#FFFDF6,var\(--amber-bg\)\)/); // 任务 83：#FFF3D6 已抽为 --amber-bg（值同为 #fff3d6）
+    assert.match(cssSrc, /\.battle-stage\.pvp-board\{[^}]*background:linear-gradient\(180deg,var\(--surface\),var\(--amber-bg\)\)/); // 任务 83：#FFF3D6 已抽为 --amber-bg（值同为 #fff3d6）
     assert.match(cssSrc, /\.battle-stage\.pvp-board::before\{background-image:repeating-conic-gradient\(rgba\(77,111,193,\.06\) 0% 25%,transparent 0% 50%\);background-size:26px 26px\}/);
   });
 
@@ -126,7 +128,7 @@ describe('任务 71：底部技能栏与棋盘样式', () => {
  * 出战卡金框＋淡黄底＋“出战中”，备战卡待命样式（白底灰边＋“待命”角标）；
  * 底框精简为名字单行＋「Lv＋属性图标」一行＋血条＋血量数字，属性只露图标不露文字；
  * 备战宠只作展示，不加中途换宠规则。 */
-const srvSrc = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const srvSrc = readBackendSource();
 
 describe('任务 73：备战宠上板（展示数据由服务端补）', () => {
   test('battleView 的 sideView 映射 bench：按当前 battleLevel 现算等级与满血体力', () => {

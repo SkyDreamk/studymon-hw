@@ -58,9 +58,9 @@ describe('道馆关卡名一行', () => {
   });
   test('家长审核三按钮行的改经验按钮收短', () => {
     const a = app();
-    // 通过／改经验通过／驳回 三等分行：改经验通过 5 字在 101px 格里溢出 7px，收短为改经验
+    // 通过／改经验通过／驳回 三等分行：改经验通过 5 字在 101px 格里溢出 7px，收短为改经验；后改 tr 双语短文案
     assert.doesNotMatch(a, /改经验通过/);
-    assert.match(a, /onclick="reviewAdjust\(\$\{r\.id\}\)">改经验<\/button>/);
+    assert.match(a, /onclick="reviewAdjust\(\$\{r\.id\}\)">\$\{tr\('改经验', 'Adjust XP'\)\}<\/button>/);
   });
 });
 

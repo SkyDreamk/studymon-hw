@@ -1,4 +1,5 @@
 import { test, describe, beforeEach } from 'node:test';
+import { readBackendSource } from './backend-src.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
@@ -7,14 +8,14 @@ import { assetHash, assetPath } from './asset-path.mjs';
 const H = assetHash();
 assert.match(H || '', /^[0-9a-f]{8}$/, '先跑 node scripts/hash-assets.mjs');
 
-const src = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const src = readBackendSource();
 const M = await import(new URL('../src/index.js', import.meta.url));
 
 const app = () => readFileSync(assetPath('app.js'), 'utf8');
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
-  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0021_skill_levels.sql']) {
+  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0021_skill_levels.sql', '0043_pet_instances_ability.sql']) {
     raw.exec(readFileSync(new URL('../migrations/' + f, import.meta.url), 'utf8'));
   }
   raw.exec("UPDATE children SET name='测试大宝' WHERE id=1; UPDATE children SET name='测试小宝' WHERE id=2;");
@@ -178,12 +179,11 @@ describe('战斗技能等级', () => {
       const petB = pet('小火龙', '火', 200, [
         { name: '烟幕', type: '火', power: 43, skillLevel },
       ]);
-      const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
+      // 2026-11-16 取消热身：B 先攻直接出烟幕，再轮到 A 攻击（不再需要 A 空过热身）
+      const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
       const hpA = () => st.sides.A.pets[st.sides.A.activeIdx].hp;
       const hpB = () => st.sides.B.pets[st.sides.B.activeIdx].hp;
 
-      // 先攻方首回合不能出招：A 空过热身，轮到 B 出烟幕，再轮到 A 攻击
-      M.applyBattleAction(st, 'A', null, () => 0.6);
       assert.equal(st.turn, 'B');
       M.applyBattleAction(st, 'B', '烟幕', () => 0.6);
       assert.ok(__fx(st, 'A').smoke, 'A 应被烟幕');
@@ -338,9 +338,10 @@ describe('技能等级迁移', () => {
 });
 
 describe('技能升级源码口径', () => {
-  test('两处 newMovesBetween 调用都传已解锁名', () => {
+  test('三处 newMovesBetween 调用都传已解锁名', () => {
+    // 第三处是 Fable 优化 #5 的 fallback 重算（输掉竞态时按 bonus 0 重算等级/招式），与前两处同款入参
     const needle = 'newMovesBetween(child.line, oldLevel, newLevel, safeJsonArr(child.unlocked_moves))';
-    assert.equal(src.split(needle).length - 1, 2);
+    assert.equal(src.split(needle).length - 1, 3);
   });
 
   test('前端显示技能升级，不再提供提前解锁入口', () => {
@@ -422,40 +423,15 @@ describe('技能5级满级压力（fix97，Sol三次拒写后由统筹按已有�
     assert.notEqual(d.error, 'INVALID_MOVE_POWER');
   });
 
-  test('调试快照含技能等级列，调试重置清move_levels', async () => {
+  test('调试重置清 move_levels（技能等级已不在调试快照/面板展示，见问题 2 简化）', async () => {
     raw.exec(`UPDATE children SET total_xp=1120, move_levels='{"电光一闪":5}', unlocked_moves='[]' WHERE id=1;`);
     const cookie = await parentCookie();
-    const st = await call('/api/parent/debug-state', { cookie });
-    assert.equal(st.j.ok, true);
-    const c1 = st.j.children.find((c) => c.id === 1);
-    assert.ok(c1.skillLevels.some((s) => s.name === '电光一闪' && s.skillLevel === 5));
     const rst = await call('/api/parent/debug-reset', { method: 'POST', cookie, body: { confirm: true } });
     assert.equal(rst.j.ok, true);
     assert.equal(raw.prepare('SELECT move_levels FROM children WHERE id=1').get().move_levels, '{}');
   });
 
-  test('调试快照含妖精招式，技能等级恒为1且不重复', async () => {
-    raw.exec(`UPDATE children SET total_xp=1120, move_levels='{"电光一闪":5}', fairy_moves='[{"name":"吸取之吻","level":8}]' WHERE id=1;`);
-    const cookie = await parentCookie();
-    const st = await call('/api/parent/debug-state', { cookie });
-    assert.equal(st.j.ok, true);
-    const c1 = st.j.children.find((c) => c.id === 1);
-    assert.ok(c1.skillLevels.some((s) => s.name === '吸取之吻' && s.skillLevel === 1));
-    assert.ok(c1.skillLevels.some((s) => s.name === '电光一闪' && s.skillLevel === 5));
-    assert.equal(c1.skillLevels.filter((s) => s.name === '吸取之吻').length, 1);
-  });
-
-  test('调试快照无妖精招式时技能等级行为不变', async () => {
-    raw.exec(`UPDATE children SET total_xp=1120, move_levels='{"电光一闪":5}', fairy_moves='[]' WHERE id=1;`);
-    const cookie = await parentCookie();
-    const st = await call('/api/parent/debug-state', { cookie });
-    assert.equal(st.j.ok, true);
-    const c1 = st.j.children.find((c) => c.id === 1);
-    assert.ok(c1.skillLevels.some((s) => s.name === '电光一闪' && s.skillLevel === 5));
-    assert.ok(!c1.skillLevels.some((s) => s.name === '吸取之吻'));
-  });
-
-  test('前端调试面板含技能等级展示行', () => {
-    assert.ok(app().includes('技能等级：'), '调试面板应含技能等级展示行');
+  test('前端调试面板不再展示技能等级行（问题 2 简化）', () => {
+    assert.ok(!app().includes('技能等级：'), '调试面板不应再含技能等级展示行');
   });
 });

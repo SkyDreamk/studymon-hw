@@ -22,11 +22,12 @@ function rule(c, sel) {
   return m[0];
 }
 
-const PSET_GROUPS = ['settings', 'math', 'diag', 'evo', 'security', 'questions', 'time', 'coop', 'about'];
+const PSET_GROUPS = ['settings', 'diag', 'evo', 'security', 'questions', 'time', 'coop', 'about'];
 
 describe('家长设置模块列表', () => {
-  test('列表容器与全部组的行标记在位', () => {
+  test('列表容器与全部组的行标记在位（学习进度行已并入用户管理，不再有 math 组）', () => {
     const a = app();
+    assert.ok(!a.includes("psetOpen('math')"), '学习进度行应已删除');
     assert.ok(a.includes('class="pset-list"'), '缺 pset-list 容器');
     for (const g of PSET_GROUPS) {
       assert.ok(a.includes(`psetOpen('${g}')`), `缺 ${g} 组行`);
@@ -63,7 +64,7 @@ describe('家长设置行内开关', () => {
 describe('家长设置 .pset-* CSS 规则', () => {
   test('全部 .pset-* 规则在位', () => {
     const c = css();
-    for (const sel of ['.pset-list', '.pset-group', '.pset-row', '.pset-ic', '.pset-tx',
+    for (const sel of ['.pset-list', '.pset-row', '.pset-ic', '.pset-tx',
       '.pset-t', '.pset-s', '.pset-c', '.pset-action', '.pset-detail', '.pset-back',
       '.pset-field', '.pset-toggle', '.pset-knob']) {
       assert.ok(c.includes(sel + '{') || c.includes(sel + '['), `缺 ${sel}`);
@@ -166,7 +167,7 @@ describe('家长设置美化（2026-11-14 参考图）', () => {
   });
   test('开关行去掉状态字，状态由开关本身表达', () => {
     const a = app();
-    const listBlock = a.slice(a.indexOf('function parentSettingsListHtml'), a.indexOf('function parentSettingsFieldsHtml'));
+    const listBlock = a.slice(a.indexOf('function parentSettingsListHtml'), a.indexOf('function parentChildSettingsHtml'));
     assert.doesNotMatch(listBlock, /已开启|已关闭/);
     // 开关本体在 psetToggleHtml（§274 抽出）：listHtml 只含调用，字面 role="switch" 不在切片内是重构所致，非行为丢失——不断言切片含字面，断言 helper 含字面且列表三处都调它。
     const toggleBlock = a.slice(a.indexOf('function psetToggleHtml'), a.indexOf('function parentSettingsListHtml'));
@@ -185,7 +186,7 @@ describe('家长设置美化（2026-11-14 参考图）', () => {
   });
   test('返工 2026-11-14：重置确认改输家长 PIN，不再两次弹窗', () => {
     const a = app();
-    assert.ok(a.includes('function askResetPin()'), '缺 askResetPin');
+    assert.ok(a.includes("function askResetPin(msg = '输入家长 PIN 以确认重置全部数据')"), '缺 askResetPin（含可选提示文案，任务 129）');
     assert.ok(a.includes("api('/api/parent/verify-pin'"), 'PIN 校验应走现成的 verify-pin');
     const resetBlock = a.slice(a.indexOf('window.resetAll'), a.indexOf('window.resetAll') + 400);
     assert.ok(resetBlock.includes('askResetPin()'), 'resetAll 应先调 askResetPin');

@@ -7,8 +7,9 @@ import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
+import { readBackendSource } from './backend-src.mjs';
 
-const src = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const src = readBackendSource();
 const M = await import(new URL('../src/index.js', import.meta.url));
 
 const NOW = 1_800_000_000; // 固定基准时刻（秒）
@@ -44,7 +45,7 @@ describe('pinFresh 纯函数', () => {
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
-  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0019_evo_items.sql']) {
+  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql']) {
     raw.exec(readFileSync(new URL('../migrations/' + f, import.meta.url), 'utf8'));
   }
   const wrap = (sql) => ({
@@ -113,10 +114,10 @@ describe('overview session.pinOk 下发', () => {
     const pc = await parentCookie();
     const su = await call('/api/parent/settings/update', {
       method: 'POST', cookie: pc,
-      body: { childPasswords: [{ id: 1, password: '0000' }] },
+      body: { childPasswords: [{ id: 1, password: '1111' }] },
     });
     assert.equal(su.j.ok, true);
-    const login = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '0000' } });
+    const login = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '1111' } });
     assert.equal(login.status, 200);
     const ov = await call('/api/overview', { cookie: login.cookie });
     assert.equal(ov.j.session.kind, 'child');
@@ -150,7 +151,7 @@ describe('家长入口 PIN 盘输错清除（2026-10-24）', () => {
     const apiCalls = [];
     let renderParentCalled = false;
     const factory = new Function('window', 'document', 'app', 'state', 'api', 'renderParent', 'setArea', 'careRoomUnmount',
-      sliceFn('function goParent() {') + '\n' + sliceFn('async function submitPin(pin) {') + '\nreturn { goParent };');
+      sliceFn('function enterParentMode(j) {') + '\n' + sliceFn('function goParent() {') + '\n' + sliceFn('async function submitPin(pin) {') + '\nreturn { goParent };');
     const { goParent } = factory(windowStub,
       { getElementById: (id) => els[id] || null, querySelector: () => null },
       { innerHTML: '' },
@@ -166,7 +167,7 @@ describe('家长入口 PIN 盘输错清除（2026-10-24）', () => {
 
   test('输错后红点与报错可见；下一键从新一轮开始，不再重提旧 PIN', async () => {
     const pad = loadPad((pin) => (pin === '9876' ? { ok: true } : { ok: false, attemptsLeft: 2 }));
-    pad.pinKey('0'); pad.pinKey('0'); pad.pinKey('0'); pad.pinKey('0');
+    pad.pinKey('1'); pad.pinKey('2'); pad.pinKey('3'); pad.pinKey('4');
     await tick();
     assert.deepEqual(pad.apiCalls, ['0000']);
     // P0：输错时 4 个圆点变红（750ms 后才恢复为空圆点），文案统一为“密码不对，再试一次”
@@ -181,7 +182,7 @@ describe('家长入口 PIN 盘输错清除（2026-10-24）', () => {
 
   test('输错清空后重输正确 PIN 可进家长面板', async () => {
     const pad = loadPad((pin) => (pin === '9876' ? { ok: true } : { ok: false, attemptsLeft: 2 }));
-    pad.pinKey('0'); pad.pinKey('0'); pad.pinKey('0'); pad.pinKey('0');
+    pad.pinKey('1'); pad.pinKey('2'); pad.pinKey('3'); pad.pinKey('4');
     await tick();
     pad.pinKey('9'); pad.pinKey('8'); pad.pinKey('7'); pad.pinKey('6');
     await tick();
@@ -191,7 +192,7 @@ describe('家长入口 PIN 盘输错清除（2026-10-24）', () => {
 
   test('锁定文案分支同样清空（PIN_LOCKED 时也不留旧值）', async () => {
     const pad = loadPad(() => ({ ok: false, error: 'PIN_LOCKED', retryAfter: 300 }));
-    pad.pinKey('0'); pad.pinKey('0'); pad.pinKey('0'); pad.pinKey('0');
+    pad.pinKey('1'); pad.pinKey('2'); pad.pinKey('3'); pad.pinKey('4');
     await tick();
     assert.match(pad.els.pinmsg.textContent, /试太多次啦/);
     pad.pinKey('5');
@@ -202,8 +203,9 @@ describe('家长入口 PIN 盘输错清除（2026-10-24）', () => {
 
   test('同类接线：其余 4 位密码输入位在服务端失败时清空输入框', () => {
     const appJs = readFileSync(assetPath('app.js'), 'utf8');
-    // 对战加入密码（pvp-pwd）、家长改 PIN（newpin）、孩子密码重置（cpw-*）
-    assert.match(appJs, /getElementById\('pvp-pwd'\); if \(el\) el\.value = ''/);
+    // 房号模式：对战加入密码（pvp-pwd）已撤，改走 askPrompt 弹框输房号（弹框提交即关闭，无残留输入可清）；
+    // 其余 4 位密码输入位（家长改 PIN、孩子密码重置）仍须在服务端失败时清空输入框
+    assert.ok(!appJs.includes('pvp-pwd'), '旧对战加入密码输入框应已撤');
     assert.match(appJs, /getElementById\('newpin'\); if \(el\) el\.value = ''/);
     assert.match(appJs, /getElementById\('cpw-' \+ id\); if \(el\) el\.value = ''/);
     // 合作加入密码（coopJoinPw）：函数顶部已取 el，失败分支复用 el 清空
@@ -213,9 +215,10 @@ describe('家长入口 PIN 盘输错清除（2026-10-24）', () => {
     assert.match(appJs.slice(start, end), /if \(el\) el\.value = '';/);
   });
 
-  test('同类已正确：选人页 PIN 盘（孩子＋家长入口）失败时清 buf', () => {
-    // rolePage 的 submit 失败分支：buf=''; draw(); ——与应用内旧实现形成对照，回归时不得退化
-    assert.match(src, /buf='';draw\(\);/);
+  test('登录页已改用户名＋密码（2026-11-16 用户系统 v2）：选人页的 PIN 盘与孩子入口都已下线，PIN 只在应用内做家长管理二次确认', () => {
+    // 旧选人页 PIN 盘（buf/draw 逻辑）随 rolePage 重写移除；应用内 goParent 的 PIN 盘仍由上面的用例覆盖
+    assert.doesNotMatch(src, /buf='';draw\(\);/);
+    assert.match(src, /\/api\/auth\/login/);
   });
 
   test('护栏：app.js 整文件可解析（防重复声明等语法错误导致整站白屏）', async () => {
