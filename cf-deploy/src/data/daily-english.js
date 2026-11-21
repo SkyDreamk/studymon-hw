@@ -1,9 +1,9 @@
 /* 每日英语内容池（快照）
  * 来源：跟读站素材只读 API v1（english.example.com/api/materials/v1，见 ~/workspace/user/files/API-_-v1.md）
- * 快照日期：2026-11-13（work/daily-english-pool.json）
+ * 快照日期：2026-11-19（work/daily-english-pool.json）
  * 刷新方法：python3 work/extract-daily-english-pool.py（经 API 重拉跟读站）→ node scripts/gen-daily-english.mjs --write（重生成本文件）
  * 内容只用快照原样数据，不得手改句子、翻译、音频。API version 变了重拉对应集，音频 URL 以最新响应为准。
- * 小宝池：g1＋starter，29 集 236 句（口语 card 82 句）；大宝池：g3，40 集 1100 句（口语 card 98＋video 677 句）。
+ * 小宝池：g1＋starter，43 集 464 句（口语 card 137＋video 173 句）；大宝池：g3，54 集 1462 句（口语 card 152＋video 985 句）。
  * 每日选题只取课本句（见 src/index.js dailyEnglishTodayFor；2026-11-13 用户定：每日英语走课本内容，口语对话归 Oak）。
  */
 
@@ -152,6 +152,76 @@ export const DAILY_ENGLISH_EPISODES = {
   "ep-card-bedtime-g1": {
     "t": "Time for Bed",
     "z": "该睡觉了",
+    "k": "card"
+  },
+  "ep-card-family-g1": {
+    "t": "This Is My Family",
+    "z": "这是我的家人",
+    "k": "card"
+  },
+  "ep-card-birthday-g1": {
+    "t": "Happy Birthday",
+    "z": "生日快乐",
+    "k": "card"
+  },
+  "ep-card-help-g1": {
+    "t": "Can I Help?",
+    "z": "我能帮忙吗",
+    "k": "card"
+  },
+  "ep-card-library-g1": {
+    "t": "This Is the Library",
+    "z": "这是图书馆",
+    "k": "card"
+  },
+  "ep-card-soccer-g1": {
+    "t": "Let's Play Soccer",
+    "z": "我们来踢足球",
+    "k": "card"
+  },
+  "ep-card-bus-g1": {
+    "t": "Here's the Bus",
+    "z": "公交车来了",
+    "k": "card"
+  },
+  "ep-video-grocerystore-1": {
+    "t": "Grocery Store (Part 1)",
+    "z": "超市购物（上）",
+    "k": "video"
+  },
+  "ep-video-grocerystore-2": {
+    "t": "Grocery Store (Part 2)",
+    "z": "超市购物（下）",
+    "k": "video"
+  },
+  "ep-card-doctor-g1": {
+    "t": "I Have a Cold",
+    "z": "我感冒了",
+    "k": "card"
+  },
+  "ep-card-directions-g1": {
+    "t": "Where Is the Playground?",
+    "z": "请问怎么走",
+    "k": "card"
+  },
+  "ep-card-weekend-g1": {
+    "t": "It's Saturday Today",
+    "z": "周末到了",
+    "k": "card"
+  },
+  "ep-video-hobbies": {
+    "t": "Talking About Hobbies",
+    "z": "谈谈爱好",
+    "k": "video"
+  },
+  "ep-card-letters-g1": {
+    "t": "What's This Letter?",
+    "z": "这是什么字母",
+    "k": "card"
+  },
+  "ep-card-sounds-g1": {
+    "t": "Apple Starts With A",
+    "z": "苹果是 A 开头的",
     "k": "card"
   },
   "ep-card-03": {
@@ -353,6 +423,61 @@ export const DAILY_ENGLISH_EPISODES = {
     "t": "Exploring a Cave (Part 3)",
     "z": "探索洞穴（下）",
     "k": "video"
+  },
+  "ep-card-family-g3": {
+    "t": "Do You Have a Brother?",
+    "z": "你有弟弟吗",
+    "k": "card"
+  },
+  "ep-card-birthday-g3": {
+    "t": "Can You Come to My Party?",
+    "z": "你能来我的聚会吗",
+    "k": "card"
+  },
+  "ep-card-help-g3": {
+    "t": "I'll Help You Tidy Up",
+    "z": "我来帮你收拾",
+    "k": "card"
+  },
+  "ep-video-potatofarm-1": {
+    "t": "Potato Farm (Part 1)",
+    "z": "土豆农场（上）",
+    "k": "video"
+  },
+  "ep-video-potatofarm-2": {
+    "t": "Potato Farm (Part 2)",
+    "z": "土豆农场（下）",
+    "k": "video"
+  },
+  "ep-card-library-g3": {
+    "t": "Can I Borrow This Book?",
+    "z": "我能借这本书吗",
+    "k": "card"
+  },
+  "ep-card-soccer-g3": {
+    "t": "Do You Want to Play Soccer?",
+    "z": "你想踢足球吗",
+    "k": "card"
+  },
+  "ep-card-bus-g3": {
+    "t": "Should We Get On Now?",
+    "z": "我们现在上车吗",
+    "k": "card"
+  },
+  "ep-card-doctor-g3": {
+    "t": "Should We See the Doctor?",
+    "z": "我们去看医生吧",
+    "k": "card"
+  },
+  "ep-card-directions-g3": {
+    "t": "How Do I Get There?",
+    "z": "操场怎么走",
+    "k": "card"
+  },
+  "ep-card-weekend-g3": {
+    "t": "What Should We Do This Weekend?",
+    "z": "周末你想做什么",
+    "k": "card"
   }
 };
 /* DAILY_ENGLISH_EPISODES:END */
@@ -1438,7 +1563,7 @@ export const DAILY_ENGLISH_POOL = {
       "en": "A cat.",
       "zh": "一只猫。",
       "an": "https://english.example.com/audio/ep/ep-pep1-u6/s001-n-6c0cbc.mp3",
-      "as": "https://english.example.com/audio/ep/ep-pep1-u6/s001-s-b42987.mp3"
+      "as": "https://english.example.com/audio/ep/ep-pep1-u6/s001-s-b42222.mp3"
     },
     {
       "s": "s002",
@@ -2719,6 +2844,2286 @@ export const DAILY_ENGLISH_POOL = {
       "zh": "晚安。我爱你。",
       "an": "https://english.example.com/audio/ep/ep-card-bedtime-g1/s005-n-81338f.mp3",
       "as": "https://english.example.com/audio/ep/ep-card-bedtime-g1/s005-s-df7cfe.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-family-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is my mom.",
+      "zh": "这是我妈妈。",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g1/s001-n-316632.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g1/s001-s-d98f55.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-family-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is my dad.",
+      "zh": "这是我爸爸。",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g1/s002-n-89bd05.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g1/s002-s-c9a5c9.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-family-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Who is this?",
+      "zh": "这是谁？",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g1/s003-n-5b02f5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g1/s003-s-0b528e.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-family-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is my brother.",
+      "zh": "这是我弟弟。",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g1/s004-n-d4cada.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g1/s004-s-98970e.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-family-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I love my family.",
+      "zh": "我爱我的家人。",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g1/s005-n-a09c4d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g1/s005-s-95803e.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-birthday-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Happy birthday, Ben!",
+      "zh": "生日快乐，Ben！",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g1/s001-n-2f02db.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g1/s001-s-cbbca3.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-birthday-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Thank you, Lily.",
+      "zh": "谢谢你，Lily。",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g1/s002-n-18775d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g1/s002-s-d3b2b6.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-birthday-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Here's your gift.",
+      "zh": "这是给你的礼物。",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g1/s003-n-1fe37f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g1/s003-s-3b9c8e.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-birthday-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Wow, I love it!",
+      "zh": "哇，我好喜欢！",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g1/s004-n-50ab9c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g1/s004-s-63deb3.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-birthday-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Make a wish!",
+      "zh": "许个愿吧！",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g1/s005-n-444ec2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g1/s005-s-075e9a.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-help-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "Can you help me?",
+      "zh": "你能帮帮我吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g1/s001-n-744790.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g1/s001-s-bb3c44.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-help-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Yes, I can help.",
+      "zh": "可以，我能帮忙。",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g1/s002-n-fb5737.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g1/s002-s-bfd3ec.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-help-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "Please tidy up.",
+      "zh": "请收拾一下。",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g1/s003-n-9750bf.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g1/s003-s-d644e2.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-help-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I can do it.",
+      "zh": "我能做到。",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g1/s004-n-c66915.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g1/s004-s-937fe3.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-help-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "You're a great helper.",
+      "zh": "你真是个好帮手。",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g1/s005-n-233370.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g1/s005-s-dbfee5.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-library-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is the library.",
+      "zh": "这是图书馆。",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g1/s001-n-bfe94c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g1/s001-s-6f6f29.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-library-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Please be quiet.",
+      "zh": "请安静。",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g1/s002-n-438972.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g1/s002-s-b0abca.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-library-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I like this book.",
+      "zh": "我喜欢这本书。",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g1/s003-n-686df8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g1/s003-s-04c171.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-library-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Can I read it?",
+      "zh": "我可以看吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g1/s004-n-4daf3b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g1/s004-s-45f795.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-library-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Let's sit down.",
+      "zh": "我们坐下吧。",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g1/s005-n-10befa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g1/s005-s-bf9b41.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-soccer-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Let's play soccer.",
+      "zh": "我们来踢足球吧。",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g1/s001-n-e3c660.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g1/s001-s-203393.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-soccer-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Pass the ball, please.",
+      "zh": "请把球传过来。",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g1/s002-n-156a4e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g1/s002-s-4d30d2.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-soccer-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Nice shot, Ben!",
+      "zh": "好球，Ben！",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g1/s003-n-2b3a24.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g1/s003-s-c297e1.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-soccer-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "We can do it.",
+      "zh": "我们能行。",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g1/s004-n-95cb7d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g1/s004-s-3f5eb7.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-soccer-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Good game!",
+      "zh": "比赛真精彩！",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g1/s005-n-7f9b2d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g1/s005-s-d28467.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-bus-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Here's the bus.",
+      "zh": "公交车来了。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g1/s001-n-44997e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g1/s001-s-8b4162.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-bus-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Let's get on.",
+      "zh": "我们上车吧。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g1/s002-n-06e3f1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g1/s002-s-c41957.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-bus-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I have a ticket.",
+      "zh": "我有车票。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g1/s003-n-167b7b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g1/s003-s-abef70.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-bus-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "We can sit here.",
+      "zh": "我们可以坐这里。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g1/s004-n-78b1fc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g1/s004-s-198af6.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-bus-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is our stop.",
+      "zh": "这是我们的站。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g1/s005-n-dec63a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g1/s005-s-91eead.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go on a field trip with Caitie's Classroom.",
+      "zh": "我们跟着 Caitie's Classroom 去实地看看吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s001-n-9f48ad.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s001-s-460d49.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Hi, friends.",
+      "zh": "嗨，朋友们。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s002-n-4492df.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s002-s-a2b6fc.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm grocery shopping at the grocery store.",
+      "zh": "我正在超市买东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s003-n-6e286f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s003-s-a46d36.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I have a list of things that I need and my shopping cart all ready to go.",
+      "zh": "我有一份要买的清单，购物车也准备好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s004-n-3a50bf.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s004-s-f47fd8.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Would you like to come grocery shopping with me?",
+      "zh": "你想和我一起去超市购物吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s005-n-3880aa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s005-s-bc53db.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I could use your help.",
+      "zh": "我需要你帮帮忙。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s006-n-f28654.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s006-s-18fc6d.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go!",
+      "zh": "我们走吧！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s007-n-72ca0f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s007-s-f5b69c.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "There are so many different colors in the produce section.",
+      "zh": "果蔬区有好多不同的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s008-n-b775a4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s008-s-9c02bf.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's where all the fruits and vegetables are.",
+      "zh": "水果和蔬菜都在那里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s009-n-9bfcba.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s009-s-2d0521.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I see green, red, orange, yellow, purple, white, blue, and brown.",
+      "zh": "我看到绿色、红色、橙色、黄色、紫色、白色、蓝色和棕色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s010-n-f4277f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s010-s-6b1269.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "The first thing on our list is bell peppers.",
+      "zh": "清单上第一样是彩椒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s011-n-44e5f3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s011-s-2978b1.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It looks like this and comes in different colors.",
+      "zh": "它长这样，而且有不同的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s012-n-1f5777.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s012-s-68763e.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Can you see the bell peppers?",
+      "zh": "你能看到彩椒吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s013-n-56a589.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s013-s-02a69c.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We found them!",
+      "zh": "我们找到了！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s014-n-f07988.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s014-s-34ef5c.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at all the different colors.",
+      "zh": "看看这些不同的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s015-n-b0dcaa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s015-s-7cd0de.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "There's red bell peppers, green bell peppers, yellow bell peppers, and orange bell peppers.",
+      "zh": "有红彩椒、绿彩椒、黄彩椒，还有橙色彩椒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s016-n-b1f925.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s016-s-b7f416.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Which color should we get?",
+      "zh": "我们要买哪种颜色呢？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s017-n-3ae04a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s017-s-5918ff.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's get the yellow bell pepper.",
+      "zh": "我们买黄彩椒吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s018-n-229892.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s018-s-595a68.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Kind of matches the color of my apron.",
+      "zh": "有点配我围裙的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s019-n-892722.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s019-s-37a48e.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Great job!",
+      "zh": "做得好！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s020-n-f64c77.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s020-s-4ee986.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next on our list is oranges.",
+      "zh": "清单上下一样是橙子。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s021-n-17c36d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s021-s-e31152.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Can you find the oranges?",
+      "zh": "你能找到橙子吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s022-n-739a5f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s022-s-d6ca41.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Here they are.",
+      "zh": "在这里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s023-n-8cd2ed.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s023-s-2ef23d.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Way to go!",
+      "zh": "真棒！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s024-n-056757.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s024-s-3d3620.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's get four oranges.",
+      "zh": "我们买四个橙子吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s025-n-029183.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s025-s-7f306e.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can count them together as we put them inside this bag.",
+      "zh": "我们把它们放进袋子里的时候，可以一起数。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s026-n-72aeb9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s026-s-ef26ba.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "One, two, three, four.",
+      "zh": "一，二，三，四。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s027-n-614e94.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s027-s-1171b4.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Four oranges.",
+      "zh": "四个橙子。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s028-n-5da4ed.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s028-s-20d36f.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's kind of funny that oranges are called oranges and they're the color orange.",
+      "zh": "有点好玩：橙子叫 orange，而它们的颜色也是橙色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s029-n-cad72d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s029-s-872a2b.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next on our list is, ooh, mushrooms.",
+      "zh": "清单上下一样是——噢，蘑菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s030-n-9b2f58.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s030-s-6d6d42.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This store has an excellent selection of mushrooms.",
+      "zh": "这家店的蘑菇种类非常多。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s031-n-464d24.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s031-s-52f676.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Come with me.",
+      "zh": "跟我来。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s032-n-7acc69.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s032-s-3f81a8.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at how many different kinds of mushrooms there are.",
+      "zh": "看看这里有多少种不同的蘑菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s033-n-d97f62.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s033-s-36016a.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "They have some fun names too.",
+      "zh": "它们的名字也很好玩。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s034-n-dfc537.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s034-s-019b1c.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Blue oyster.",
+      "zh": "蓝平菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s035-n-27793c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s035-s-bd2e71.mp3"
+    },
+    {
+      "s": "s036",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Hen of the woods.",
+      "zh": "灰树花。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s036-n-52e9af.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s036-s-e23d4e.mp3"
+    },
+    {
+      "s": "s037",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Lion's mane.",
+      "zh": "猴头菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s037-n-e111af.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s037-s-9e2d9c.mp3"
+    },
+    {
+      "s": "s038",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Today, let's get eight cremini mushrooms.",
+      "zh": "今天我们买八朵棕色蘑菇吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s038-n-f2e86c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s038-s-ae3f1b.mp3"
+    },
+    {
+      "s": "s039",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can count them as we put them inside the bag.",
+      "zh": "我们把它们放进袋子里的时候可以一起数。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s039-n-0e423f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s039-s-9c9d96.mp3"
+    },
+    {
+      "s": "s040",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Now, it's important when picking your produce to only touch the ones you're gonna buy.",
+      "zh": "选果蔬的时候，重要的是只碰你要买的那些。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s040-n-d972b8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s040-s-7783e5.mp3"
+    },
+    {
+      "s": "s041",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "So we can use these tongs to help us out.",
+      "zh": "所以我们可以用这些夹子来帮忙。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s041-n-94c063.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s041-s-748328.mp3"
+    },
+    {
+      "s": "s042",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "One, two, three.",
+      "zh": "一，二，三。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s042-n-e77b0e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s042-s-ff7c5b.mp3"
+    },
+    {
+      "s": "s043",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Four, five, six.",
+      "zh": "四，五，六。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s043-n-7ce84b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s043-s-122824.mp3"
+    },
+    {
+      "s": "s044",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Seven, eight.",
+      "zh": "七，八。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s044-n-6a861e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s044-s-0cbdef.mp3"
+    },
+    {
+      "s": "s045",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Eight mushrooms.",
+      "zh": "八朵蘑菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s045-n-0aec1f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s045-s-1b9675.mp3"
+    },
+    {
+      "s": "s046",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Well, I think that's it for our fruits and vegetables.",
+      "zh": "好，水果和蔬菜应该就这些了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s046-n-4e1dbc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s046-s-b0b6e9.mp3"
+    },
+    {
+      "s": "s047",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next is bread.",
+      "zh": "接下来是面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s047-n-50626d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s047-s-0279bd.mp3"
+    },
+    {
+      "s": "s048",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I know where that is.",
+      "zh": "我知道在哪里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s048-n-0dd06e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s048-s-6b770c.mp3"
+    },
+    {
+      "s": "s049",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Follow me.",
+      "zh": "跟我来。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s049-n-809d5d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s049-s-8c72b7.mp3"
+    },
+    {
+      "s": "s050",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at all the different kinds of bread there are.",
+      "zh": "看看这里有多少种不同的面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s050-n-154ef7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s050-s-026273.mp3"
+    },
+    {
+      "s": "s051",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This looks like what I'm looking for.",
+      "zh": "这看起来就是我要找的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s051-n-79ef44.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s051-s-73f861.mp3"
+    },
+    {
+      "s": "s052",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is perfect for toast and sandwiches.",
+      "zh": "这个很适合做吐司和三明治。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s052-n-ee6dac.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s052-s-23b8a5.mp3"
+    },
+    {
+      "s": "s053",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This bread is made with something called gluten.",
+      "zh": "这种面包是用一种叫麸质的东西做的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s053-n-9bdfc1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s053-s-87a2a3.mp3"
+    },
+    {
+      "s": "s054",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And that's okay for most people, but for some friends, it can make their tummies feel a little upset.",
+      "zh": "对大多数人没问题，但有些朋友吃了可能会肚子不舒服。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s054-n-203e86.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s054-s-3865f9.mp3"
+    },
+    {
+      "s": "s055",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "So they also make bread without gluten.",
+      "zh": "所以也有不含麸质的面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s055-n-f75162.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s055-s-2f0732.mp3"
+    },
+    {
+      "s": "s056",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's called gluten-free bread.",
+      "zh": "那叫无麸质面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s056-n-acc322.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s056-s-09f8c7.mp3"
+    },
+    {
+      "s": "s057",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's nice that there's different options so everybody can find something that makes them feel good.",
+      "zh": "有不同的选择真好，这样每个人都能找到让自己舒服的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s057-n-f9fe63.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s057-s-1c48ec.mp3"
+    },
+    {
+      "s": "s058",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And you can tell it's gluten-free because it says so right on the package.",
+      "zh": "你能看出它是无麸质的，因为包装上就写着。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s058-n-92aae9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s058-s-015e83.mp3"
+    },
+    {
+      "s": "s059",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm gonna get some gluten-free bread too.",
+      "zh": "我也要拿一些无麸质面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s059-n-57c887.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s059-s-54d122.mp3"
+    },
+    {
+      "s": "s060",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That way if a friend comes over who can't have gluten, they can have a snack that's just for them.",
+      "zh": "这样如果有不能吃麸质的朋友来玩，他们也能吃到适合自己的点心。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s060-n-2c7fbc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s060-s-18985d.mp3"
+    },
+    {
+      "s": "s061",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We got our bread.",
+      "zh": "面包我们买到了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s061-n-90fbae.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s061-s-739e28.mp3"
+    },
+    {
+      "s": "s062",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's keep shopping.",
+      "zh": "我们继续购物吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s062-n-ee072a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s062-s-5847b8.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at all the cakes, the colors, the frosting.",
+      "zh": "看看这些蛋糕，这些颜色，还有糖霜。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s001-n-292893.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s001-s-393927.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "A cake would be so delicious, but cake isn't on our list today.",
+      "zh": "蛋糕会很好吃，可是今天清单上没有蛋糕。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s002-n-5fdcd4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s002-s-63f268.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can't get everything that looks delicious, even though it is hard to say no sometimes.",
+      "zh": "不能看到好吃的就都买，虽然有时候很难说不。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s003-n-b91b3e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s003-s-508a4d.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "But you know what? Maybe we could get a special treat later.",
+      "zh": "不过你知道吗？也许我们待会可以买点特别的小零食。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s004-n-674829.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s004-s-48ffff.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's sometimes the tricky thing about grocery stores.",
+      "zh": "有时候超市让人为难的就是这一点。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s005-n-aaf243.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s005-s-acbd44.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's fun to look at all the yummy things, but we don't need to put everything in our cart.",
+      "zh": "看那些好吃的东西很有趣，但我们不必把每一样都放进购物车。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s006-n-b1a651.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s006-s-3148e0.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's see what's next on our list.",
+      "zh": "看看清单上下一样是什么。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s007-n-17f1b1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s007-s-3c394c.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Cheese!",
+      "zh": "奶酪！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s008-n-5c8c26.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s008-s-ab0095.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go to the deli counter.",
+      "zh": "我们去熟食柜台吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s009-n-32fcf9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s009-s-f2f67b.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "The deli counter has lots of different kinds of cheese and meats to choose from.",
+      "zh": "熟食柜台有很多种奶酪和肉可以选。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s010-n-8ba46f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s010-s-13d361.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Sometimes there are big blocks of cheese and big hunks of meat.",
+      "zh": "有时候会有大块的奶酪和大块的肉。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s011-n-75ab87.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s011-s-2fc157.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And you can ask the person working at the deli counter to slice it for you.",
+      "zh": "你可以请熟食柜台的工作人员帮你切片。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s012-n-7b6f57.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s012-s-426050.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "They have a special machine called a slicer that can cut just the right amount.",
+      "zh": "他们有一台叫切片机的机器，可以切出刚好的份量。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s013-n-f9394c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s013-s-72cd61.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Other times, you can just get some cheese that's already packaged in smaller portions.",
+      "zh": "还有些时候，你可以直接拿已经分装好的小份奶酪。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s014-n-98d862.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s014-s-3afef5.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Like this one.",
+      "zh": "就像这一份。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s015-n-94595c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s015-s-e60223.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is actually Brie cheese.",
+      "zh": "这其实是布里奶酪。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s016-n-48fd53.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s016-s-3eaa5c.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's my favorite kind of cheese.",
+      "zh": "这是我最喜欢的奶酪。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s017-n-751d2d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s017-s-0ad5b1.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And in the deli counter, there's a really big one.",
+      "zh": "熟食柜台里还有一块特别大的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s018-n-e54805.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s018-s-ae0afd.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That one is big, and this one is small, but it's the perfect size for me.",
+      "zh": "那块很大，这一块很小，但对我来说大小正好。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s019-n-e18568.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s019-s-42b49f.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "So into the cart it goes.",
+      "zh": "那就放进购物车吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s020-n-982e10.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s020-s-c0dab0.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We actually only have a couple things left on our list.",
+      "zh": "其实清单上只剩几样东西了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s021-n-d68dc7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s021-s-dac3c2.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We are doing excellent shopping.",
+      "zh": "我们买得很棒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s022-n-b375be.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s022-s-68345b.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next is rice.",
+      "zh": "接下来是米。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s023-n-8b7d97.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s023-s-6bdc98.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's see if we can find it.",
+      "zh": "我们看看能不能找到。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s024-n-a8af13.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s024-s-93511c.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "There are lots of long rows of shelves at the grocery store.",
+      "zh": "超市里有很多一长排一长排的货架。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s025-n-71b684.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s025-s-22af00.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Those rows are called aisles.",
+      "zh": "那些一排排的过道叫 aisle。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s026-n-3bb3f6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s026-s-5de9f0.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can walk up and down the aisle to find what we need.",
+      "zh": "我们可以在过道里来回走，找到需要的东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s027-n-236d7e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s027-s-b9472d.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "The signs can also help us find what we're looking for.",
+      "zh": "那些指示牌也可以帮我们找到要找的东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s028-n-4241f6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s028-s-8b082b.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Rice is down this aisle.",
+      "zh": "米就在这条过道里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s029-n-b83bbe.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s029-s-8f6bf5.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I think I'd like to try something new.",
+      "zh": "我想试点新的东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s030-n-3d48af.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s030-s-f514d3.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Maybe a wild rice blend.",
+      "zh": "也许来一包野生米混合装。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s031-n-b86f5b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s031-s-4f71ca.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This has all different kinds of rice that I haven't tried before all mixed together.",
+      "zh": "这里混合了我以前没吃过的各种米。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s032-n-da370f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s032-s-1f8d4c.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Sounds exciting.",
+      "zh": "听起来真有趣。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s033-n-e96df3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s033-s-e3436c.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's see what's next on our list.",
+      "zh": "看看清单上下一样是什么。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s034-n-17f1b1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s034-s-3c394c.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Ooh, fish.",
+      "zh": "噢，鱼。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s035-n-7a31f1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s035-s-11319a.mp3"
+    },
+    {
+      "s": "s036",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That means we'll have to go to the seafood counter.",
+      "zh": "那就是说我们得去海鲜柜台了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s036-n-146187.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s036-s-e8ed1a.mp3"
+    },
+    {
+      "s": "s037",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Ooh, it all looks so good.",
+      "zh": "噢，看起来都好诱人。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s037-n-15a25e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s037-s-89871c.mp3"
+    },
+    {
+      "s": "s038",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Not sure what kind to get though.",
+      "zh": "不过我还不确定要买哪种。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s038-n-7ddb54.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s038-s-bf2e4b.mp3"
+    },
+    {
+      "s": "s039",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "Can I get you anything?",
+      "zh": "您需要点什么吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s039-n-65f054.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s039-s-7e8890.mp3"
+    },
+    {
+      "s": "s040",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Oh, thank you.",
+      "zh": "哦，谢谢。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s040-n-668d32.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s040-s-c8747e.mp3"
+    },
+    {
+      "s": "s041",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm looking for some fish, but I'm not sure what kind I should get.",
+      "zh": "我想买一点鱼，但不确定该买哪种。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s041-n-ffa17d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s041-s-72f1df.mp3"
+    },
+    {
+      "s": "s042",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "May I recommend the rainbow trout?",
+      "zh": "要不要试试虹鳟鱼？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s042-n-66fbb7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s042-s-c57f50.mp3"
+    },
+    {
+      "s": "s043",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "It's local and it's fantastic.",
+      "zh": "这是本地的，而且非常好吃。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s043-n-567b60.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s043-s-4f4004.mp3"
+    },
+    {
+      "s": "s044",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Oh, local. That sounds good.",
+      "zh": "哦，本地的。听起来不错。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s044-n-ac2db1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s044-s-354447.mp3"
+    },
+    {
+      "s": "s045",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'll take some trout, please.",
+      "zh": "那我要一些鳟鱼，谢谢。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s045-n-9a44c9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s045-s-a8125d.mp3"
+    },
+    {
+      "s": "s046",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "No problem.",
+      "zh": "没问题。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s046-n-d533c5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s046-s-1762a8.mp3"
+    },
+    {
+      "s": "s047",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "There you go.",
+      "zh": "给您。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s047-n-733a1d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s047-s-07fde2.mp3"
+    },
+    {
+      "s": "s048",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Thank you so much.",
+      "zh": "非常感谢。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s048-n-76627f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s048-s-07beb3.mp3"
+    },
+    {
+      "s": "s049",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "No problem. Have a good day.",
+      "zh": "没问题。祝你今天愉快。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s049-n-71187b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s049-s-5cbe87.mp3"
+    },
+    {
+      "s": "s050",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "You too.",
+      "zh": "你也是。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s050-n-a7daf2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s050-s-34ab3a.mp3"
+    },
+    {
+      "s": "s051",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm excited to try this.",
+      "zh": "我很期待尝尝这个。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s051-n-e1a7f4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s051-s-eb0d6a.mp3"
+    },
+    {
+      "s": "s052",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We have one more thing on our list, and it's pizza!",
+      "zh": "清单上还剩一样，是披萨！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s052-n-bdb4c8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s052-s-16a52b.mp3"
+    },
+    {
+      "s": "s053",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm gonna get a frozen pizza from the frozen food section.",
+      "zh": "我要在冷冻食品区拿一个冷冻披萨。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s053-n-f280a9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s053-s-5d3043.mp3"
+    },
+    {
+      "s": "s054",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Maybe this veggie pizza.",
+      "zh": "也许就这个蔬菜披萨吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s054-n-07eaca.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s054-s-74687b.mp3"
+    },
+    {
+      "s": "s055",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Well, that's the last thing on our list.",
+      "zh": "好，这就是清单上的最后一样了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s055-n-dc39dd.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s055-s-ee9934.mp3"
+    },
+    {
+      "s": "s056",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I like to get the food from the frozen section last, so it doesn't melt in my cart before I get home.",
+      "zh": "我喜欢最后再拿冷冻食品，这样在到家前就不会在购物车里化掉。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s056-n-00c564.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s056-s-720ece.mp3"
+    },
+    {
+      "s": "s057",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "You did great grocery shopping today.",
+      "zh": "你今天购物做得真棒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s057-n-841ca5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s057-s-6b0673.mp3"
+    },
+    {
+      "s": "s058",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I think we can get ourselves a little treat.",
+      "zh": "我想我们可以给自己买点小零食。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s058-n-058ed5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s058-s-f4cee7.mp3"
+    },
+    {
+      "s": "s059",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Follow me.",
+      "zh": "跟我来。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s059-n-809d5d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s059-s-8c72b7.mp3"
+    },
+    {
+      "s": "s060",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "How about cookies?",
+      "zh": "买饼干怎么样？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s060-n-999d60.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s060-s-53798c.mp3"
+    },
+    {
+      "s": "s061",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is a special treat and it's perfect for sharing.",
+      "zh": "这是特别的小零食，而且很适合分享。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s061-n-52f1a4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s061-s-e34b59.mp3"
+    },
+    {
+      "s": "s062",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "But we'll have to wait to eat it until we've paid for everything.",
+      "zh": "不过要等我们付完钱才能吃。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s062-n-7bab42.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s062-s-047244.mp3"
+    },
+    {
+      "s": "s063",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Are you ready for the grocery store grand finale?",
+      "zh": "准备好迎接超市的压轴环节了吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s063-n-62ceb0.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s063-s-68ca5c.mp3"
+    },
+    {
+      "s": "s064",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go to the checkout.",
+      "zh": "我们去收银台吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s064-n-fb7b1d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s064-s-754318.mp3"
+    },
+    {
+      "s": "s065",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is the checkout.",
+      "zh": "这就是收银台。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s065-n-c23087.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s065-s-9a4c62.mp3"
+    },
+    {
+      "s": "s066",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's where we pay for everything in our cart.",
+      "zh": "我们在这里为购物车里的东西付钱。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s066-n-7ce25c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s066-s-0652d2.mp3"
+    },
+    {
+      "s": "s067",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We wait our turn, then put our groceries on the counter.",
+      "zh": "我们先排队，然后把买的东西放到柜台上。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s067-n-2fb03c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s067-s-b84d82.mp3"
+    },
+    {
+      "s": "s068",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's the sound of the scanner.",
+      "zh": "那就是扫描器的声音。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s068-n-0f0aae.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s068-s-7d60a9.mp3"
+    },
+    {
+      "s": "s069",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Each thing has a price, and when the cashier adds them all together, that's our total.",
+      "zh": "每一样东西都有价格，收银员把它们加在一起，就是我们要付的总数。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s069-n-0d0753.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s069-s-95a93d.mp3"
+    },
+    {
+      "s": "s070",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Once we pay and pack our bags, we're all set to go home and put everything away.",
+      "zh": "付完钱、装好袋子，我们就可以回家把东西放好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s070-n-317a36.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s070-s-126c22.mp3"
+    },
+    {
+      "s": "s071",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That was fun.",
+      "zh": "真有趣。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s071-n-e231bc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s071-s-168944.mp3"
+    },
+    {
+      "s": "s072",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Thank you so much for helping me with my grocery shopping today.",
+      "zh": "非常感谢你今天帮我一起购物。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s072-n-897d58.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s072-s-e4b87b.mp3"
+    },
+    {
+      "s": "s073",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I hope you have fun the next time you're at a grocery store too.",
+      "zh": "希望你下次去超市也会觉得有趣。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s073-n-dac36e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s073-s-c8b0db.mp3"
+    },
+    {
+      "s": "s074",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I think it's time for a little treat.",
+      "zh": "我想是时候吃点小零食了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s074-n-091e11.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s074-s-123fbc.mp3"
+    },
+    {
+      "s": "s075",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'll see you later.",
+      "zh": "回头见。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s075-n-33342b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s075-s-e73771.mp3"
+    },
+    {
+      "s": "s076",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Bye, friends.",
+      "zh": "再见，朋友们。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s076-n-e79a71.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s076-s-b918cc.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-doctor-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I have a cold.",
+      "zh": "我感冒了。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g1/s001-n-7d611f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g1/s001-s-bfa4ab.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-doctor-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "Let's see the doctor.",
+      "zh": "我们去看医生吧。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g1/s002-n-dc377d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g1/s002-s-7ae924.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-doctor-g1",
+      "k": "card",
+      "sp": "医生",
+      "en": "Open your mouth.",
+      "zh": "请张开嘴。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g1/s003-n-a6be0b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g1/s003-s-d6c2a0.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-doctor-g1",
+      "k": "card",
+      "sp": "医生",
+      "en": "Take this medicine.",
+      "zh": "把这个药吃了。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g1/s004-n-fffb50.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g1/s004-s-7656eb.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-doctor-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I will feel better.",
+      "zh": "我会好起来的。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g1/s005-n-42233a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g1/s005-s-23602c.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-directions-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Excuse me.",
+      "zh": "打扰一下。",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g1/s001-n-c66e84.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g1/s001-s-2c2147.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-directions-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Where is the playground?",
+      "zh": "操场在哪里？",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g1/s002-n-bb3dd2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g1/s002-s-d5ceb1.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-directions-g1",
+      "k": "card",
+      "sp": "路人",
+      "en": "Go straight, please.",
+      "zh": "请直走。",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g1/s003-n-2a9a68.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g1/s003-s-700d3b.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-directions-g1",
+      "k": "card",
+      "sp": "路人",
+      "en": "Then turn left.",
+      "zh": "然后向左转。",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g1/s004-n-4d5d79.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g1/s004-s-77d006.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-directions-g1",
+      "k": "card",
+      "sp": "路人",
+      "en": "It's over there.",
+      "zh": "就在那边。",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g1/s005-n-a5672b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g1/s005-s-27f415.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-weekend-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "It's Saturday today.",
+      "zh": "今天是星期六。",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g1/s001-n-308945.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g1/s001-s-212c29.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-weekend-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "Let's go swimming.",
+      "zh": "我们去游泳吧。",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g1/s002-n-574601.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g1/s002-s-b6ffb1.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-weekend-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I'll bring a towel.",
+      "zh": "我会带一条毛巾。",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g1/s003-n-0260b8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g1/s003-s-c3df67.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-weekend-g1",
+      "k": "card",
+      "sp": "同学",
+      "en": "See you at ten.",
+      "zh": "十点见。",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g1/s004-n-5ee29b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g1/s004-s-d8f45b.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-weekend-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is so fun!",
+      "zh": "这真有趣！",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g1/s005-n-b83291.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g1/s005-s-2e9f16.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Hey guys, did you decide which club to join?",
+      "zh": "嗨，你们决定参加哪个社团了吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s001-n-0008d8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s001-s-a978bd.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "Not yet! I still have no idea.",
+      "zh": "还没有！我还没想好。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s002-n-8f4a64.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s002-s-054c49.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Think about what you like to do for fun.",
+      "zh": "想想你平时喜欢做什么。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s003-n-ad819f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s003-s-8a8384.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "What are your hobbies?",
+      "zh": "你的爱好是什么？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s004-n-7d73ae.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s004-s-9ebcc2.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I just have too many hobbies!",
+      "zh": "我的爱好实在太多了！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s005-n-e92dbf.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s005-s-60438e.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I love taking photographs, and even making and collecting jet model figures!",
+      "zh": "我喜欢拍照，还喜欢做喷气机模型、收集模型手办！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s006-n-e9ba39.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s006-s-b91237.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Oh, and I also love cooking, watching science fiction movies, skateboarding and…",
+      "zh": "哦，我还喜欢做饭、看科幻电影、滑板，还有……",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s007-n-796e13.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s007-s-f1c7a7.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "John, just pick one of them.",
+      "zh": "John，就从里面挑一个吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s008-n-32cb6f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s008-s-0f0b01.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Why do I need to choose one?",
+      "zh": "我为什么一定要选一个？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s009-n-8847ac.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s009-s-2beaee.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "There's too much fun in this world!",
+      "zh": "这个世界上好玩的事情太多了！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s010-n-c5f096.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s010-s-444b25.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "What is your hobby, Olivia?",
+      "zh": "Olivia，你的爱好是什么？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s011-n-30469e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s011-s-42108d.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "I enjoy reading travel books.",
+      "zh": "我喜欢读旅行方面的书。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s012-n-4078aa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s012-s-a4cef7.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "So I signed up for a book club.",
+      "zh": "所以我报名参加了读书社。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s013-n-6f4056.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s013-s-de6c39.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Don't you want to join the club with me?",
+      "zh": "你不想和我一起参加这个社团吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s014-n-8cf1d8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s014-s-d292f3.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "I actually love reading comic books.",
+      "zh": "其实我很喜欢看漫画书。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s015-n-044502.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s015-s-9654b2.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Well, a comic book is a type of book.",
+      "zh": "嗯，漫画书也是书的一种。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s016-n-e7c286.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s016-s-6e97c3.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "That's perfect!",
+      "zh": "太合适了！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s017-n-679db6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s017-s-4cc8c7.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Let's sign up for it.",
+      "zh": "我们去报名吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s018-n-070c3a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s018-s-b7d969.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "It will be awesome!",
+      "zh": "一定会很棒！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s019-n-231104.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s019-s-1cd233.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "Alright, fine.",
+      "zh": "好吧，行。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s020-n-8d7e64.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s020-s-6c195f.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Let's go now!",
+      "zh": "我们现在就去吧！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s021-n-36e1c2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s021-s-5f0cdc.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "I'm glad Kevin found the right hobby.",
+      "zh": "我很高兴 Kevin 找到了合适的爱好。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s022-n-193160.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s022-s-28bd7b.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I'm not really sure if he likes the book club or… Olivia.",
+      "zh": "我不太确定他喜欢的是读书社，还是……Olivia。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s023-n-25af0a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s023-s-9b58ef.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Anyways, what about you, John?",
+      "zh": "对了，John，那你呢？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s024-n-a67a20.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s024-s-94e264.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Which club will you join?",
+      "zh": "你要参加哪个社团？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s025-n-9c9aa6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s025-s-e43205.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Hmm. Science is the answer.",
+      "zh": "嗯。答案是科学。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s026-n-070b4d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s026-s-a9be67.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I will join a science club.",
+      "zh": "我要参加科学社。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s027-n-d6817c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s027-s-46e7ea.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "That's a great idea, but I heard it's really tough.",
+      "zh": "这主意很棒，不过我听说真的很难。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s028-n-03513f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s028-s-611760.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "You need to work on many projects.",
+      "zh": "你要做很多课题。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s029-n-0ec064.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s029-s-8dc497.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "And plus, the teacher is really strict.",
+      "zh": "而且，老师还特别严格。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s030-n-77cbe5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s030-s-980e0e.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Umm… I just changed my mind.",
+      "zh": "嗯……我刚改主意了。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s031-n-7fc052.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s031-s-71ab3a.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I will probably join a photography club.",
+      "zh": "我大概会参加摄影社。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s032-n-3d099f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s032-s-818b96.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Oh, really? That's a great idea!",
+      "zh": "哦，真的吗？这主意很棒！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s033-n-e3a306.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s033-s-d69b0b.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Please take an awesome picture of me when you become a pro.",
+      "zh": "等你成了高手，请给我拍一张超棒的照片。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s034-n-f94750.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s034-s-df945a.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Yep yep!",
+      "zh": "对对！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s035-n-27ccc3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s035-s-3ee84c.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-letters-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "What's this letter?",
+      "zh": "这是什么字母？",
+      "an": "https://english.example.com/audio/ep/ep-card-letters-g1/s001-n-6d8b6c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-letters-g1/s001-s-a71f29.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-letters-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "It's the letter A.",
+      "zh": "这是字母 A。",
+      "an": "https://english.example.com/audio/ep/ep-card-letters-g1/s002-n-d225ad.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-letters-g1/s002-s-91e927.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-letters-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Is this letter B?",
+      "zh": "这是字母 B 吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-letters-g1/s003-n-fe6909.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-letters-g1/s003-s-0c090d.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-letters-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "Yes. B is for book.",
+      "zh": "对。B 是 book 的首字母。",
+      "an": "https://english.example.com/audio/ep/ep-card-letters-g1/s004-n-2e3578.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-letters-g1/s004-s-49445b.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-letters-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Let's say A, B, C!",
+      "zh": "我们一起来读 A、B、C！",
+      "an": "https://english.example.com/audio/ep/ep-card-letters-g1/s005-n-69d60e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-letters-g1/s005-s-18e06b.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-sounds-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Look, I see an apple!",
+      "zh": "看，我看见一个苹果！",
+      "an": "https://english.example.com/audio/ep/ep-card-sounds-g1/s001-n-46d149.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-sounds-g1/s001-s-c5b046.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-sounds-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "Apple starts with A.",
+      "zh": "Apple 是 A 开头的。",
+      "an": "https://english.example.com/audio/ep/ep-card-sounds-g1/s002-n-e08afc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-sounds-g1/s002-s-97d1f8.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-sounds-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Does book start with B?",
+      "zh": "Book 是 B 开头的吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-sounds-g1/s003-n-c554dd.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-sounds-g1/s003-s-f484d2.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-sounds-g1",
+      "k": "card",
+      "sp": "家长",
+      "en": "Yes. Book starts with B.",
+      "zh": "对。Book 是 B 开头的。",
+      "an": "https://english.example.com/audio/ep/ep-card-sounds-g1/s004-n-3168ec.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-sounds-g1/s004-s-f54391.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-sounds-g1",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I see A and B!",
+      "zh": "我看到 A 和 B 了！",
+      "an": "https://english.example.com/audio/ep/ep-card-sounds-g1/s005-n-7ee64d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-sounds-g1/s005-s-02ad91.mp3"
     }
   ],
   "dabao": [
@@ -3519,7 +5924,7 @@ export const DAILY_ENGLISH_POOL = {
       "sp": "Kenzo",
       "en": "Now I can build torches.",
       "zh": "现在我可以做火把了。",
-      "an": "https://english.example.com/audio/ep/ep-video-firstnight/s036-n-a10987.mp3",
+      "an": "https://english.example.com/audio/ep/ep-video-firstnight/s036-n-a1111f.mp3",
       "as": "https://english.example.com/audio/ep/ep-video-firstnight/s036-s-50cb86.mp3"
     },
     {
@@ -13721,6 +16126,3626 @@ export const DAILY_ENGLISH_POOL = {
       "zh": "所以我完成了这一集给自己定的两个任务。",
       "an": "https://english.example.com/audio/ep/ep-video-exploringcave-3/s028-n-1837aa.mp3",
       "as": "https://english.example.com/audio/ep/ep-video-exploringcave-3/s028-s-eee105.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-family-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is my mom, and this is my dad.",
+      "zh": "这是我妈妈，这是我爸爸。",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g3/s001-n-330356.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g3/s001-s-ce6634.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-family-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Do you have any brothers or sisters?",
+      "zh": "你有兄弟姐妹吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g3/s002-n-27b3af.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g3/s002-s-4c2a75.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-family-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Yes. I have a little brother. His name is Ben.",
+      "zh": "有。我有一个弟弟。他叫 Ben。",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g3/s003-n-74aec5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g3/s003-s-b3046f.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-family-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "How old is he?",
+      "zh": "他几岁了？",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g3/s004-n-d1e8fe.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g3/s004-s-d76015.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-family-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "He's five. He likes to play with me.",
+      "zh": "他五岁。他喜欢和我一起玩。",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g3/s005-n-fc22a4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g3/s005-s-f39367.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-family-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Do you want to come to my house?",
+      "zh": "你想来我家玩吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-family-g3/s006-n-42e0bd.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-family-g3/s006-s-7a1438.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-birthday-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "It's my birthday today. Can you come to my party?",
+      "zh": "今天是我的生日。你能来我的聚会吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g3/s001-n-4de9fa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g3/s001-s-70a6c1.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-birthday-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Yes! What time does it start?",
+      "zh": "可以！什么时候开始？",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g3/s002-n-ba1aa2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g3/s002-s-30ab45.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-birthday-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "It starts at three. We can eat cake.",
+      "zh": "三点开始。我们可以吃蛋糕。",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g3/s003-n-778c70.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g3/s003-s-1a3d13.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-birthday-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "That sounds fun. Should I bring a gift?",
+      "zh": "听起来很好玩。我要带礼物吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g3/s004-n-171834.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g3/s004-s-c38875.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-birthday-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "You don't have to, but thank you.",
+      "zh": "不用带也没关系，不过还是谢谢你。",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g3/s005-n-242116.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g3/s005-s-98895b.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-birthday-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I can't wait to see you!",
+      "zh": "我等不及要见到你了！",
+      "an": "https://english.example.com/audio/ep/ep-card-birthday-g3/s006-n-057075.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-birthday-g3/s006-s-cf9b13.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-help-g3",
+      "k": "card",
+      "sp": "家长",
+      "en": "The living room is messy. Can you help me tidy up?",
+      "zh": "客厅有点乱。你能帮我收拾吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g3/s001-n-d3ec3a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g3/s001-s-d984a0.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-help-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Sure. I'll put the toys in the box.",
+      "zh": "当然。我来把玩具放进箱子里。",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g3/s002-n-f664dc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g3/s002-s-13b4a3.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-help-g3",
+      "k": "card",
+      "sp": "家长",
+      "en": "Thank you. Can you also wipe the table?",
+      "zh": "谢谢。你也能擦一下桌子吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g3/s003-n-8f58f2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g3/s003-s-25f97b.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-help-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Okay. Should I put the books away too?",
+      "zh": "好。书也要收起来吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g3/s004-n-fbc2ad.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g3/s004-s-0a0f10.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-help-g3",
+      "k": "card",
+      "sp": "家长",
+      "en": "Yes, please. That would be a big help.",
+      "zh": "要的，谢谢。那就帮大忙了。",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g3/s005-n-5903a5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g3/s005-s-90293c.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-help-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "All done. The room looks so nice now!",
+      "zh": "都弄好了。房间现在看起来真整洁！",
+      "an": "https://english.example.com/audio/ep/ep-card-help-g3/s006-n-ece991.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-help-g3/s006-s-4815c2.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Hello and welcome back to English from the Ground Up.",
+      "zh": "大家好，欢迎回到 English from the Ground Up。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s001-n-9fad6c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s001-s-0eed8e.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "My name is Kenzo.",
+      "zh": "我叫 Kenzo。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s002-n-54da58.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s002-s-f8ae32.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And in this video, you will acquire English naturally by watching, listening, and following along as I play Minecraft Hardcore.",
+      "zh": "在这一集里，你会通过观看、听和跟着我玩《我的世界》极限模式，自然地学到英语。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s003-n-c8aed7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s003-s-c123c5.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's do it.",
+      "zh": "开始吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s004-n-e58995.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s004-s-fa1c02.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "So, first of all, I changed around the chest room a little bit.",
+      "zh": "首先，我把箱子房稍微调整了一下。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s005-n-c5f176.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s005-s-e5153e.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I added signs. Signs that say what's inside the chests.",
+      "zh": "我加了告示牌。告示牌上写着箱子里是什么。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s006-n-a288e7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s006-s-b8a245.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "So, inside this chest, there's stone.",
+      "zh": "所以，这个箱子里是石头。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s007-n-d825c8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s007-s-e96b37.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And inside this chest, there's soil.",
+      "zh": "这个箱子里是泥土。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s008-n-333447.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s008-s-a21805.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "So, here we have gravel, dirt.",
+      "zh": "这边是沙砾和泥土。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s009-n-430914.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s009-s-9628a3.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I would put sand in this chest.",
+      "zh": "沙子我会放进这个箱子。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s010-n-1ac327.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s010-s-6882c2.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "So now I've organized my items in these chests.",
+      "zh": "现在我已经把物品整理进这些箱子里了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s011-n-9a3809.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s011-s-00d0a1.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I still need to build signs for this side, but I'll do that in the future.",
+      "zh": "这边还需要做告示牌，不过我以后再做。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s012-n-def5eb.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s012-s-afd95b.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "It's night time. I'm going to go to sleep.",
+      "zh": "天黑了。我去睡觉。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s013-n-0d5dc3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s013-s-6a5e8f.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "It's morning.",
+      "zh": "早上了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s014-n-563082.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s014-s-cac6cd.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I have one more thing to show you, and it's down here, down the long staircase.",
+      "zh": "我还有一样东西要给你看，就在下面，顺着这条长楼梯下去。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s015-n-f8fd1a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s015-s-bc2a43.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I did a little bit of mining on the Discord community.",
+      "zh": "我在 Discord 社区里挖了一会儿矿。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s016-n-56f91d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s016-s-245c74.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I took this staircase all the way down to bedrock.",
+      "zh": "我把这条楼梯一直修到了基岩层。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s017-n-ac17ff.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s017-s-20f3f5.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And along the way, I found some diamonds.",
+      "zh": "一路上，我找到了一些钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s018-n-e74b4e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s018-s-42b15f.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I found diamonds here, and I also found diamonds down this tunnel.",
+      "zh": "我在这儿找到了钻石，在这条隧道里也找到了钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s019-n-f0e854.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s019-s-ce93ec.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's mine these diamonds.",
+      "zh": "我们来挖这些钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s020-n-494445.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s020-s-3a10f6.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's see how many diamonds we found.",
+      "zh": "看看我们找到了多少钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s021-n-3cd701.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s021-s-52f26e.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "There's five diamonds.",
+      "zh": "有五颗钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s022-n-4241f8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s022-s-d4df4b.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "All right, it looks like there's one diamond right here.",
+      "zh": "好，看起来这儿还有一颗钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s023-n-9525a9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s023-s-a8cdbf.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "So, there's six diamonds now.",
+      "zh": "所以现在有六颗钻石了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s024-n-248812.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s024-s-04aadc.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I think there were diamonds down this tunnel.",
+      "zh": "我觉得这条隧道里还有钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s025-n-5bf1cc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s025-s-c8d70e.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Nope. Never mind. No diamonds down this tunnel.",
+      "zh": "没有。算了。这条隧道里没有钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s026-n-629bd6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s026-s-bf62f7.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "This was a really long tunnel. And there's at least one diamond right here.",
+      "zh": "这是一条很长的隧道。这儿至少还有一颗钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s027-n-50f009.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s027-s-5702b4.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's see. Just one. Just one diamond.",
+      "zh": "看看。就一颗。就一颗钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s028-n-7cc6d2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s028-s-074ed6.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Okay, so we found seven diamonds.",
+      "zh": "好，所以我们找到了七颗钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s029-n-b07004.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s029-s-b83b3b.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I found seven diamonds while playing on Discord.",
+      "zh": "我在 Discord 上玩的时候找到了七颗钻石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s030-n-ad1d0b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s030-s-a5f7ac.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "All right, we're back to the surface.",
+      "zh": "好，我们回到地面了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s031-n-a4ee36.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s031-s-b34077.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's go to sleep.",
+      "zh": "去睡觉吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s032-n-49af18.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s032-s-08a8ea.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's take our diamonds and let's put them in the valuable chest.",
+      "zh": "我们把钻石拿上，放进贵重物品箱子里。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s033-n-b443d4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s033-s-727584.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "These are all of my valuable items.",
+      "zh": "这些都是我的贵重物品。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s034-n-1b951f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s034-s-9a9f0f.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's take the diamonds and let's put them in here.",
+      "zh": "把钻石拿出来，放进这里。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s035-n-9baded.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s035-s-b4bc15.mp3"
+    },
+    {
+      "s": "s036",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "This was my first pickaxe. This is very valuable.",
+      "zh": "这是我的第一把镐。这个非常珍贵。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s036-n-0875d5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s036-s-c24ba4.mp3"
+    },
+    {
+      "s": "s037",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And I also found a trident, an enchanted trident, but it's almost broken.",
+      "zh": "我还找到了一把三叉戟，一把附魔三叉戟，不过快坏了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s037-n-7a957c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s037-s-4e2193.mp3"
+    },
+    {
+      "s": "s038",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "This user in the comments told me what the lodestone does.",
+      "zh": "评论区有一位观众告诉我磁石是做什么的。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s038-n-09a347.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s038-s-d45646.mp3"
+    },
+    {
+      "s": "s039",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to break this cobblestone, and I'll replace it with the lodestone.",
+      "zh": "我要把这块圆石敲掉，换成磁石。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s039-n-0ae130.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s039-s-0acf63.mp3"
+    },
+    {
+      "s": "s040",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now, we have to build a compass.",
+      "zh": "现在，我们得做一枚指南针。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s040-n-538fa5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s040-s-c64eec.mp3"
+    },
+    {
+      "s": "s041",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "We need four iron ingots.",
+      "zh": "我们需要四个铁锭。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s041-n-bb113c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s041-s-d72a67.mp3"
+    },
+    {
+      "s": "s042",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "We'll have to build one more using these nuggets.",
+      "zh": "我们还得用这些铁粒再做一个铁锭。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s042-n-384ec5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s042-s-cbf829.mp3"
+    },
+    {
+      "s": "s043",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And we'll also need a redstone dust. One redstone dust.",
+      "zh": "我们还需要一粒红石粉。一粒红石粉。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s043-n-d34a46.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s043-s-e2ef44.mp3"
+    },
+    {
+      "s": "s044",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Okay, let's build one iron ingot.",
+      "zh": "好，我们来做一个铁锭。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s044-n-cf2b11.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s044-s-b55122.mp3"
+    },
+    {
+      "s": "s045",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "There we go. Now we have four. So we can build a compass.",
+      "zh": "好了。现在有四个了。所以可以做指南针了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s045-n-e09373.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s045-s-fee052.mp3"
+    },
+    {
+      "s": "s046",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Here it is. The compass.",
+      "zh": "就是这个。指南针。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s046-n-92cf79.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s046-s-8438f7.mp3"
+    },
+    {
+      "s": "s047",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's build a compass.",
+      "zh": "我们来做一枚指南针。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s047-n-ce7b03.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s047-s-9917cd.mp3"
+    },
+    {
+      "s": "s048",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "So right now, this compass is pointing me this way.",
+      "zh": "现在，这枚指南针指着这个方向。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s048-n-66ab27.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s048-s-ef58e1.mp3"
+    },
+    {
+      "s": "s049",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "It's pointing this direction because it's pointing where I originally spawned in this world.",
+      "zh": "它指着这个方向，因为它指向我最初在这个世界出生的地方。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s049-n-0d4734.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s049-s-c28b71.mp3"
+    },
+    {
+      "s": "s050",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "But I want the compass to point me back to my house.",
+      "zh": "可是我想让指南针指回我的家。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s050-n-7bc750.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s050-s-c4ae82.mp3"
+    },
+    {
+      "s": "s051",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And I can do that using the lodestone.",
+      "zh": "我可以用磁石来做到这一点。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s051-n-c97be7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s051-s-c94428.mp3"
+    },
+    {
+      "s": "s052",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "There we go. Now the compass is pointing towards the lodestone.",
+      "zh": "好了。现在指南针指向磁石了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s052-n-fcb46e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s052-s-960c10.mp3"
+    },
+    {
+      "s": "s053",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "So, my compass will point me to my home.",
+      "zh": "这样，我的指南针就会指着回家的路。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s053-n-a09a14.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s053-s-2dd559.mp3"
+    },
+    {
+      "s": "s054",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm also going to break these torches.",
+      "zh": "我还要把这些火把拆掉。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s054-n-069872.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s054-s-34f880.mp3"
+    },
+    {
+      "s": "s055",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's build a lantern. And let's place it right here.",
+      "zh": "我们来做一个灯笼。然后把它放在这儿。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s055-n-1cd363.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s055-s-b363da.mp3"
+    },
+    {
+      "s": "s056",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "There we go. The lantern looks better.",
+      "zh": "好了。灯笼看起来更好看。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s056-n-a2ed2f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s056-s-eff5ae.mp3"
+    },
+    {
+      "s": "s057",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I also want to craft some armor stands for the corners.",
+      "zh": "我还想在角落做几个盔甲架。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s057-n-08dc36.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s057-s-aaa125.mp3"
+    },
+    {
+      "s": "s058",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "What do we need? We need some sticks and a smooth stone slab.",
+      "zh": "我们需要什么？需要一些木棍和一块平滑石头台阶。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s058-n-2f0ef5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s058-s-0bd324.mp3"
+    },
+    {
+      "s": "s059",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now, let's take our smooth stone and turn them into smooth stone slabs.",
+      "zh": "现在，把平滑石头做成平滑石头台阶。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s059-n-3fc4fc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s059-s-ad0f4e.mp3"
+    },
+    {
+      "s": "s060",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Okay. Now we can build an armor stand.",
+      "zh": "好。现在可以做盔甲架了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s060-n-18b48d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s060-s-58d4c4.mp3"
+    },
+    {
+      "s": "s061",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "We just need sticks. Sticks will be in the wood chest, because they're made of wood.",
+      "zh": "只需要木棍。木棍在木头箱子里，因为它们是木头做的。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s061-n-6586bb.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s061-s-fba3e2.mp3"
+    },
+    {
+      "s": "s062",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's build two armor stands. One. Two. Cool.",
+      "zh": "我们来做两个盔甲架。一个。两个。酷。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s062-n-51cab8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s062-s-8e5708.mp3"
+    },
+    {
+      "s": "s063",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to place a slab right here and a slab right here.",
+      "zh": "我要在这儿放一块台阶，这边再放一块。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s063-n-8b2e81.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s063-s-ab7ffa.mp3"
+    },
+    {
+      "s": "s064",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And on top of the slabs, we'll place the armor stands.",
+      "zh": "然后在台阶上面放上盔甲架。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s064-n-286b95.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s064-s-2c531d.mp3"
+    },
+    {
+      "s": "s065",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "One and two. There we go.",
+      "zh": "一个，两个。好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s065-n-ff7495.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s065-s-36efd5.mp3"
+    },
+    {
+      "s": "s066",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And I'm going to give my first pickaxe to this armor stand.",
+      "zh": "我要把我的第一把镐交给这个盔甲架。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s066-n-4939f3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s066-s-97ffff.mp3"
+    },
+    {
+      "s": "s067",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's take my first pickaxe and let's give it to the armor stand.",
+      "zh": "拿上我的第一把镐，交给这个盔甲架。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s067-n-c3a849.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s067-s-085e15.mp3"
+    },
+    {
+      "s": "s068",
+      "e": "ep-video-potatofarm-1",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now it's holding the pickaxe.",
+      "zh": "现在它拿着这把镐了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s068-n-037537.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-1/s068-s-546f6f.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now, I want to build a farm.",
+      "zh": "现在，我想建一个农场。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s001-n-c1b0c4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s001-s-d92c52.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I want to plant some of these seeds that I've found.",
+      "zh": "我想把找到的这些种子种下去。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s002-n-b108f2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s002-s-f1b2cc.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I have an idea for an interesting farm, but I'm going to need a lot of dirt.",
+      "zh": "我有一个有意思的农场想法，不过需要很多泥土。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s003-n-b0d958.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s003-s-e1ff30.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's pick up some dirt.",
+      "zh": "我们来挖一些泥土。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s004-n-8b6467.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s004-s-191a8e.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to need more dirt.",
+      "zh": "我还需要更多泥土。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s005-n-b98e47.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s005-s-d3ab00.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's build an iron shovel.",
+      "zh": "我们来做一把铁锹。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s006-n-807a3a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s006-s-db129d.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to collect a bunch of dirt.",
+      "zh": "我要收集好多泥土。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s007-n-45abe0.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s007-s-0f024b.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Place another torch and I'll pick up all this dirt.",
+      "zh": "再放一根火把，然后把这些泥土都挖走。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s008-n-8c1ced.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s008-s-9e59f9.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And I think that should be enough.",
+      "zh": "我觉得应该够了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s009-n-3a8905.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s009-s-ede249.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Oh, it's night time. Let's go to sleep.",
+      "zh": "哦，天黑了。去睡觉吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s010-n-d5d371.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s010-s-f02308.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to build a stone cutter.",
+      "zh": "我要做一个切石机。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s011-n-6cfca3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s011-s-e98118.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "How do you build a stone cutter?",
+      "zh": "切石机怎么做？",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s012-n-42e282.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s012-s-aa6651.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Here it is. Three stone and one iron ingot.",
+      "zh": "在这儿。三块石头和一个铁锭。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s013-n-966bb8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s013-s-68c534.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Here I have some stone.",
+      "zh": "我这儿有一些石头。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s014-n-875e63.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s014-s-b2f953.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Three stone and one iron ingot. Let's build the stone cutter.",
+      "zh": "三块石头和一个铁锭。我们来做切石机。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s015-n-b7f2a4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s015-s-0a0909.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And I'll place the stone cutter on top of the crafting table.",
+      "zh": "我把切石机放在工作台上面。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s016-n-dacd9a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s016-s-514f28.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I have a bunch of deep slate.",
+      "zh": "我有好多深板岩。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s017-n-38ce49.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s017-s-da83d3.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's take some of this deep slate.",
+      "zh": "我们拿一些深板岩。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s018-n-420e87.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s018-s-4e695b.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And using the stone cutter, I'll turn this cobbled deep slate into some polished deep slate.",
+      "zh": "用切石机，我把这些深板岩圆石打磨成打磨深板岩。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s019-n-0db936.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s019-s-ff4f7b.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I turned all of the cobbled deep slate into polished deep slate.",
+      "zh": "我把所有深板岩圆石都打磨成了打磨深板岩。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s020-n-8ab99d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s020-s-49ca65.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And lastly, I'm going to craft some fences.",
+      "zh": "最后，我要做一些栅栏。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s021-n-056495.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s021-s-a521fc.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's do bamboo fences. Let's build a bunch of bamboo fences.",
+      "zh": "就做竹栅栏吧。我们来做很多竹栅栏。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s022-n-30c0da.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s022-s-f3e936.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Okay, we built fifty-seven bamboo fences. We'll probably need more.",
+      "zh": "好，我们做了五十七个竹栅栏。可能还不够。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s023-n-11bf0a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s023-s-bd2883.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to build my farm in the ocean.",
+      "zh": "我要在海里建农场。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s024-n-df3f91.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s024-s-e23dcc.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "The first farm I'll build right here.",
+      "zh": "第一个农场就建在这儿。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s025-n-4cf7dc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s025-s-af04b4.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's get out of the boat.",
+      "zh": "我们下船吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s026-n-ce17cc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s026-s-64f26c.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to dig up this sand and replace it with dirt.",
+      "zh": "我要把这些沙子挖掉，换成泥土。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s027-n-41185c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s027-s-d55cf1.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to make a circle.",
+      "zh": "我要做一个圆。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s028-n-699cad.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s028-s-45cf0e.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "All right. I've built the circle. Now I need to fill it in with dirt.",
+      "zh": "好。圆圈做好了。现在要用泥土填满。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s029-n-23ff93.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s029-s-1c9b8b.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Okay, halfway done. And finished.",
+      "zh": "好，做了一半。做完了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s030-n-e9ba9e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s030-s-efdb33.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "There we go. I've built a dirt circle.",
+      "zh": "好了。我做好了一个泥土圆。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s031-n-e4c5f7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s031-s-f96726.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now I'm going to get some of my polished deep slate, and I'll place some around the outside like this.",
+      "zh": "现在拿出一些打磨深板岩，沿着外面这样放一圈。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s032-n-3e4cd6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s032-s-58a6be.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "A baby drowned.",
+      "zh": "一只溺尸宝宝。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s033-n-7a1382.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s033-s-0ec14e.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'll place some like this.",
+      "zh": "我就这样放一些。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s034-n-be0e16.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s034-s-aef9a2.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Oh, hello parrot.",
+      "zh": "哦，你好，鹦鹉。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s035-n-520efe.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s035-s-324b8a.mp3"
+    },
+    {
+      "s": "s036",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now I've placed the polished deep slate all around the outside.",
+      "zh": "现在我已经把打磨深板岩沿外圈放好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s036-n-b7aa5a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s036-s-c301fd.mp3"
+    },
+    {
+      "s": "s037",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now I'll place some fences.",
+      "zh": "现在我来放一些栅栏。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s037-n-43c076.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s037-s-15899f.mp3"
+    },
+    {
+      "s": "s038",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And I'm going to need more fences.",
+      "zh": "我还需要更多栅栏。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s038-n-977502.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s038-s-8ce49f.mp3"
+    },
+    {
+      "s": "s039",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Yep, I'm out of fences.",
+      "zh": "对，栅栏用完了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s039-n-6997e0.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s039-s-0311aa.mp3"
+    },
+    {
+      "s": "s040",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'll place a torch here. And I'll place a torch here.",
+      "zh": "我在这儿放一根火把。这边也放一根。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s040-n-010da1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s040-s-0aec93.mp3"
+    },
+    {
+      "s": "s041",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Okay, I'm going to get back in my boat, and I'm going to sail home.",
+      "zh": "好，我回到船上，驶回家。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s041-n-da9088.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s041-s-20d156.mp3"
+    },
+    {
+      "s": "s042",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's go to sleep.",
+      "zh": "去睡觉吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s042-n-49af18.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s042-s-08a8ea.mp3"
+    },
+    {
+      "s": "s043",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And let's pick up some potatoes.",
+      "zh": "我们拿一些土豆。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s043-n-22564d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s043-s-f6b21a.mp3"
+    },
+    {
+      "s": "s044",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's plant some potatoes in this farm.",
+      "zh": "我们在这个农场里种一些土豆。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s044-n-0de61a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s044-s-e898a7.mp3"
+    },
+    {
+      "s": "s045",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's also build some fence gates.",
+      "zh": "我们再做一些栅栏门。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s045-n-3ca889.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s045-s-5c1aee.mp3"
+    },
+    {
+      "s": "s046",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Okay, let's get in our boat and let's sail over to the farm.",
+      "zh": "好，上船，驶到农场去。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s046-n-0a5c7f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s046-s-0fef41.mp3"
+    },
+    {
+      "s": "s047",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Here we are. Let's get off the boat.",
+      "zh": "到了。我们下船。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s047-n-16f560.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s047-s-569b59.mp3"
+    },
+    {
+      "s": "s048",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's get our fences and let's finish the fence.",
+      "zh": "拿出栅栏，把围栏围完。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s048-n-b9e259.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s048-s-0c8b4d.mp3"
+    },
+    {
+      "s": "s049",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "There we go. The fence is finished.",
+      "zh": "好了。围栏做好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s049-n-70e603.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s049-s-9752c5.mp3"
+    },
+    {
+      "s": "s050",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now, let's place these gates.",
+      "zh": "现在，把这些栅栏门安上。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s050-n-8e7ef6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s050-s-ce868f.mp3"
+    },
+    {
+      "s": "s051",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "We'll put one here, and one here.",
+      "zh": "这儿放一个，这儿再放一个。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s051-n-1e56d2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s051-s-1dea69.mp3"
+    },
+    {
+      "s": "s052",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "We'll have four fence gates.",
+      "zh": "我们会有四个栅栏门。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s052-n-36127c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s052-s-652be5.mp3"
+    },
+    {
+      "s": "s053",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And there we go.",
+      "zh": "好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s053-n-195a53.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s053-s-8602bc.mp3"
+    },
+    {
+      "s": "s054",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I forgot two things. I forgot a hoe and a bucket.",
+      "zh": "我忘了两样东西。我忘了锄头和水桶。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s054-n-5d0ca5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s054-s-92b905.mp3"
+    },
+    {
+      "s": "s055",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's go back home. Here's my bucket. It has lava in it.",
+      "zh": "我们回家一趟。这是我的桶。里面装着熔岩。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s055-n-577fc1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s055-s-755cee.mp3"
+    },
+    {
+      "s": "s056",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And let's build a copper hoe.",
+      "zh": "我们来做一把铜锄。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s056-n-1ceaa9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s056-s-c3877b.mp3"
+    },
+    {
+      "s": "s057",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "For right now, I'm going to place the lava right here.",
+      "zh": "现在我先把熔岩放在这儿。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s057-n-c6ffac.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s057-s-6ed59a.mp3"
+    },
+    {
+      "s": "s058",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'm going to fill my bucket with water.",
+      "zh": "我要把桶装满水。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s058-n-fc1411.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s058-s-ed9c05.mp3"
+    },
+    {
+      "s": "s059",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "And here in the middle, I'll place the water.",
+      "zh": "然后在正中间放上水。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s059-n-f1bafd.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s059-s-5d3753.mp3"
+    },
+    {
+      "s": "s060",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now, I'll use the copper hoe and I'll till the soil.",
+      "zh": "现在我用铜锄把地耕好。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s060-n-fc9c88.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s060-s-c6f1c3.mp3"
+    },
+    {
+      "s": "s061",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Ooh, what was that sound?",
+      "zh": "噢，那是什么声音？",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s061-n-555253.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s061-s-43388a.mp3"
+    },
+    {
+      "s": "s062",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "The sun's going down.",
+      "zh": "太阳要下山了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s062-n-a2e62c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s062-s-5b0b2b.mp3"
+    },
+    {
+      "s": "s063",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "All right, and I've tilled all the soil now.",
+      "zh": "好，现在地都耕完了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s063-n-90a9e4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s063-s-a0d1bf.mp3"
+    },
+    {
+      "s": "s064",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I'll take the potatoes and I'll start planting them.",
+      "zh": "我拿上土豆，开始种下去。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s064-n-4657d9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s064-s-4a121b.mp3"
+    },
+    {
+      "s": "s065",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Let's plant some potatoes.",
+      "zh": "我们来种一些土豆。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s065-n-8cd76a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s065-s-530223.mp3"
+    },
+    {
+      "s": "s066",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "I planted all the potatoes.",
+      "zh": "土豆都种完了。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s066-n-45ae6c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s066-s-5d037f.mp3"
+    },
+    {
+      "s": "s067",
+      "e": "ep-video-potatofarm-2",
+      "k": "video",
+      "sp": "Kenzo",
+      "en": "Now I just need to wait for them to grow.",
+      "zh": "现在只需等它们长大。",
+      "an": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s067-n-87938a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-potatofarm-2/s067-s-790fdb.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-library-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Let's go to the library after school.",
+      "zh": "放学后我们去图书馆吧。",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g3/s001-n-9a54bc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g3/s001-s-4fc6aa.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-library-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I want to borrow this book. Is it okay?",
+      "zh": "我想借这本书。可以吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g3/s002-n-5a1c30.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g3/s002-s-ee2ac3.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-library-g3",
+      "k": "card",
+      "sp": "图书员",
+      "en": "Yes. Do you have your library card?",
+      "zh": "可以。你带借书卡了吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g3/s003-n-1aa0a6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g3/s003-s-2267bd.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-library-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Here it is. Can I take two books?",
+      "zh": "在这里。我可以借两本吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g3/s004-n-d2cc42.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g3/s004-s-9a622f.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-library-g3",
+      "k": "card",
+      "sp": "图书员",
+      "en": "Sure. Please bring them back next week.",
+      "zh": "当然可以。请下周还回来。",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g3/s005-n-08bcb9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g3/s005-s-481a22.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-library-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I will. Thank you so much!",
+      "zh": "我会的。非常感谢！",
+      "an": "https://english.example.com/audio/ep/ep-card-library-g3/s006-n-206cc5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-library-g3/s006-s-2c4c61.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-soccer-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Let's play soccer after class. Do you want to come?",
+      "zh": "下课后我们踢足球吧。你想来吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g3/s001-n-064191.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g3/s001-s-cd7501.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-soccer-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Yes! What position should I play?",
+      "zh": "好啊！我应该踢什么位置？",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g3/s002-n-f584d4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g3/s002-s-0efbd0.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-soccer-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "You can be the goalkeeper. I'll pass the ball to you.",
+      "zh": "你可以当守门员。我会把球传给你。",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g3/s003-n-1c1345.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g3/s003-s-c6e2d5.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-soccer-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Okay. Should we find more friends, too?",
+      "zh": "好。我们要不要再找几个朋友？",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g3/s004-n-6ed090.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g3/s004-s-17e9f1.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-soccer-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Sure. We need two more players.",
+      "zh": "当然。我们还需要两名球员。",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g3/s005-n-5ce9b2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g3/s005-s-8befa9.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-soccer-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Great. See you on the field!",
+      "zh": "太好了。球场上见！",
+      "an": "https://english.example.com/audio/ep/ep-card-soccer-g3/s006-n-3b770b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-soccer-g3/s006-s-85318a.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-bus-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "The bus is coming. Should we get on now?",
+      "zh": "公交车来了。我们现在上车吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g3/s001-n-76e6b7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g3/s001-s-46035d.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-bus-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Yes. Do you have your ticket?",
+      "zh": "对。你有车票吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g3/s002-n-26e7b0.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g3/s002-s-3de777.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-bus-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "I have it. Can we sit by the window?",
+      "zh": "我有。我们可以靠窗坐吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g3/s003-n-ec1c76.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g3/s003-s-0bac03.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-bus-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Sure. Let's sit in the front.",
+      "zh": "当然可以。我们坐前面吧。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g3/s004-n-bc23c6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g3/s004-s-d848d6.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-bus-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "This is our stop. We need to get off.",
+      "zh": "这是我们的站。我们该下车了。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g3/s005-n-a309e2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g3/s005-s-9c298f.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-bus-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Okay. I'll follow you off the bus.",
+      "zh": "好。我跟着你下车。",
+      "an": "https://english.example.com/audio/ep/ep-card-bus-g3/s006-n-36d995.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-bus-g3/s006-s-ae8e08.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go on a field trip with Caitie's Classroom.",
+      "zh": "我们跟着 Caitie's Classroom 去实地看看吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s001-n-9f48ad.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s001-s-460d49.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Hi, friends.",
+      "zh": "嗨，朋友们。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s002-n-4492df.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s002-s-a2b6fc.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm grocery shopping at the grocery store.",
+      "zh": "我正在超市买东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s003-n-6e286f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s003-s-a46d36.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I have a list of things that I need and my shopping cart all ready to go.",
+      "zh": "我有一份要买的清单，购物车也准备好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s004-n-3a50bf.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s004-s-f47fd8.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Would you like to come grocery shopping with me?",
+      "zh": "你想和我一起去超市购物吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s005-n-3880aa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s005-s-bc53db.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I could use your help.",
+      "zh": "我需要你帮帮忙。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s006-n-f28654.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s006-s-18fc6d.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go!",
+      "zh": "我们走吧！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s007-n-72ca0f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s007-s-f5b69c.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "There are so many different colors in the produce section.",
+      "zh": "果蔬区有好多不同的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s008-n-b775a4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s008-s-9c02bf.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's where all the fruits and vegetables are.",
+      "zh": "水果和蔬菜都在那里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s009-n-9bfcba.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s009-s-2d0521.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I see green, red, orange, yellow, purple, white, blue, and brown.",
+      "zh": "我看到绿色、红色、橙色、黄色、紫色、白色、蓝色和棕色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s010-n-f4277f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s010-s-6b1269.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "The first thing on our list is bell peppers.",
+      "zh": "清单上第一样是彩椒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s011-n-44e5f3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s011-s-2978b1.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It looks like this and comes in different colors.",
+      "zh": "它长这样，而且有不同的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s012-n-1f5777.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s012-s-68763e.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Can you see the bell peppers?",
+      "zh": "你能看到彩椒吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s013-n-56a589.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s013-s-02a69c.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We found them!",
+      "zh": "我们找到了！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s014-n-f07988.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s014-s-34ef5c.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at all the different colors.",
+      "zh": "看看这些不同的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s015-n-b0dcaa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s015-s-7cd0de.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "There's red bell peppers, green bell peppers, yellow bell peppers, and orange bell peppers.",
+      "zh": "有红彩椒、绿彩椒、黄彩椒，还有橙色彩椒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s016-n-b1f925.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s016-s-b7f416.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Which color should we get?",
+      "zh": "我们要买哪种颜色呢？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s017-n-3ae04a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s017-s-5918ff.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's get the yellow bell pepper.",
+      "zh": "我们买黄彩椒吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s018-n-229892.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s018-s-595a68.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Kind of matches the color of my apron.",
+      "zh": "有点配我围裙的颜色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s019-n-892722.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s019-s-37a48e.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Great job!",
+      "zh": "做得好！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s020-n-f64c77.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s020-s-4ee986.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next on our list is oranges.",
+      "zh": "清单上下一样是橙子。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s021-n-17c36d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s021-s-e31152.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Can you find the oranges?",
+      "zh": "你能找到橙子吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s022-n-739a5f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s022-s-d6ca41.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Here they are.",
+      "zh": "在这里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s023-n-8cd2ed.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s023-s-2ef23d.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Way to go!",
+      "zh": "真棒！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s024-n-056757.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s024-s-3d3620.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's get four oranges.",
+      "zh": "我们买四个橙子吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s025-n-029183.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s025-s-7f306e.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can count them together as we put them inside this bag.",
+      "zh": "我们把它们放进袋子里的时候，可以一起数。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s026-n-72aeb9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s026-s-ef26ba.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "One, two, three, four.",
+      "zh": "一，二，三，四。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s027-n-614e94.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s027-s-1171b4.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Four oranges.",
+      "zh": "四个橙子。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s028-n-5da4ed.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s028-s-20d36f.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's kind of funny that oranges are called oranges and they're the color orange.",
+      "zh": "有点好玩：橙子叫 orange，而它们的颜色也是橙色。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s029-n-cad72d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s029-s-872a2b.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next on our list is, ooh, mushrooms.",
+      "zh": "清单上下一样是——噢，蘑菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s030-n-9b2f58.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s030-s-6d6d42.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This store has an excellent selection of mushrooms.",
+      "zh": "这家店的蘑菇种类非常多。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s031-n-464d24.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s031-s-52f676.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Come with me.",
+      "zh": "跟我来。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s032-n-7acc69.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s032-s-3f81a8.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at how many different kinds of mushrooms there are.",
+      "zh": "看看这里有多少种不同的蘑菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s033-n-d97f62.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s033-s-36016a.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "They have some fun names too.",
+      "zh": "它们的名字也很好玩。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s034-n-dfc537.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s034-s-019b1c.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Blue oyster.",
+      "zh": "蓝平菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s035-n-27793c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s035-s-bd2e71.mp3"
+    },
+    {
+      "s": "s036",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Hen of the woods.",
+      "zh": "灰树花。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s036-n-52e9af.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s036-s-e23d4e.mp3"
+    },
+    {
+      "s": "s037",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Lion's mane.",
+      "zh": "猴头菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s037-n-e111af.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s037-s-9e2d9c.mp3"
+    },
+    {
+      "s": "s038",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Today, let's get eight cremini mushrooms.",
+      "zh": "今天我们买八朵棕色蘑菇吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s038-n-f2e86c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s038-s-ae3f1b.mp3"
+    },
+    {
+      "s": "s039",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can count them as we put them inside the bag.",
+      "zh": "我们把它们放进袋子里的时候可以一起数。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s039-n-0e423f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s039-s-9c9d96.mp3"
+    },
+    {
+      "s": "s040",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Now, it's important when picking your produce to only touch the ones you're gonna buy.",
+      "zh": "选果蔬的时候，重要的是只碰你要买的那些。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s040-n-d972b8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s040-s-7783e5.mp3"
+    },
+    {
+      "s": "s041",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "So we can use these tongs to help us out.",
+      "zh": "所以我们可以用这些夹子来帮忙。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s041-n-94c063.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s041-s-748328.mp3"
+    },
+    {
+      "s": "s042",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "One, two, three.",
+      "zh": "一，二，三。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s042-n-e77b0e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s042-s-ff7c5b.mp3"
+    },
+    {
+      "s": "s043",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Four, five, six.",
+      "zh": "四，五，六。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s043-n-7ce84b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s043-s-122824.mp3"
+    },
+    {
+      "s": "s044",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Seven, eight.",
+      "zh": "七，八。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s044-n-6a861e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s044-s-0cbdef.mp3"
+    },
+    {
+      "s": "s045",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Eight mushrooms.",
+      "zh": "八朵蘑菇。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s045-n-0aec1f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s045-s-1b9675.mp3"
+    },
+    {
+      "s": "s046",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Well, I think that's it for our fruits and vegetables.",
+      "zh": "好，水果和蔬菜应该就这些了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s046-n-4e1dbc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s046-s-b0b6e9.mp3"
+    },
+    {
+      "s": "s047",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next is bread.",
+      "zh": "接下来是面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s047-n-50626d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s047-s-0279bd.mp3"
+    },
+    {
+      "s": "s048",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I know where that is.",
+      "zh": "我知道在哪里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s048-n-0dd06e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s048-s-6b770c.mp3"
+    },
+    {
+      "s": "s049",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Follow me.",
+      "zh": "跟我来。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s049-n-809d5d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s049-s-8c72b7.mp3"
+    },
+    {
+      "s": "s050",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at all the different kinds of bread there are.",
+      "zh": "看看这里有多少种不同的面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s050-n-154ef7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s050-s-026273.mp3"
+    },
+    {
+      "s": "s051",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This looks like what I'm looking for.",
+      "zh": "这看起来就是我要找的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s051-n-79ef44.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s051-s-73f861.mp3"
+    },
+    {
+      "s": "s052",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is perfect for toast and sandwiches.",
+      "zh": "这个很适合做吐司和三明治。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s052-n-ee6dac.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s052-s-23b8a5.mp3"
+    },
+    {
+      "s": "s053",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This bread is made with something called gluten.",
+      "zh": "这种面包是用一种叫麸质的东西做的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s053-n-9bdfc1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s053-s-87a2a3.mp3"
+    },
+    {
+      "s": "s054",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And that's okay for most people, but for some friends, it can make their tummies feel a little upset.",
+      "zh": "对大多数人没问题，但有些朋友吃了可能会肚子不舒服。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s054-n-203e86.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s054-s-3865f9.mp3"
+    },
+    {
+      "s": "s055",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "So they also make bread without gluten.",
+      "zh": "所以也有不含麸质的面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s055-n-f75162.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s055-s-2f0732.mp3"
+    },
+    {
+      "s": "s056",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's called gluten-free bread.",
+      "zh": "那叫无麸质面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s056-n-acc322.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s056-s-09f8c7.mp3"
+    },
+    {
+      "s": "s057",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's nice that there's different options so everybody can find something that makes them feel good.",
+      "zh": "有不同的选择真好，这样每个人都能找到让自己舒服的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s057-n-f9fe63.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s057-s-1c48ec.mp3"
+    },
+    {
+      "s": "s058",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And you can tell it's gluten-free because it says so right on the package.",
+      "zh": "你能看出它是无麸质的，因为包装上就写着。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s058-n-92aae9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s058-s-015e83.mp3"
+    },
+    {
+      "s": "s059",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm gonna get some gluten-free bread too.",
+      "zh": "我也要拿一些无麸质面包。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s059-n-57c887.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s059-s-54d122.mp3"
+    },
+    {
+      "s": "s060",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That way if a friend comes over who can't have gluten, they can have a snack that's just for them.",
+      "zh": "这样如果有不能吃麸质的朋友来玩，他们也能吃到适合自己的点心。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s060-n-2c7fbc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s060-s-18985d.mp3"
+    },
+    {
+      "s": "s061",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We got our bread.",
+      "zh": "面包我们买到了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s061-n-90fbae.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s061-s-739e28.mp3"
+    },
+    {
+      "s": "s062",
+      "e": "ep-video-grocerystore-1",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's keep shopping.",
+      "zh": "我们继续购物吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s062-n-ee072a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-1/s062-s-5847b8.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Look at all the cakes, the colors, the frosting.",
+      "zh": "看看这些蛋糕，这些颜色，还有糖霜。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s001-n-292893.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s001-s-393927.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "A cake would be so delicious, but cake isn't on our list today.",
+      "zh": "蛋糕会很好吃，可是今天清单上没有蛋糕。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s002-n-5fdcd4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s002-s-63f268.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can't get everything that looks delicious, even though it is hard to say no sometimes.",
+      "zh": "不能看到好吃的就都买，虽然有时候很难说不。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s003-n-b91b3e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s003-s-508a4d.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "But you know what? Maybe we could get a special treat later.",
+      "zh": "不过你知道吗？也许我们待会可以买点特别的小零食。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s004-n-674829.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s004-s-48ffff.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's sometimes the tricky thing about grocery stores.",
+      "zh": "有时候超市让人为难的就是这一点。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s005-n-aaf243.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s005-s-acbd44.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's fun to look at all the yummy things, but we don't need to put everything in our cart.",
+      "zh": "看那些好吃的东西很有趣，但我们不必把每一样都放进购物车。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s006-n-b1a651.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s006-s-3148e0.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's see what's next on our list.",
+      "zh": "看看清单上下一样是什么。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s007-n-17f1b1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s007-s-3c394c.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Cheese!",
+      "zh": "奶酪！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s008-n-5c8c26.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s008-s-ab0095.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go to the deli counter.",
+      "zh": "我们去熟食柜台吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s009-n-32fcf9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s009-s-f2f67b.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "The deli counter has lots of different kinds of cheese and meats to choose from.",
+      "zh": "熟食柜台有很多种奶酪和肉可以选。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s010-n-8ba46f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s010-s-13d361.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Sometimes there are big blocks of cheese and big hunks of meat.",
+      "zh": "有时候会有大块的奶酪和大块的肉。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s011-n-75ab87.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s011-s-2fc157.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And you can ask the person working at the deli counter to slice it for you.",
+      "zh": "你可以请熟食柜台的工作人员帮你切片。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s012-n-7b6f57.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s012-s-426050.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "They have a special machine called a slicer that can cut just the right amount.",
+      "zh": "他们有一台叫切片机的机器，可以切出刚好的份量。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s013-n-f9394c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s013-s-72cd61.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Other times, you can just get some cheese that's already packaged in smaller portions.",
+      "zh": "还有些时候，你可以直接拿已经分装好的小份奶酪。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s014-n-98d862.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s014-s-3afef5.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Like this one.",
+      "zh": "就像这一份。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s015-n-94595c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s015-s-e60223.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is actually Brie cheese.",
+      "zh": "这其实是布里奶酪。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s016-n-48fd53.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s016-s-3eaa5c.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's my favorite kind of cheese.",
+      "zh": "这是我最喜欢的奶酪。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s017-n-751d2d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s017-s-0ad5b1.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "And in the deli counter, there's a really big one.",
+      "zh": "熟食柜台里还有一块特别大的。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s018-n-e54805.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s018-s-ae0afd.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That one is big, and this one is small, but it's the perfect size for me.",
+      "zh": "那块很大，这一块很小，但对我来说大小正好。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s019-n-e18568.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s019-s-42b49f.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "So into the cart it goes.",
+      "zh": "那就放进购物车吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s020-n-982e10.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s020-s-c0dab0.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We actually only have a couple things left on our list.",
+      "zh": "其实清单上只剩几样东西了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s021-n-d68dc7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s021-s-dac3c2.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We are doing excellent shopping.",
+      "zh": "我们买得很棒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s022-n-b375be.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s022-s-68345b.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Next is rice.",
+      "zh": "接下来是米。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s023-n-8b7d97.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s023-s-6bdc98.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's see if we can find it.",
+      "zh": "我们看看能不能找到。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s024-n-a8af13.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s024-s-93511c.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "There are lots of long rows of shelves at the grocery store.",
+      "zh": "超市里有很多一长排一长排的货架。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s025-n-71b684.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s025-s-22af00.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Those rows are called aisles.",
+      "zh": "那些一排排的过道叫 aisle。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s026-n-3bb3f6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s026-s-5de9f0.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We can walk up and down the aisle to find what we need.",
+      "zh": "我们可以在过道里来回走，找到需要的东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s027-n-236d7e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s027-s-b9472d.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "The signs can also help us find what we're looking for.",
+      "zh": "那些指示牌也可以帮我们找到要找的东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s028-n-4241f6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s028-s-8b082b.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Rice is down this aisle.",
+      "zh": "米就在这条过道里。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s029-n-b83bbe.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s029-s-8f6bf5.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I think I'd like to try something new.",
+      "zh": "我想试点新的东西。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s030-n-3d48af.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s030-s-f514d3.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Maybe a wild rice blend.",
+      "zh": "也许来一包野生米混合装。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s031-n-b86f5b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s031-s-4f71ca.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This has all different kinds of rice that I haven't tried before all mixed together.",
+      "zh": "这里混合了我以前没吃过的各种米。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s032-n-da370f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s032-s-1f8d4c.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Sounds exciting.",
+      "zh": "听起来真有趣。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s033-n-e96df3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s033-s-e3436c.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's see what's next on our list.",
+      "zh": "看看清单上下一样是什么。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s034-n-17f1b1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s034-s-3c394c.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Ooh, fish.",
+      "zh": "噢，鱼。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s035-n-7a31f1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s035-s-11319a.mp3"
+    },
+    {
+      "s": "s036",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That means we'll have to go to the seafood counter.",
+      "zh": "那就是说我们得去海鲜柜台了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s036-n-146187.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s036-s-e8ed1a.mp3"
+    },
+    {
+      "s": "s037",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Ooh, it all looks so good.",
+      "zh": "噢，看起来都好诱人。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s037-n-15a25e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s037-s-89871c.mp3"
+    },
+    {
+      "s": "s038",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Not sure what kind to get though.",
+      "zh": "不过我还不确定要买哪种。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s038-n-7ddb54.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s038-s-bf2e4b.mp3"
+    },
+    {
+      "s": "s039",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "Can I get you anything?",
+      "zh": "您需要点什么吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s039-n-65f054.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s039-s-7e8890.mp3"
+    },
+    {
+      "s": "s040",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Oh, thank you.",
+      "zh": "哦，谢谢。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s040-n-668d32.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s040-s-c8747e.mp3"
+    },
+    {
+      "s": "s041",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm looking for some fish, but I'm not sure what kind I should get.",
+      "zh": "我想买一点鱼，但不确定该买哪种。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s041-n-ffa17d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s041-s-72f1df.mp3"
+    },
+    {
+      "s": "s042",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "May I recommend the rainbow trout?",
+      "zh": "要不要试试虹鳟鱼？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s042-n-66fbb7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s042-s-c57f50.mp3"
+    },
+    {
+      "s": "s043",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "It's local and it's fantastic.",
+      "zh": "这是本地的，而且非常好吃。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s043-n-567b60.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s043-s-4f4004.mp3"
+    },
+    {
+      "s": "s044",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Oh, local. That sounds good.",
+      "zh": "哦，本地的。听起来不错。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s044-n-ac2db1.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s044-s-354447.mp3"
+    },
+    {
+      "s": "s045",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'll take some trout, please.",
+      "zh": "那我要一些鳟鱼，谢谢。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s045-n-9a44c9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s045-s-a8125d.mp3"
+    },
+    {
+      "s": "s046",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "No problem.",
+      "zh": "没问题。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s046-n-d533c5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s046-s-1762a8.mp3"
+    },
+    {
+      "s": "s047",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "There you go.",
+      "zh": "给您。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s047-n-733a1d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s047-s-07fde2.mp3"
+    },
+    {
+      "s": "s048",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Thank you so much.",
+      "zh": "非常感谢。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s048-n-76627f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s048-s-07beb3.mp3"
+    },
+    {
+      "s": "s049",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Clerk",
+      "en": "No problem. Have a good day.",
+      "zh": "没问题。祝你今天愉快。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s049-n-71187b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s049-s-5cbe87.mp3"
+    },
+    {
+      "s": "s050",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "You too.",
+      "zh": "你也是。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s050-n-a7daf2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s050-s-34ab3a.mp3"
+    },
+    {
+      "s": "s051",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm excited to try this.",
+      "zh": "我很期待尝尝这个。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s051-n-e1a7f4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s051-s-eb0d6a.mp3"
+    },
+    {
+      "s": "s052",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We have one more thing on our list, and it's pizza!",
+      "zh": "清单上还剩一样，是披萨！",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s052-n-bdb4c8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s052-s-16a52b.mp3"
+    },
+    {
+      "s": "s053",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'm gonna get a frozen pizza from the frozen food section.",
+      "zh": "我要在冷冻食品区拿一个冷冻披萨。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s053-n-f280a9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s053-s-5d3043.mp3"
+    },
+    {
+      "s": "s054",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Maybe this veggie pizza.",
+      "zh": "也许就这个蔬菜披萨吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s054-n-07eaca.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s054-s-74687b.mp3"
+    },
+    {
+      "s": "s055",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Well, that's the last thing on our list.",
+      "zh": "好，这就是清单上的最后一样了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s055-n-dc39dd.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s055-s-ee9934.mp3"
+    },
+    {
+      "s": "s056",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I like to get the food from the frozen section last, so it doesn't melt in my cart before I get home.",
+      "zh": "我喜欢最后再拿冷冻食品，这样在到家前就不会在购物车里化掉。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s056-n-00c564.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s056-s-720ece.mp3"
+    },
+    {
+      "s": "s057",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "You did great grocery shopping today.",
+      "zh": "你今天购物做得真棒。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s057-n-841ca5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s057-s-6b0673.mp3"
+    },
+    {
+      "s": "s058",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I think we can get ourselves a little treat.",
+      "zh": "我想我们可以给自己买点小零食。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s058-n-058ed5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s058-s-f4cee7.mp3"
+    },
+    {
+      "s": "s059",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Follow me.",
+      "zh": "跟我来。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s059-n-809d5d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s059-s-8c72b7.mp3"
+    },
+    {
+      "s": "s060",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "How about cookies?",
+      "zh": "买饼干怎么样？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s060-n-999d60.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s060-s-53798c.mp3"
+    },
+    {
+      "s": "s061",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is a special treat and it's perfect for sharing.",
+      "zh": "这是特别的小零食，而且很适合分享。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s061-n-52f1a4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s061-s-e34b59.mp3"
+    },
+    {
+      "s": "s062",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "But we'll have to wait to eat it until we've paid for everything.",
+      "zh": "不过要等我们付完钱才能吃。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s062-n-7bab42.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s062-s-047244.mp3"
+    },
+    {
+      "s": "s063",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Are you ready for the grocery store grand finale?",
+      "zh": "准备好迎接超市的压轴环节了吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s063-n-62ceb0.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s063-s-68ca5c.mp3"
+    },
+    {
+      "s": "s064",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Let's go to the checkout.",
+      "zh": "我们去收银台吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s064-n-fb7b1d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s064-s-754318.mp3"
+    },
+    {
+      "s": "s065",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "This is the checkout.",
+      "zh": "这就是收银台。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s065-n-c23087.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s065-s-9a4c62.mp3"
+    },
+    {
+      "s": "s066",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "It's where we pay for everything in our cart.",
+      "zh": "我们在这里为购物车里的东西付钱。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s066-n-7ce25c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s066-s-0652d2.mp3"
+    },
+    {
+      "s": "s067",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "We wait our turn, then put our groceries on the counter.",
+      "zh": "我们先排队，然后把买的东西放到柜台上。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s067-n-2fb03c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s067-s-b84d82.mp3"
+    },
+    {
+      "s": "s068",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That's the sound of the scanner.",
+      "zh": "那就是扫描器的声音。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s068-n-0f0aae.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s068-s-7d60a9.mp3"
+    },
+    {
+      "s": "s069",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Each thing has a price, and when the cashier adds them all together, that's our total.",
+      "zh": "每一样东西都有价格，收银员把它们加在一起，就是我们要付的总数。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s069-n-0d0753.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s069-s-95a93d.mp3"
+    },
+    {
+      "s": "s070",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Once we pay and pack our bags, we're all set to go home and put everything away.",
+      "zh": "付完钱、装好袋子，我们就可以回家把东西放好了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s070-n-317a36.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s070-s-126c22.mp3"
+    },
+    {
+      "s": "s071",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "That was fun.",
+      "zh": "真有趣。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s071-n-e231bc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s071-s-168944.mp3"
+    },
+    {
+      "s": "s072",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Thank you so much for helping me with my grocery shopping today.",
+      "zh": "非常感谢你今天帮我一起购物。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s072-n-897d58.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s072-s-e4b87b.mp3"
+    },
+    {
+      "s": "s073",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I hope you have fun the next time you're at a grocery store too.",
+      "zh": "希望你下次去超市也会觉得有趣。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s073-n-dac36e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s073-s-c8b0db.mp3"
+    },
+    {
+      "s": "s074",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I think it's time for a little treat.",
+      "zh": "我想是时候吃点小零食了。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s074-n-091e11.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s074-s-123fbc.mp3"
+    },
+    {
+      "s": "s075",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "I'll see you later.",
+      "zh": "回头见。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s075-n-33342b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s075-s-e73771.mp3"
+    },
+    {
+      "s": "s076",
+      "e": "ep-video-grocerystore-2",
+      "k": "video",
+      "sp": "Caitie",
+      "en": "Bye, friends.",
+      "zh": "再见，朋友们。",
+      "an": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s076-n-e79a71.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-grocerystore-2/s076-s-b918cc.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-doctor-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Mom, I have a cold. My throat hurts.",
+      "zh": "妈妈，我感冒了。我嗓子疼。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g3/s001-n-e2a29e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g3/s001-s-7f8cd0.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-doctor-g3",
+      "k": "card",
+      "sp": "家长",
+      "en": "Oh dear. Should we see the doctor?",
+      "zh": "哎呀。我们要去看医生吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g3/s002-n-b2867f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g3/s002-s-f5f679.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-doctor-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Yes, please. Can you come with me?",
+      "zh": "要的，拜托了。你能和我一起去吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g3/s003-n-6316cc.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g3/s003-s-66d22c.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-doctor-g3",
+      "k": "card",
+      "sp": "家长",
+      "en": "Of course. The doctor will help you.",
+      "zh": "当然。医生会帮你的。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g3/s004-n-aa96ae.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g3/s004-s-a020d9.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-doctor-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Will I need some medicine?",
+      "zh": "我需要吃药吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g3/s005-n-c10b59.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g3/s005-s-c3caba.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-doctor-g3",
+      "k": "card",
+      "sp": "家长",
+      "en": "Yes. Please take it after lunch.",
+      "zh": "要。请午饭后再吃。",
+      "an": "https://english.example.com/audio/ep/ep-card-doctor-g3/s006-n-4a38e9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-doctor-g3/s006-s-dc0ded.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-directions-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Excuse me, where is the playground?",
+      "zh": "打扰一下，请问操场怎么走？",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g3/s001-n-07b388.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g3/s001-s-9535e5.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-directions-g3",
+      "k": "card",
+      "sp": "路人",
+      "en": "Go straight and then turn left.",
+      "zh": "一直走，然后向左转。",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g3/s002-n-2e95b2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g3/s002-s-75b91e.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-directions-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Is it next to the cafeteria?",
+      "zh": "它在食堂旁边吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g3/s003-n-b1c859.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g3/s003-s-b74fc2.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-directions-g3",
+      "k": "card",
+      "sp": "路人",
+      "en": "Yes. You will see a big tree.",
+      "zh": "对。你会看到一棵大树。",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g3/s004-n-c6a7db.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g3/s004-s-c073cf.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-directions-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Thanks. Can I go this way?",
+      "zh": "谢谢。我可以走这条路吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g3/s005-n-37a2db.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g3/s005-s-7c9c42.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-directions-g3",
+      "k": "card",
+      "sp": "路人",
+      "en": "Yes. It's not far from here.",
+      "zh": "可以。离这儿不远。",
+      "an": "https://english.example.com/audio/ep/ep-card-directions-g3/s006-n-7963b7.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-directions-g3/s006-s-9604ad.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-card-weekend-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Ben, what do you want to do this weekend?",
+      "zh": "Ben，这个周末你想做什么？",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g3/s001-n-26710e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g3/s001-s-499bd6.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-card-weekend-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "I want to go swimming. Do you want to come?",
+      "zh": "我想去游泳。你想来吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g3/s002-n-46e45b.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g3/s002-s-cb3832.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-card-weekend-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Yes! What time should we meet?",
+      "zh": "好啊！我们几点见面？",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g3/s003-n-3216c4.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g3/s003-s-5fde9e.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-card-weekend-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "How about ten in the morning?",
+      "zh": "上午十点怎么样？",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g3/s004-n-d581a9.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g3/s004-s-e0955c.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-card-weekend-g3",
+      "k": "card",
+      "sp": "孩子",
+      "en": "Sounds good. Should I bring a towel?",
+      "zh": "好。我要带毛巾吗？",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g3/s005-n-dbd710.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g3/s005-s-391d4f.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-card-weekend-g3",
+      "k": "card",
+      "sp": "同学",
+      "en": "Yes, please. See you at the pool!",
+      "zh": "要的。泳池见！",
+      "an": "https://english.example.com/audio/ep/ep-card-weekend-g3/s006-n-137bcb.mp3",
+      "as": "https://english.example.com/audio/ep/ep-card-weekend-g3/s006-s-cc7357.mp3"
+    },
+    {
+      "s": "s001",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Hey guys, did you decide which club to join?",
+      "zh": "嗨，你们决定参加哪个社团了吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s001-n-0008d8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s001-s-a978bd.mp3"
+    },
+    {
+      "s": "s002",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "Not yet! I still have no idea.",
+      "zh": "还没有！我还没想好。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s002-n-8f4a64.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s002-s-054c49.mp3"
+    },
+    {
+      "s": "s003",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Think about what you like to do for fun.",
+      "zh": "想想你平时喜欢做什么。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s003-n-ad819f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s003-s-8a8384.mp3"
+    },
+    {
+      "s": "s004",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "What are your hobbies?",
+      "zh": "你的爱好是什么？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s004-n-7d73ae.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s004-s-9ebcc2.mp3"
+    },
+    {
+      "s": "s005",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I just have too many hobbies!",
+      "zh": "我的爱好实在太多了！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s005-n-e92dbf.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s005-s-60438e.mp3"
+    },
+    {
+      "s": "s006",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I love taking photographs, and even making and collecting jet model figures!",
+      "zh": "我喜欢拍照，还喜欢做喷气机模型、收集模型手办！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s006-n-e9ba39.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s006-s-b91237.mp3"
+    },
+    {
+      "s": "s007",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Oh, and I also love cooking, watching science fiction movies, skateboarding and…",
+      "zh": "哦，我还喜欢做饭、看科幻电影、滑板，还有……",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s007-n-796e13.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s007-s-f1c7a7.mp3"
+    },
+    {
+      "s": "s008",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "John, just pick one of them.",
+      "zh": "John，就从里面挑一个吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s008-n-32cb6f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s008-s-0f0b01.mp3"
+    },
+    {
+      "s": "s009",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Why do I need to choose one?",
+      "zh": "我为什么一定要选一个？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s009-n-8847ac.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s009-s-2beaee.mp3"
+    },
+    {
+      "s": "s010",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "There's too much fun in this world!",
+      "zh": "这个世界上好玩的事情太多了！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s010-n-c5f096.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s010-s-444b25.mp3"
+    },
+    {
+      "s": "s011",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "What is your hobby, Olivia?",
+      "zh": "Olivia，你的爱好是什么？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s011-n-30469e.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s011-s-42108d.mp3"
+    },
+    {
+      "s": "s012",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "I enjoy reading travel books.",
+      "zh": "我喜欢读旅行方面的书。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s012-n-4078aa.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s012-s-a4cef7.mp3"
+    },
+    {
+      "s": "s013",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "So I signed up for a book club.",
+      "zh": "所以我报名参加了读书社。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s013-n-6f4056.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s013-s-de6c39.mp3"
+    },
+    {
+      "s": "s014",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Don't you want to join the club with me?",
+      "zh": "你不想和我一起参加这个社团吗？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s014-n-8cf1d8.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s014-s-d292f3.mp3"
+    },
+    {
+      "s": "s015",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "I actually love reading comic books.",
+      "zh": "其实我很喜欢看漫画书。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s015-n-044502.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s015-s-9654b2.mp3"
+    },
+    {
+      "s": "s016",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Well, a comic book is a type of book.",
+      "zh": "嗯，漫画书也是书的一种。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s016-n-e7c286.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s016-s-6e97c3.mp3"
+    },
+    {
+      "s": "s017",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "That's perfect!",
+      "zh": "太合适了！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s017-n-679db6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s017-s-4cc8c7.mp3"
+    },
+    {
+      "s": "s018",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Let's sign up for it.",
+      "zh": "我们去报名吧。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s018-n-070c3a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s018-s-b7d969.mp3"
+    },
+    {
+      "s": "s019",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "It will be awesome!",
+      "zh": "一定会很棒！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s019-n-231104.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s019-s-1cd233.mp3"
+    },
+    {
+      "s": "s020",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Kevin",
+      "en": "Alright, fine.",
+      "zh": "好吧，行。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s020-n-8d7e64.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s020-s-6c195f.mp3"
+    },
+    {
+      "s": "s021",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Olivia",
+      "en": "Let's go now!",
+      "zh": "我们现在就去吧！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s021-n-36e1c2.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s021-s-5f0cdc.mp3"
+    },
+    {
+      "s": "s022",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "I'm glad Kevin found the right hobby.",
+      "zh": "我很高兴 Kevin 找到了合适的爱好。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s022-n-193160.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s022-s-28bd7b.mp3"
+    },
+    {
+      "s": "s023",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I'm not really sure if he likes the book club or… Olivia.",
+      "zh": "我不太确定他喜欢的是读书社，还是……Olivia。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s023-n-25af0a.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s023-s-9b58ef.mp3"
+    },
+    {
+      "s": "s024",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Anyways, what about you, John?",
+      "zh": "对了，John，那你呢？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s024-n-a67a20.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s024-s-94e264.mp3"
+    },
+    {
+      "s": "s025",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Which club will you join?",
+      "zh": "你要参加哪个社团？",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s025-n-9c9aa6.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s025-s-e43205.mp3"
+    },
+    {
+      "s": "s026",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Hmm. Science is the answer.",
+      "zh": "嗯。答案是科学。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s026-n-070b4d.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s026-s-a9be67.mp3"
+    },
+    {
+      "s": "s027",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I will join a science club.",
+      "zh": "我要参加科学社。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s027-n-d6817c.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s027-s-46e7ea.mp3"
+    },
+    {
+      "s": "s028",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "That's a great idea, but I heard it's really tough.",
+      "zh": "这主意很棒，不过我听说真的很难。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s028-n-03513f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s028-s-611760.mp3"
+    },
+    {
+      "s": "s029",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "You need to work on many projects.",
+      "zh": "你要做很多课题。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s029-n-0ec064.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s029-s-8dc497.mp3"
+    },
+    {
+      "s": "s030",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "And plus, the teacher is really strict.",
+      "zh": "而且，老师还特别严格。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s030-n-77cbe5.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s030-s-980e0e.mp3"
+    },
+    {
+      "s": "s031",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Umm… I just changed my mind.",
+      "zh": "嗯……我刚改主意了。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s031-n-7fc052.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s031-s-71ab3a.mp3"
+    },
+    {
+      "s": "s032",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "I will probably join a photography club.",
+      "zh": "我大概会参加摄影社。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s032-n-3d099f.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s032-s-818b96.mp3"
+    },
+    {
+      "s": "s033",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Oh, really? That's a great idea!",
+      "zh": "哦，真的吗？这主意很棒！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s033-n-e3a306.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s033-s-d69b0b.mp3"
+    },
+    {
+      "s": "s034",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "Anne",
+      "en": "Please take an awesome picture of me when you become a pro.",
+      "zh": "等你成了高手，请给我拍一张超棒的照片。",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s034-n-f94750.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s034-s-df945a.mp3"
+    },
+    {
+      "s": "s035",
+      "e": "ep-video-hobbies",
+      "k": "video",
+      "sp": "John",
+      "en": "Yep yep!",
+      "zh": "对对！",
+      "an": "https://english.example.com/audio/ep/ep-video-hobbies/s035-n-27ccc3.mp3",
+      "as": "https://english.example.com/audio/ep/ep-video-hobbies/s035-s-3ee84c.mp3"
     }
   ]
 };
