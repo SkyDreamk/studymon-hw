@@ -11,12 +11,22 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const FETCH_TIMEOUT_MS = 8000;
+
+// 单次请求超时：只等响应头，超时即 abort 走原失败路径，避免旧 SW 把导航无限挂起；无 AbortController 的环境走原逻辑
+function fetchOnce(request) {
+  if (typeof AbortController === 'undefined') return fetch(request);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  return fetch(request, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
 async function fetchWithRetry(request) {
   try {
-    return await fetch(request);
+    return await fetchOnce(request);
   } catch (e) {
     await sleep(300);
-    return fetch(request);
+    return fetchOnce(request);
   }
 }
 
@@ -34,7 +44,13 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
   })());
 });
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+self.addEventListener('activate', (event) => event.waitUntil((async () => {
+  try {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((k) => k !== AUDIO_CACHE).map((k) => caches.delete(k)));
+  } catch (e) {}
+  await self.clients.claim();
+})()));
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (event.request.method === 'GET' && url.pathname.startsWith('/static/audio/')) {

@@ -239,6 +239,48 @@ async function saveFull(childId, data) {
   );
 }
 
+/* 卡片详情字段（Fable 优化 #2）：与服务端 pokedexDetailsFor 的返回字段同源。 */
+const POKEDEX_DETAIL_KEYS = ['type', 'types', 'moves', 'abilities', 'stats', 'actualStats', 'actualLevel', 'scaledLevel', 'evo', 'matchups', 'matchupsDual', 'level', 'friendship', 'obtainedAt'];
+
+/* 单张卡片详情写回本地快照（Fable 优化 #2）：只动 __full__ 行里对应条目＋151 行
+ *（快照读路径）与同 key 的扁平行；details 为 null 时剥掉详情字段（升级后失效用）。
+ * 快照不存在时静默无操作，不抛错、不卡卡片渲染。 */
+async function savePokedexDetails(childId, key, details, no) {
+  return _withTransaction(['pokedex'], 'readwrite', async (tx) => {
+    const store = tx.objectStore('pokedex');
+    const rows = await _all(store, 'by_child', childId);
+    const apply = (entry) => {
+      if (!entry) return false;
+      if (details) { Object.assign(entry, details); return true; }
+      let changed = false;
+      for (const k of POKEDEX_DETAIL_KEYS) if (k in entry) { delete entry[k]; changed = true; }
+      return changed;
+    };
+    const writes = [];
+    for (const row of rows) {
+      if (!row) continue;
+      if (row.full) {
+        const full = row.full;
+        let changed = false;
+        for (const g of [full.lineEntries, full.wild, full.others, full.collection, full.eggSpecies, full.benchDex]) {
+          if (!Array.isArray(g)) continue;
+          const hit = g.find((e) => e && e.key === key);
+          if (hit && apply(hit)) changed = true;
+        }
+        if (Array.isArray(full.dex151) && no != null) {
+          const hit = full.dex151.find((e) => e && e.no === no);
+          if (hit && apply(hit)) changed = true;
+        }
+        if (changed) writes.push(_req(store.put(row)));
+      } else if (row.entry_key === key || (no != null && row.entry_key === 'dex151:' + no)) {
+        if (apply(row)) writes.push(_req(store.put(row)));
+      }
+    }
+    await Promise.all(writes);
+    return { ok: true };
+  });
+}
+
 async function getSnapshot(childId) {
   // 同一 readonly 事务保证孩子、图鉴及状态来自一致的快照。
   return _withTransaction(
@@ -317,7 +359,7 @@ async function clearChild(childId) {
   );
 }
 
-const LocalCache = { open, isComplete, saveFull, getSnapshot, getQuestions, pendingCount, clearChild };
+const LocalCache = { open, isComplete, saveFull, getSnapshot, getQuestions, pendingCount, clearChild, savePokedexDetails };
 
 /* ⑦A：命令永不丢弃、永不过期；业务预演由调用方完成，此处仅入队。 */
 async function enqueue(childId, type, payload) {
@@ -611,7 +653,7 @@ async function queuePhoto(childId, checkinLocalId, name, blob) {
 
 async function _cachePart2PhotoBase64(blob) {
   const bytes = new Uint8Array(await blob.arrayBuffer());
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123' + '456789+/';
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   const chunks = [];
   let chunk = '';
 
