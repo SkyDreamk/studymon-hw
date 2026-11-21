@@ -13,7 +13,7 @@ import { spawnSync } from 'node:child_process';
 import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
-const MIGS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0013_bsn_math_chapters.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql'];
+const MIGS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0013_bsn_math_chapters.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql'];
 
 const C = {
   U1: '三年级上册 第1单元 混合运算',
@@ -47,7 +47,7 @@ function makeEnv() {
 }
 
 let env, raw, db;
-const seeded = (s) => () => (s = (s * 1103515245 + 13579) % 2147483648) / 2147483648;
+const seeded = (s) => () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
 const insQ = (id, kind, grade, subject, chapter, active = 1) => raw.prepare(
   `INSERT INTO quiz_questions(id,kind,grade,subject,question,options_json,answer_idx,explain,active,is_custom,created_at,topic_id,chapter)
    VALUES(?,?,?,?,?,?,?,?,?,0,1,?,?)`).run(id, kind, grade, subject, `题${id}`, '["A","B","C","D"]', 0, '', active, null, chapter);

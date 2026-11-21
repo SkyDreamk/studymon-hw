@@ -76,12 +76,12 @@ describe('abilityOf 与范围守卫', () => {
 });
 
 describe('低血量同系强化（茂盛/猛火/激流/虫之预感）', () => {
-  test('茂盛：HP≤1/3 且草招时威力×1.5（39→59），带 lowhp 条目', () => {
+  test('茂盛：HP≤1/3 且草招时威力×1.5（39→58，分步取整），带 lowhp 条目', () => {
     const full = dmg({ name: '藤鞭', type: '草', power: 40 }, atk(1, 100, 100, '草', ['草', '毒']), def(16, ['普通', '飞行']));
     assert.equal(full.dmg, 39);
     assert.deepEqual(full.ability, []);
     const low = dmg({ name: '藤鞭', type: '草', power: 40 }, atk(1, 30, 100, '草', ['草', '毒']), def(16, ['普通', '飞行']));
-    assert.equal(low.dmg, 59);
+    assert.equal(low.dmg, 58);
     assert.deepEqual(low.ability, [{ name: '茂盛', kind: 'lowhp', side: 'atk', pet: '攻方1', moveType: '草' }]);
   });
   test('茂盛边界：HP 恰为 1/3 触发，HP 34/100 不触发；非同系招不触发', () => {
@@ -94,7 +94,7 @@ describe('低血量同系强化（茂盛/猛火/激流/虫之预感）', () => {
     assert.deepEqual(wrongType.ability, []);
     assert.equal(wrongType.dmg, 52);
   });
-  test('猛火/激流/虫之预感：低血量同系招各 117，带对应条目', () => {
+  test('猛火/激流/虫之预感：低血量同系招火/水 117、虫 58（虫 vs 飞行 0.5×，补全后），带对应条目', () => {
     const fire = dmg({ name: '火花', type: '火', power: 40 }, atk(4, 30, 100, '火', ['火']), def(16, ['普通', '飞行']));
     assert.equal(fire.dmg, 117);
     assert.deepEqual(names(fire), ['猛火']);
@@ -102,25 +102,25 @@ describe('低血量同系强化（茂盛/猛火/激流/虫之预感）', () => {
     assert.equal(water.dmg, 117);
     assert.deepEqual(names(water), ['激流']);
     const bug = dmg({ name: '虫咬', type: '虫', power: 40 }, atk(15, 30, 100, '虫', ['虫', '毒']), def(16, ['普通', '飞行']));
-    assert.equal(bug.dmg, 117);
+    assert.equal(bug.dmg, 58); // 虫 vs [普通,飞行]=0.5：floor(117×0.5)=58
     assert.deepEqual(names(bug), ['虫之预感']);
   });
 });
 
 describe('厚脂肪', () => {
-  test('火/冰伤害减半（火 39→20、冰 52→26），带 thickfat 条目；草招不触发', () => {
+  test('火/冰伤害减半（火 39→19、冰 26→13；冰 vs 水补全为 0.5×），带 thickfat 条目；草招不触发', () => {
     const fire = dmg({ name: '火花', type: '火', power: 40 }, atk(4, 100, 100, '火', ['火']), def(86, ['水', '超能力']));
-    assert.equal(fire.dmg, 20);
+    assert.equal(fire.dmg, 19);
     assert.deepEqual(fire.ability, [{ name: '厚脂肪', kind: 'thickfat', side: 'def', pet: '守方86', moveType: '火' }]);
     assert.equal(fire.mult, 0.5); // mult 本身不变，只影响伤害
     const fireCtrl = dmg({ name: '火花', type: '火', power: 40 }, atk(4, 100, 100, '火', ['火']), def(79, ['水', '超能力']));
     assert.equal(fireCtrl.dmg, 39);
     assert.deepEqual(fireCtrl.ability, []);
     const ice = dmg({ name: '冰冻光束', type: '冰', power: 40 }, atk(86, 100, 100, '水', ['水']), def(86, ['水', '超能力']));
-    assert.equal(ice.dmg, 26);
+    assert.equal(ice.dmg, 13); // 冰 vs 水 0.5×（补全）×厚脂肪 0.5
     assert.deepEqual(names(ice), ['厚脂肪']);
     const iceCtrl = dmg({ name: '冰冻光束', type: '冰', power: 40 }, atk(86, 100, 100, '水', ['水']), def(79, ['水', '超能力']));
-    assert.equal(iceCtrl.dmg, 52);
+    assert.equal(iceCtrl.dmg, 26); // 冰 vs 水 0.5×（补全），无厚脂肪
     const grass = dmg({ name: '藤鞭', type: '草', power: 40 }, atk(1, 100, 100, '草', ['草', '毒']), def(86, ['水', '超能力']));
     assert.equal(grass.dmg, 156);
     assert.deepEqual(grass.ability, []);
@@ -146,13 +146,13 @@ describe('硬壳盔甲', () => {
   test('rng=0 也强制不暴击；对照种暴击；攻击方带硬壳盔甲不压暴击；仍掷一次随机数', () => {
     const shell = dmg({ name: '撞击', type: '普通', power: 35 }, atk(1, 100, 100, '草', ['草', '毒']), def(90, ['水']), () => 0, { chart: 'official' });
     assert.equal(shell.critical, false);
-    assert.equal(shell.dmg, 42);
+    assert.equal(shell.dmg, 41);
     const ctrl = dmg({ name: '撞击', type: '普通', power: 35 }, atk(1, 100, 100, '草', ['草', '毒']), def(79, ['水', '超能力']), () => 0, { chart: 'official' });
     assert.equal(ctrl.critical, true);
-    assert.equal(ctrl.dmg, 63);
+    assert.equal(ctrl.dmg, 61); // 暴击分步取整：floor(49×0.85)=41→floor(41×1.5)=61
     const atkSide = dmg({ name: '撞击', type: '普通', power: 35 }, atk(90, 100, 100, '水', ['水']), def(79, ['水', '超能力']), () => 0, { chart: 'official' });
     assert.equal(atkSide.critical, true);
-    assert.equal(atkSide.dmg, 63);
+    assert.equal(atkSide.dmg, 61);
     // 随机数消耗不变：命中 1＋随机 1＋暴击 1＝3 次（与对照种相同）。
     let n1 = 0; let n2 = 0;
     dmg({ name: '撞击', type: '普通', power: 35 }, atk(1, 100, 100, '草', ['草', '毒']), def(90, ['水']), () => { n1++; return 0.5; }, { chart: 'official' });
@@ -175,7 +175,7 @@ describe('储水/蓄电', () => {
     assert.equal(elec.dmg, 0);
     assert.deepEqual(elec.ability, [{ name: '蓄电', kind: 'immune', side: 'def', pet: '守方135', moveType: '电', heal: 25 }]);
     const wrong = dmg({ name: '撞击', type: '普通', power: 35 }, atk(1, 100, 100, '草', ['草', '毒']), def(60, ['水']));
-    assert.equal(wrong.dmg, 46);
+    assert.equal(wrong.dmg, 45);
     assert.deepEqual(wrong.ability, []);
   });
   test('applyAbilityHeal：按上限回复（80/100 回 20），满血回 0', () => {

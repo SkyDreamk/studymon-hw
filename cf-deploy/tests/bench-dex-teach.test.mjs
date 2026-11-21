@@ -4,11 +4,12 @@ import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
+import { readBackendSource } from './backend-src.mjs';
 
-const src = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const src = readBackendSource();
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -134,25 +135,44 @@ async function teach(cookie) {
   }));
 }
 
+async function card(key) {
+  const cookie = await parentCookie();
+  const r = await call('/api/pokedex/card', {
+    method: 'POST', body: { childId: 1, key }, cookie,
+  });
+  assert.equal(r.status, 200, key);
+  assert.equal(r.j.ok, true, key);
+  return r.j.details;
+}
+
 test('测试模式 benchDex 精确补齐缺失种，且卡片详情完整', async () => {
   const j = await pokedex();
-  assert.deepEqual(j.benchDex.map((e) => e.no), BENCH_NOS);
-  for (const e of j.benchDex) {
-    assert.equal(e.unlocked, true);
-    for (const field of ['name', 'img', 'type', 'moves', 'types', 'evo', 'matchups']) {
-      nonEmpty(e[field], `${e.no}.${field}`);
+  const skel = M.pokedexStaticSkeleton().data;
+  const benchNos = j.benchDexKeys.map((k) => skel.benchDex.find((e) => e.key === k)?.no);
+  assert.deepEqual(benchNos, BENCH_NOS);
+  for (const key of j.benchDexKeys) {
+    assert.ok(j.unlocked.includes(key), key + ' 应在已获得集里（测试模式补齐）');
+    const skelEntry = skel.benchDex.find((e) => e.key === key);
+    const no = skelEntry?.no;
+    // 名字/图片/属性是静态骨架字段；招式/双属性/进化/克制是卡片详情字段（Fable 优化 #2 拆分后各归其位）
+    for (const field of ['name', 'img', 'type']) nonEmpty(skelEntry[field], `${no}.${field}`);
+    const d = await card(key);
+    for (const field of ['moves', 'types', 'evo', 'matchups']) {
+      nonEmpty(d[field], `${no}.${field}`);
     }
   }
   for (const no of [179, 133, 143, 151]) {
-    assert.ok(!j.benchDex.some((e) => e.no === no));
+    assert.ok(!benchNos.includes(no));
   }
 });
 
 test('benchDex 不进入 collection，且不改变 progress.total', async () => {
   const j = await pokedex();
-  assert.deepEqual(j.benchDex.map((e) => e.no), BENCH_NOS);
+  const skel = M.pokedexStaticSkeleton().data;
+  const benchNos = j.benchDexKeys.map((k) => skel.benchDex.find((e) => e.key === k)?.no);
+  assert.deepEqual(benchNos, BENCH_NOS);
   const collectionNos = new Set(j.collection.map((e) => e.no));
-  for (const e of j.benchDex) assert.ok(!collectionNos.has(e.no));
+  for (const no of benchNos) assert.ok(!collectionNos.has(no));
   assert.equal(j.progress.total, 151);
   await toProd();
   const prod = await pokedex();
@@ -202,7 +222,10 @@ test('正式模式教学接口未新增分支门控', async () => {
 
 test('前端两处卡片查找包含 benchDex，教学条件放开仙子伊布且 early return 未动', () => {
   const app = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
-  const gymStart = app.indexOf('function openGymBenchCard(');
+  // 任务 127：道馆备战卡片 openGymBenchCard 已撤（道馆页不再点球开卡）；两处卡片查找现为
+  // openPartyPetCard（伙伴页）与 openDexCard（图鉴页），都须含 benchDex（测试站 151 全量）。
+  assert.ok(!app.includes('function openGymBenchCard('), 'openGymBenchCard 应已移除');
+  const gymStart = app.indexOf('function openPartyPetCard(');
   const dexStart = app.indexOf('function openDexCard(');
   assert.ok(gymStart >= 0);
   assert.ok(dexStart >= 0);

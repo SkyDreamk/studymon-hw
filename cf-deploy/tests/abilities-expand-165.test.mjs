@@ -346,7 +346,9 @@ describe('196/197 同步（只验证已实现）', () => {
   });
 });
 
-describe('471 雪隐 / 700 迷人之躯（dormant）', () => {
+// Batch 5（2026-11-18）：700 迷人之躯已实现（见 tests/abilities-151-batch5.test.mjs T1–T13），
+// 本 describe 的 700 dormant 测试已删除；仅 471 雪隐仍 dormant（冰雹系统属 Batch 6）。
+describe('471 雪隐（dormant）', () => {
   test('471 雪隐：晴/雨速度均不变（无冰雹）；接触触发无 ability 事件、无状态', () => {
     for (const [tag, mod] of [['M', M], ['L', L]]) {
       const p = mk(mod, 471, '冰伊布', '普通', undefined);
@@ -360,27 +362,10 @@ describe('471 雪隐 / 700 迷人之躯（dormant）', () => {
       assert.equal(evs.filter((e) => e.type === 'ability').length, 0, tag);
     }
   });
-  test('700 迷人之躯：接触触发无 ability 事件、无状态（无着迷状态可挂）', () => {
+  test('471 是未实现、不是零实效：ABILITY_NO_EFFECT 为 28 种（Batch 11），雪隐仍不在内', () => {
     for (const [tag, mod] of [['M', M], ['L', L]]) {
-      const a = mk(mod, 16, '波波', '普通', ['普通', '飞行']);
-      const d = mk(mod, 700, '仙子伊布', '普通', undefined);
-      const evs = [];
-      mod.applyContactTrigger(a, d, tackle, () => 0.1, evs, 'A', 'B');
-      assert.equal(a.status, null, tag);
-      assert.equal(evs.filter((e) => e.type === 'ability').length, 0, tag);
-      // 迷人之躯同特性种 35/36/39/40 同样 dormant：接触触发无 ability 事件
-      const a2 = mk(mod, 16, '波波', '普通', ['普通', '飞行']);
-      const d2 = mk(mod, 35, '皮皮', '普通', ['普通']);
-      const evs2 = [];
-      mod.applyContactTrigger(a2, d2, tackle, () => 0.1, evs2, 'A', 'B');
-      assert.equal(evs2.filter((e) => e.type === 'ability').length, 0, tag);
-    }
-  });
-  test('471/700 是未实现、不是零实效：ABILITY_NO_EFFECT 仍只含坚硬脑袋与压迫感', () => {
-    for (const [tag, mod] of [['M', M], ['L', L]]) {
-      assert.deepEqual([...mod.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感'], tag);
+      assert.deepEqual([...mod.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感', '逃跑', '捡拾', '发光', '湿气', '锐利目光', '鳞粉', '我行我素', '蹒跚', '斗争心', '污泥浆', '黏着', '连续攻击', '预知梦', '危险预知', '察觉', '天恩', '穿透', '奇迹皮肤', '友情防守', '治愈之心', '舍身', '强行', '轻装', '贪吃鬼', '收获', '紧张感'], tag);
       assert.equal(mod.ABILITY_NO_EFFECT.has('雪隐'), false);
-      assert.equal(mod.ABILITY_NO_EFFECT.has('迷人之躯'), false);
     }
   });
 });

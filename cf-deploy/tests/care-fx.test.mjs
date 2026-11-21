@@ -8,8 +8,9 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
 const appJs = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
-const cssOrig = readFileSync(new URL('../public/static/style.css.orig', import.meta.url), 'utf8');
+
 const M = await import(new URL('../src/index.js', import.meta.url));
+const cssOrig = readFileSync(new URL('../public/static/style.css.orig', import.meta.url), 'utf8');
 
 const MIGRATIONS = [
   '0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql',
@@ -17,7 +18,7 @@ const MIGRATIONS = [
   '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql',
   '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql',
   '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql',
-  '0021_skill_levels.sql', '0022_warehouse.sql', '0023_care_qa_and_friendship.sql',
+  '0021_skill_levels.sql', '0022_warehouse.sql', '0023_care_qa_and_friendship.sql', '0043_pet_instances_ability.sql',
 ];
 
 function makeEnv() {
@@ -69,12 +70,12 @@ async function loginChild(env, childId = 1) {
     cookie: parentCookie,
     body: {
       childPasswords: [
-        { id: 1, password: '0000' },
-        { id: 2, password: '0000' },
+        { id: 1, password: '1111' },
+        { id: 2, password: '2222' },
       ],
     },
   });
-  const pwd = childId === 2 ? '0000' : '0000';
+  const pwd = childId === 2 ? '2222' : '1111';
   const cLogin = await rawCall(env, '/api/child/login', {
     method: 'POST',
     body: { childId, password: pwd },
@@ -99,13 +100,15 @@ describe('养成页演出扩展 (.care-fx)', () => {
     assert.match(appJs, /if\s*\(!opts\s*\|\|\s*!opts\.kind\)/, 'replayCare 两参数调用须走原有分支');
   });
 
-  test('2. 后端 apiCareFeed（最爱 berry +5 XP 与重复拦截）及 apiCareBath 每日一次回归（带登录会话）', async () => {
+  test('2. 后端 apiCareFeed（最爱 +5 XP 与重复拦截）及 apiCareBath 每日一次回归（带登录会话）', async () => {
     const { env, raw } = makeEnv();
     const cookie = await loginChild(env, 1);
-    raw.prepare("INSERT INTO item_inventory(child_id, item_key, qty, updated_epoch) VALUES(1, 'care:berry', 1, 1000), (1, 'care:bubble', 1, 1000)").run();
+    // 每天随机最爱（2026-11-20）：当天最爱由 careDailyFavorite 决定，喂食/洗澡各取当天最爱。
+    const fav = M.careDailyFavorite(1, M.shDateStr());
+    raw.prepare("INSERT INTO item_inventory(child_id, item_key, qty, updated_epoch) VALUES(1, 'care:" + fav.food + "', 1, 1000), (1, 'care:" + fav.bath + "', 1, 1000)").run();
 
     const feed1 = await rawCall(env, '/api/care/feed', {
-      method: 'POST', cookie, body: { childId: 1, food: 'berry' },
+      method: 'POST', cookie, body: { childId: 1, food: fav.food },
     });
     assert.equal(feed1.status, 200);
     assert.equal(feed1.json.ok, true);
@@ -121,10 +124,12 @@ describe('养成页演出扩展 (.care-fx)', () => {
     assert.equal(feed2.json.code, 'ALREADY_DONE');
 
     const bath1 = await rawCall(env, '/api/care/bath', {
-      method: 'POST', cookie, body: { childId: 1, bath: 'bubble' },
+      method: 'POST', cookie, body: { childId: 1, bath: fav.bath },
     });
     assert.equal(bath1.status, 200);
     assert.equal(bath1.json.ok, true);
+    assert.equal(bath1.json.favorite, true);
+    assert.equal(bath1.json.xpAwarded, 5);
     assert.equal(bath1.json.friendshipAwarded, 10);
     assert.equal(bath1.json.friendship, 20);
 

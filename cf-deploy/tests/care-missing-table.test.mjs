@@ -11,7 +11,7 @@ import { DatabaseSync } from 'node:sqlite';
 const M = await import(new URL('../src/index.js', import.meta.url));
 
 /* 与 tests/care-api.test.mjs 同一套迁移，唯独去掉 0015_care_logs.sql */
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -41,6 +41,7 @@ function makeEnv() {
 
 let env, raw;
 beforeEach(() => { ({ env, raw } = makeEnv()); });
+const enableCareDirect = () => raw.prepare("INSERT INTO settings(key,value) VALUES('care_enabled','1') ON CONFLICT(key) DO UPDATE SET value=excluded.value").run();
 
 async function call(path, { method = 'GET', body, cookie } = {}) {
   const headers = { 'Content-Type': 'application/json' };
@@ -75,8 +76,7 @@ describe('care_logs 缺表降级', { concurrency: false }, () => {
 
   test('care 开启但表缺失：/api/child 两孩均 ok:true，care 为默认值', async () => {
     const pc = await parentCookie();
-    const en = await call('/api/parent/settings/update', { method: 'POST', cookie: pc, body: { careEnabled: true } });
-    assert.equal(en.j.ok, true);
+    enableCareDirect(); // 全站开关需 settings.global 权限，旧版会话没有；这里测缺表降级，直接写库
     const today = realTodayStr();
     const expectedScene = M.careSceneForDate(today).key;
     for (const id of [1, 2]) {
@@ -93,14 +93,20 @@ describe('care_logs 缺表降级', { concurrency: false }, () => {
 
   test('care 开启但表缺失：/api/care/status 正常返回，今日未喂/未洗、无历史、最爱未知', async () => {
     const pc = await parentCookie();
-    await call('/api/parent/settings/update', { method: 'POST', cookie: pc, body: { careEnabled: true } });
+    enableCareDirect();
     const r = await call('/api/care/status?childId=1', { cookie: pc });
     assert.equal(r.status, 200, JSON.stringify(r.j).slice(0, 200));
     assert.equal(r.j.ok, true);
     assert.equal(r.j.fedToday, false);
     assert.equal(r.j.bathedToday, false);
     assert.deepEqual(r.j.recent, []);
-    assert.ok(r.j.foods.every((f) => f.isFavoriteKnown === false));
+    // 每天随机最爱（2026-11-20）：表缺失也不影响最爱标记，当天最爱照常标出，恰好一个食物、一个洗澡方式。
+    const favFoods = r.j.foods.filter((f) => f.isFavoriteKnown);
+    assert.equal(favFoods.length, 1);
+    assert.equal(favFoods[0].key, r.j.dailyFavorite.food);
+    const favBaths = r.j.baths.filter((b) => b.isFavoriteKnown);
+    assert.equal(favBaths.length, 1);
+    assert.equal(favBaths[0].key, r.j.dailyFavorite.bath);
     assert.equal(r.j.scene.key, M.careSceneForDate(realTodayStr()).key);
   });
 

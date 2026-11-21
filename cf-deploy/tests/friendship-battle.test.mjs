@@ -176,20 +176,20 @@ describe('道馆集成：闪避与暴击', () => {
   });
   test('暴击：友好度 255，主宠暴击掷骰 0.10 会心一击；友好度 0 则不暴击', () => {
     const st = gymState(MAIN25, BOSS19, 255);
-    const r = M.resolveGymRound(st, { moveName: '电光一闪' }, scriptedRng({ 5: 0.10 }));
+    const r = M.resolveGymRound(st, { moveName: '电光一闪' }, scriptedRng({ 4: 0.10 })); // 暴击掷骰：第 4 掷（馆主 AI 2 掷＋命中 1 掷之后；2026-11-17 暴击移到 A/D 计算之前，顺序提前一掷）
     const atkEv = r.events.find((e) => e.type === 'attack' && e.side === 'A');
     assert.ok(atkEv, JSON.stringify(r.events));
     assert.equal(atkEv.critical, true);
     assert.match(atkEv.text, /会心一击/);
     const st2 = gymState(MAIN25, BOSS19, 0);
-    const r2 = M.resolveGymRound(st2, { moveName: '电光一闪' }, scriptedRng({ 5: 0.10 }));
+    const r2 = M.resolveGymRound(st2, { moveName: '电光一闪' }, scriptedRng({ 4: 0.10 }));
     const atkEv2 = r2.events.find((e) => e.type === 'attack' && e.side === 'A');
     assert.equal(atkEv2.critical, false);
   });
   test('备战宠不吃暴击加成：友好度 255，飞天螳螂暴击掷骰 0.10 不暴击', () => {
     const st = gymState(MAIN25, BOSS19, 255, BENCH123);
     st.sides.A.pets[0].hp = 0;
-    const r = M.resolveGymRound(st, { moveName: '连斩' }, scriptedRng({ 5: 0.10 }));
+    const r = M.resolveGymRound(st, { moveName: '连斩' }, scriptedRng({ 4: 0.10 })); // 第 4 掷 0.10：备战宠暴击率仍 1/16，0.10 > 1/16 不暴击
     const atkEv = r.events.find((e) => e.type === 'attack' && e.side === 'A');
     assert.ok(atkEv, JSON.stringify(r.events));
     assert.equal(atkEv.critical, false);
@@ -233,7 +233,7 @@ describe('PvP 不吃友好度加成', () => {
 
 /* ---------------- API 集成：开局读友好度、/api/child 带字段 ---------------- */
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql', '0023_care_qa_and_friendship.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql', '0023_care_qa_and_friendship.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -289,10 +289,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 function realTodayStr() {
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());

@@ -15,7 +15,7 @@ const M = await import(new URL('../src/index.js', import.meta.url));
 const MIGRATIONS = [
   '0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql',
   '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql',
-  '0010_pvp_rematch.sql', '0019_evo_items.sql',
+  '0010_pvp_rematch.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql',
 ];
 let raw, env;
 function makeEnv() {
@@ -55,6 +55,13 @@ async function pokedex(childId, cookie) {
   assert.equal(r.j.ok, true);
   return r.j;
 }
+/* 单张卡片详情（Fable 优化 #2）：列表不再内联详情，卡片详情走 /api/pokedex/card 按需取。 */
+async function cardDetails(key, cookie) {
+  const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key }, cookie });
+  assert.equal(r.status, 200, key);
+  assert.equal(r.j.ok, true, key);
+  return r.j.details;
+}
 
 /* 全面解锁（2026-10-28）：DEBUG_GATES_OPEN 改为 = isTestMode(env) 后，以下旧断言须在正式模式（无 TEST_MODE）下跑才仍成立；测试站放行行为改由 tests/test-mode-unlock.test.mjs 覆盖。 */
 async function toProd() {
@@ -84,12 +91,20 @@ describe('dex eevee hidden 2026-10-27', () => {
     const card = app.slice(app.indexOf('function openDexCard('), app.indexOf('window.toggleDex151'));
     assert.match(card, /if \(!e\.unlocked\) return;/);
     assert.doesNotMatch(card, /未获得 · 仅展示资料/);
-    const allNos = [...j.lineEntries, ...j.wild, ...j.others, ...j.eggSpecies, ...j.collection].map((e) => e.no);
-    for (const no of [134, 135, 136, 196, 197, 470, 471, 700]) assert.equal(allNos.includes(no), false, `#${no} 不应出现`);
-    for (const no of [134, 135, 136]) assert.deepEqual(j.dex151[no - 1], { no, unlocked: false, name: null, img: `/static/img/p${no}.${H}.webp` });
+    // 动态列表里 8 个分支号一律不出现（151 进度、收藏、已获得 key 均无）
+    for (const no of [134, 135, 136, 196, 197, 470, 471, 700]) {
+      assert.equal(j.dex151Owned.includes(no), false, `#${no} 不应计入 151 进度`);
+      assert.equal(j.collection.some((e) => e.no === no), false, `#${no} 不应在收藏里`);
+      assert.equal(j.unlocked.some((k) => k === `egg:${no}`), false, `#${no} 不应已获得`);
+    }
+    // 未获得分支的 151 行：卡片端拒绝（锁定行形如 {no, unlocked:false, name:null, img} 的精确断言见 pokedex-split.test.mjs 的合并测试）
+    for (const no of [134, 135, 136]) {
+      const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key: 'dex151:' + no }, cookie });
+      assert.equal(r.status, 403, `dex151:${no} 应 LOCKED`);
+      assert.equal(r.j.error, 'LOCKED');
+    }
     insertDexRow(1, 'form:eevee:1');
-    const j2 = await pokedex(1, cookie);
-    const eevee = j2.lineEntries.find((e) => e.key === 'form:eevee:1');
+    const eevee = await cardDetails('form:eevee:1', cookie);
     assert.equal(eevee.evo.chain.length, 1);
     assert.equal(eevee.evo.chain[0].name, '伊布');
     assert.equal(eevee.evo.branches, null);
@@ -106,12 +121,17 @@ describe('dex eevee hidden 2026-10-27', () => {
     const col = j.collection.find((e) => e.no === 134);
     assert.ok(col && col.unlocked === true);
     assert.equal(col.name, '水伊布');
-    assert.equal(j.dex151[133].unlocked, true);
-    assert.equal(j.dex151[133].name, '水伊布');
-    const allNos = [...j.lineEntries, ...j.wild, ...j.others, ...j.eggSpecies, ...j.collection].map((e) => e.no);
-    for (const no of [135, 136, 196, 197, 470, 471, 700]) assert.equal(allNos.includes(no), false, `#${no} 不应出现`);
-    for (const no of [135, 136]) assert.deepEqual(j.dex151[no - 1], { no, unlocked: false, name: null, img: `/static/img/p${no}.${H}.webp` });
-    const eevee = j.lineEntries.find((e) => e.key === 'form:eevee:1');
+    assert.equal(j.dex151Owned.includes(134), true);
+    assert.equal(M.pokedexStaticSkeleton().data.dex151[133].name, '水伊布');
+    for (const no of [135, 136, 196, 197, 470, 471, 700]) {
+      assert.equal(j.dex151Owned.includes(no), false, `#${no} 不应出现`);
+      assert.equal(j.collection.some((e) => e.no === no), false, `#${no} 不应在收藏里`);
+    }
+    for (const no of [135, 136]) {
+      const r = await call('/api/pokedex/card', { method: 'POST', body: { childId: 1, key: 'dex151:' + no }, cookie });
+      assert.equal(r.status, 403, `dex151:${no} 应 LOCKED`);
+    }
+    const eevee = await cardDetails('form:eevee:1', cookie);
     assert.deepEqual(eevee.evo.branches, [{ no: 134, name: '水伊布', cond: '16级＋水之石' }]);
     assert.equal(eevee.evo.chain.length, 1);
   });
@@ -120,16 +140,18 @@ describe('dex eevee hidden 2026-10-27', () => {
     await toProd();
     const cookie = await parentCookie();
     const j1 = await pokedex(1, cookie);
-    assert.deepEqual(j1.eggSpecies.map((e) => e.no), [143, 131, 133, 147, 126, 208, 1, 4, 7]);
-    assert.ok(j1.eggSpecies.every((e) => e.kind === '封印蛋'));
-    assert.ok(j1.eggSpecies.every((e) => e.unlocked === false));
+    const eggNos = (j) => j.eggSpeciesKeys.map((k) => Number(k.split(':')[1]));
+    assert.deepEqual(eggNos(j1), [143, 131, 133, 147, 94, 122, 126, 208, 1, 4, 7]); // 2026-11-17 8 关扩围：道馆蛋 6→8 只（S5 110、S6 65）；2026-11-17 奖励蛋修正：S5 94 耿鬼、S6 122 魔墙人偶（110/65 野外易得，不当道馆蛋）
+    const skel = M.pokedexStaticSkeleton().data;
+    assert.ok(j1.eggSpeciesKeys.every((k) => skel.eggSpecies.find((e) => e.key === k)?.kind === '封印蛋'));
+    assert.ok(j1.eggSpeciesKeys.every((k) => !j1.unlocked.includes(k)));
     const j2 = await pokedex(2, cookie);
-    assert.deepEqual(j2.eggSpecies.map((e) => e.no), [143, 131, 133, 147, 126, 208, 1, 7, 25]);
-    assert.ok(j2.eggSpecies.every((e) => e.kind === '封印蛋'));
+    assert.deepEqual(eggNos(j2), [143, 131, 133, 147, 94, 122, 126, 208, 1, 7, 25]);
+    assert.ok(j2.eggSpeciesKeys.every((k) => skel.eggSpecies.find((e) => e.key === k)?.kind === '封印蛋'));
     insertDexRow(1, 'egg:4');
     const j1b = await pokedex(1, cookie);
-    assert.equal(j1b.eggSpecies.find((e) => e.no === 4).unlocked, true);
-    assert.equal(j1b.eggSpecies.find((e) => e.no === 7).unlocked, false);
+    assert.equal(j1b.unlocked.includes('egg:4'), true);
+    assert.equal(j1b.unlocked.includes('egg:7'), false);
     const app = readFileSync(assetPath('app.js'), 'utf8');
     const go = app.slice(app.indexOf('async function goPokedex(id) {'), app.indexOf('async function goEggs(id) {'));
     assert.match(go, /封印蛋孵化/);
@@ -137,11 +159,11 @@ describe('dex eevee hidden 2026-10-27', () => {
   });
 
   test('转盘去重：伊布可重复、其余主线各一只、获得了不再掉', () => {
-    // 新池合计 147，蛋段为 85~100/147，0.6 落段内（旧 0.85 现落叶之石段）
+    // 新池合计 15，蛋段为 4~5/15，0.3 落段内
     const seq = (vals) => { let i = 0; return () => vals[i++ % vals.length]; };
-    assert.deepEqual(M.rollWheelPrize(seq([0.6, 0.0]), new Set([1, 4, 7, 25]), new Set()), { kind: 'egg', key: 'egg:133', species: 133 });
-    assert.deepEqual(M.rollWheelPrize(seq([0.6, 0.0]), new Set(), new Set()), { kind: 'egg', key: 'egg:1', species: 1 });
-    assert.deepEqual(M.rollWheelPrize(seq([0.6, 0.0]), new Set(), new Set([1, 4])), { kind: 'egg', key: 'egg:7', species: 7 });
+    assert.deepEqual(M.rollWheelPrize(seq([0.3, 0.0]), new Set([1, 4, 7, 25]), new Set()), { kind: 'egg', key: 'egg:133', species: 133 });
+    assert.deepEqual(M.rollWheelPrize(seq([0.3, 0.0]), new Set(), new Set()), { kind: 'egg', key: 'egg:1', species: 1 });
+    assert.deepEqual(M.rollWheelPrize(seq([0.3, 0.0]), new Set(), new Set([1, 4])), { kind: 'egg', key: 'egg:7', species: 7 });
     assert.deepEqual(M.rollUnitTestPrize(seq([0.65, 0.0]), new Set([1, 4, 7, 25]), new Set(), new Set()), { kind: 'egg', key: 'egg:133', species: 133 });
     assert.deepEqual(M.rollUnitTestPrize(seq([0.65, 0.0]), new Set(), new Set(), new Set()), { kind: 'egg', key: 'egg:1', species: 1 });
   });

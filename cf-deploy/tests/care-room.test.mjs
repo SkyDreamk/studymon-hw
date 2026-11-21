@@ -20,7 +20,7 @@
 import { assetPath } from './asset-path.mjs';
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -71,7 +71,7 @@ describe('养成小房间宿主接线', () => {
 
   test('离开养成页：5 个导航入口开头卸掉房间', () => {
     const a = app();
-    for (const fn of ['goChild(id)', 'goCheckinPage(id)', 'goGym(id)', 'goPokedex(id)', 'goParent()']) {
+    for (const fn of ['goChild(id)', 'goCheckinPage(id)', 'goGym(id, opts)', 'goPokedex(id)', 'goParent()']) {
       const idx = a.indexOf(`function ${fn} {`);
       assert.ok(idx > -1, `缺 ${fn}`);
       const head = a.slice(idx, idx + 220);
@@ -126,9 +126,17 @@ describe('养成小房间模块 3 处小修', () => {
     const p = assetPath('care-room.js');
     assert.ok(existsSync(p), `缺打包产物 ${p}`);
     const b = roomBundle();
-    assert.ok(b.length > 100000, `bundle 过小（${b.length} 字节），疑似打包失败`);
+    // 2026-11-20 新版 Pixi：bundle 已拆分——入口只剩 37KB 左右，PixiJS 本体在
+    // public/static/pixi/chunk.*.js（23 个共享 chunk）；旧的 >100KB 阈值是单文件
+    // 旧打包的形状，拆分后不再适用。改断言新形状：入口非空 + chunk 齐全 + 总量合理。
+    assert.ok(b.length > 20000, `bundle 过小（${b.length} 字节），疑似打包失败`);
     assert.ok(b.includes('care-room-hud-compact'), 'bundle 缺 compact HUD 规则');
     assert.ok(b.includes('care-room-fallback-name'), 'bundle 缺降级标记');
+    const pixiDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'static', 'pixi');
+    const chunks = readdirSync(pixiDir).filter((f) => /^chunk\.[0-9a-f]{8}\.js$/.test(f));
+    assert.equal(chunks.length, 23, `pixi 共享 chunk 应为 23 个，实际 ${chunks.length}`);
+    const total = chunks.reduce((n, f) => n + statSync(join(pixiDir, f)).size, 0);
+    assert.ok(total > 500000, `pixi chunk 总量过小（${total} 字节），疑似打包失败`);
   });
 });
 

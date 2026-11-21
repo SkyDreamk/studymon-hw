@@ -9,7 +9,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql'];
 const SUBJS = ['语文', '数学', '英语', '阅读'];
 
 function makeEnv() {
@@ -64,9 +64,9 @@ async function parentCookie() { const r = await call('/api/parent/login', { meth
 async function childCookie(id, pw) { const r = await call('/api/child/login', { method: 'POST', body: { childId: id, password: pw } }); assert.equal(r.status, 200); return r.cookie; }
 async function setup() {
   const pc = await parentCookie();
-  const r = await call('/api/parent/settings/update', { method: 'POST', cookie: pc, body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] } });
+  const r = await call('/api/parent/settings/update', { method: 'POST', cookie: pc, body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] } });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 
 const HOL_START = addD(R, 2);
@@ -157,7 +157,7 @@ async function playBattle(cookies, battleId, token1) {
 async function createAndJoin(s) {
   const cr = await call('/api/battle/coop/create', { method: 'POST', cookie: s.c1, body: { childId: 1, nodeId: 'n1', benchNo: null } });
   assert.equal(cr.j.ok, true, JSON.stringify(cr.j));
-  const jn = await call('/api/battle/coop/join', { method: 'POST', cookie: s.c2, body: { battleId: cr.j.battleId, childId: 2, password: '0000', benchNo: null } });
+  const jn = await call('/api/battle/coop/join', { method: 'POST', cookie: s.c2, body: { battleId: cr.j.battleId, childId: 2, password: '2222', benchNo: null } });
   assert.equal(jn.j.ok, true, JSON.stringify(jn.j));
   return { battleId: cr.j.battleId, token1: cr.j.token, token2: jn.j.joinToken };
 }
@@ -329,7 +329,7 @@ describe('合作道馆 批1', () => {
     const brow = raw.prepare('SELECT status, run_id, round_no FROM battles WHERE id=?').get(battleId);
     assert.equal(brow.status, 'suspended', JSON.stringify(brow));
     // resume：kid2 输密码换新 token，两席在线后恢复 active，run 不变
-    const rs = await call('/api/battle/coop/resume', { method: 'POST', cookie: s.c2, body: { battleId, childId: 2, password: '0000' } });
+    const rs = await call('/api/battle/coop/resume', { method: 'POST', cookie: s.c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(rs.j.ok, true, JSON.stringify(rs.j));
     assert.ok(rs.j.token);
     const after = await call('/api/battle/coop/state', { method: 'POST', cookie: s.c1, body: { battleId, token: token1 } });

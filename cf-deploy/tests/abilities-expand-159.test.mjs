@@ -25,10 +25,10 @@ const ember = { name: '火花', type: '火', power: 40 };
 const water = { name: '水枪', type: '水', power: 40 };
 const quake = { name: '地震', type: '地面', power: 40 };
 const bobo = { key: 'boss', name: '波波', type: '普通', no: 16, defTypes: ['普通', '飞行'], level: 18, moves: [tackle] };
-// 144–150 不在 SPECIES 表里（与主宠线 1–9/25/26 同例，名字与单属性须显式给；
-// 144 的 type 用“飞行”、150 的 type 用“普通”——makePet 的单属性白名单 TYPES（9 属性）不含“冰”与“超能力”，
-// playerDefTypes(144) 按既有口径过滤后亦为 ['飞行']，与 87/91/124 的冰系处理一致；
-// 150 战斗内按普通计，与离线 SPECIES 里 151 梦幻的“原作属性不在 9 种集内，战斗内按普通计”同例）。
+// 144/145/146/150 的测试宠名字与单属性显式给（与主宠线 1–9/25/26 同例；SPECIES 表自 2026-11-14 全量 151 批起已有这 4 种，
+// 但本测试沿用显式 NAMES 以保持测试宠稳定；2026-11-17 方案 A 前，144 的 type 用“飞行”、150 的 type 用“普通”，
+// 因 makePet 的单属性白名单 TYPES（9 属性）不含“冰”与“超能力”；方案 A 后 makePet 校验已扩到 TYPES18（18 种），
+// 此处显式类型仍沿用旧值（测试宠的 type 只作展示与回落，defTypes 仍走 playerDefTypes 的官方双属性）。
 const NAMES = { 144: ['急冻鸟', '飞行'], 145: ['闪电鸟', '电'], 146: ['火焰鸟', '火'], 150: ['超梦', '普通'] };
 const pet = (no, moves, hp = null) => {
   const [name, type] = NAMES[no];
@@ -120,10 +120,10 @@ describe('范围守卫（扩到 159）', () => {
     assert.deepEqual(firstList('火焰之躯'), [126]);
     assert.deepEqual(firstList('紧张感'), []);
   });
-  test('零实效注册：ABILITY_NO_EFFECT 两端一致，仅含坚硬脑袋与压迫感', () => {
-    assert.deepEqual([...M.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感']);
-    assert.deepEqual([...L.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感']);
-    // 12 种首特性为零实效特性的种均被该注册覆盖（坚硬脑袋 8 种＋压迫感 4 种，按特性名，不按种号）。
+  test('零实效注册：ABILITY_NO_EFFECT 两端一致，28 种（Batch 11 加 26 种 D 类）', () => {
+    assert.deepEqual([...M.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感', '逃跑', '捡拾', '发光', '湿气', '锐利目光', '鳞粉', '我行我素', '蹒跚', '斗争心', '污泥浆', '黏着', '连续攻击', '预知梦', '危险预知', '察觉', '天恩', '穿透', '奇迹皮肤', '友情防守', '治愈之心', '舍身', '强行', '轻装', '贪吃鬼', '收获', '紧张感']);
+    assert.deepEqual([...L.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感', '逃跑', '捡拾', '发光', '湿气', '锐利目光', '鳞粉', '我行我素', '蹒跚', '斗争心', '污泥浆', '黏着', '连续攻击', '预知梦', '危险预知', '察觉', '天恩', '穿透', '奇迹皮肤', '友情防守', '治愈之心', '舍身', '强行', '轻装', '贪吃鬼', '收获', '紧张感']);
+    // 12 种既有首特性为零实效特性的种均被该注册覆盖（坚硬脑袋 8 种＋压迫感 4 种，按特性名，不按种号；Batch 11 另加 23 种 D 类首特性，共 35 种）。
     for (const no of [74, 75, 76, 95, 104, 105, 142, 208, 144, 145, 146, 150]) {
       assert.ok(M.ABILITY_NO_EFFECT.has(M.abilityOf(no)), `${no} 在零实效注册内`);
     }
@@ -154,7 +154,7 @@ describe('范围守卫（扩到 159）', () => {
 describe('压迫感零实效（calcDamage 级）', () => {
   const stats = { hp: 50, attack: 40, defense: 40, sp_attack: 40, sp_defense: 40, speed: 40 };
   const mk = (no) => ({ key: 'x', name: `测${no}`, type: '岩石', no, level: 18, maxHp: 100, hp: 100, defTypes: ['岩石', '地面'], stats, moves: [tackle], stages: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 }, status: null, flashFire: false });
-  const want = { '撞击': 4, '火花': 4, '水枪': 33, '地震': 25 };
+  const want = { '撞击': 3, '火花': 4, '水枪': 32, '地震': 24 }; // App.md 分步取整（同 155）
   for (const no of B159) {
     test(`calcDamage 对照：${no} 与 121（场外特性对照种）同 stats 时四招双向逐数相等`, () => {
       for (const move of [tackle, ember, water, quake]) {

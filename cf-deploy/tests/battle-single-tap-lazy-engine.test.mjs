@@ -10,7 +10,7 @@ const HTML = readFileSync(new URL('../public/index.html', import.meta.url), 'utf
 
 describe('单击出招', () => {
   test('技能按钮单击走 battleMoveClick，不再直接开详情弹框；详情弹框保留', () => {
-    const picker = APP.slice(APP.indexOf('function battleMovePickerHtml(moves) {'), APP.indexOf('function showBattleMoveDetail(i) {'));
+    const picker = APP.slice(APP.indexOf('function battleMovePickerHtml(moves, disabledMove) {'), APP.indexOf('function showBattleMoveDetail(i) {'));
     const btn = picker.match(/<button class="moveicon"[^`]*?>/)[0];
     assert.match(btn, /onclick="battleMoveClick\(\$\{i\}\)"/);
     assert.ok(!/onclick="showBattleMoveDetail/.test(btn));

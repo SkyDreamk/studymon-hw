@@ -1,10 +1,13 @@
-/* 家长双列表单标签对齐与调试经验上限静态单测：
+/* 家长双列表单标签对齐与调试简化静态单测：
  * 运行：node --test tests/debug-labels.test.mjs
- * 覆盖：
- * ① 调试经验上限 17400、碎片短标签与 input 下方提示；
- * ② 孩子主标题完整显示、可换行，经验详情独立小字行；
+ * 覆盖（2026-11-17 问题 2 简化后；同日用户定单固定面板）：
+ * ① 调试卡只留等级与道具：旧字段（累计经验/球数/碎片/连击/招式勾选/技能等级）输入一律不再出现；
+ *    道具下拉含五种道具、发放数量 input 上限 999；
+ * ①b 单固定面板：顶部孩子下拉（dbg-child）选谁改谁，输入框用固定 id（dbg-lv/dbg-item/dbg-qty），
+ *    保存按钮只写“保存”，不再按孩子分卡、不再带孩子名；
+ * ② 孩子主标题完整显示、可换行，当前道具行独立小字行；
  * ③ .formgrid 顶部对齐、格子 flex 纵向、label 不再强制单行截断（§70 省略规则已删）；
- * ④ 两个调试 grid、经验设置、时间模拟用 formgrid；孩子密码改 .pset-field 全宽块；
+ * ④ 两个调试 grid、经验设置、时间模拟用 formgrid；孩子密码改一级-二级（131：安全列表 pset-list＋详情页，pset-field 已撤）；
  * ⑤ 经验设置短标签与范围说明、密码未设置提示移出 label、
  *    时间偏移短标签与整数说明；
  * ⑥ 全局 grid2 和 label 规则保持原样。
@@ -40,49 +43,80 @@ const debug = (a) => section(
   a, 'function parentDebugHtml(s, dbgChildren)', 'window.debugSaveTime =',
 );
 
-describe('调试卡短标签与标题拆行', () => {
-  test('累计经验范围与 input 上限同步为 17400', () => {
+describe('调试卡短标签与标题拆行（问题 2 简化：只留等级与道具）', () => {
+  test('旧字段输入一律不再出现（累计经验/球数/碎片/连击/招式勾选/技能等级）', () => {
     const a = app();
     const d = debug(a);
-    assert.ok(d.includes('<label>累计经验 (0–17400)</label>'));
-    assert.ok(d.includes(
-      '<input type="number" id="dbg-xp-${c.id}" value="${c.totalXp}" min="0" max="17400">',
-    ));
+    for (const old of [
+      '累计经验 (0–17400)', 'id="dbg-xp-', '精灵球数（0–99）', '超级球数（0–99）',
+      '碎片数 (0–999)', 'id="dbg-frag-', '连击天数（0–365）', 'id="dbg-streak-',
+      '招式（✓=已学会', 'id="dbg-mv-', '技能等级：', 'id="dbg-balls-', 'id="dbg-sballs-',
+    ]) {
+      assert.ok(!d.includes(old), `旧字段仍在：${old}`);
+    }
     assert.ok(!a.includes('累计经验（0–999999）'));
     assert.ok(!a.includes('max="999999"'));
   });
 
-  test('碎片说明在同一格 input 下方，不再占 label', () => {
+  test('道具下拉含五种道具，发放数量 input 上限 999', () => {
     const a = app();
     const d = debug(a);
-    assert.ok(d.includes('<label>碎片数 (0–999)</label>'));
-    assert.match(d,
-      /id="dbg-frag-\$\{c\.id\}"[^>]*min="0" max="999">\s*<div style="color:var\(--text-2\);font-size:var\(--fs-parent-body\)">设 F 即视同答对 5F 题<\/div><\/div>/,
-    );
-    assert.ok(!a.includes('碎片数（0–999；设 F 即视同答对 5F 题）'));
+    assert.ok(d.includes('<label>道具</label>'));
+    for (const opt of [
+      '<option value="balls">精灵球</option>',
+      '<option value="ballsSuper">超级球</option>',
+      '<option value="ballsHyper">高级球</option>',
+      '<option value="ballsMaster">大师球</option>',
+      '<option value="fragments">碎片</option>',
+    ]) {
+      assert.ok(d.includes(opt), `缺道具选项：${opt}`);
+    }
+    assert.ok(d.includes(
+      '<input type="number" id="dbg-qty" value="1" min="1" max="999">',
+    ));
+    assert.ok(d.includes('发放后累加到当前数量（球上限 99、碎片上限 999）'));
   });
 
-  test('主标题完整显示可换行，经验详情独立小字行且信息齐全', () => {
+  test('主标题完整显示可换行，当前道具行紧随其后且信息齐全', () => {
     const d = debug(app());
     const title = '<div><b>${esc(c.name)}</b> ${esc(c.lineLabel)} ${c.level} 级</div>';
-    const detail = '<div style="color:var(--text-2);font-size:var(--fs-parent-body)">累计 ${c.totalXp} 经验 本级 ${c.xpIntoLevel}/${c.xpForLevelSpan} 距下一级 ${c.xpToNext}</div>';
+    const detail = '<div style="color:var(--text-2);font-size:var(--fs-parent-body)">当前道具：精灵球 ${c.balls} · 超级球 ${c.ballsSuper} · 高级球 ${c.ballsHyper} · 大师球 ${c.ballsMaster} · 碎片 ${c.fragments}</div>';
     assert.ok(d.includes(title), '主标题需完整显示、可换行');
     assert.ok(!d.includes('text-overflow:ellipsis'), '调试区不得用省略截断内容型文案');
-    assert.ok(d.includes(detail), '经验详情需独立小字行');
-    assert.ok(d.includes(title + '\n  ' + detail), '标题与详情应为相邻两行');
+    assert.ok(d.includes(detail), '当前道具行需独立小字行');
+    assert.ok(d.includes(title + '\n  ' + detail), '标题与道具行应为相邻两行');
   });
 
-  test('其他调试标签与全宽招式说明不变', () => {
+  test('调试标签只留等级/道具/发放数量，两个操作按钮分开', () => {
     const d = debug(app());
     for (const label of [
       '等级（1–30）',
-      '精灵球数（0–99）',
-      '超级球数（0–99）',
-      '连击天数（0–365）',
-      '招式（✓=已学会，随等级自动有；勾选=已解锁）',
+      '道具',
+      '发放数量（1–999）',
     ]) {
       assert.ok(d.includes('<label>' + label + '</label>'), label);
     }
+    assert.ok(d.includes('onclick="debugSaveLevel()">保存</button>'));
+    assert.ok(d.includes('onclick="debugGrantItem()">发放道具</button>'));
+    assert.ok(!d.includes('debugSaveChild('), '旧保存函数不应再出现');
+    assert.ok(!d.includes('debugLevelChanged('), '旧等级联动函数不应再出现');
+  });
+
+  test('孩子下拉＋单固定面板：选谁改谁，按钮只写保存', () => {
+    const a = app();
+    const d = debug(a);
+    assert.ok(d.includes('<label>孩子</label>'), '缺孩子下拉标签');
+    assert.ok(d.includes('id="dbg-child"'), '缺孩子下拉');
+    assert.ok(d.includes('onchange="debugPickChild()"'), '缺切换孩子');
+    assert.ok(a.includes('window.debugPickChild'), '缺 debugPickChild（定义在 debug 段之后，按全文件查）');
+    assert.ok(d.includes('state.dbgChildId'), '选择应记在 state.dbgChildId');
+    for (const id of ['id="dbg-lv"', 'id="dbg-item"', 'id="dbg-qty"']) {
+      assert.ok(d.includes(id), `单面板应有固定 id：${id}`);
+    }
+    for (const old of ['dbg-lv-${c.id}', 'dbg-item-${c.id}', 'dbg-qty-${c.id}']) {
+      assert.ok(!d.includes(old), `不应再有按孩子分 id：${old}`);
+    }
+    assert.ok(!d.includes('的等级</button>'), '保存按钮不应再带孩子名');
   });
 });
 
@@ -101,7 +135,7 @@ describe('formgrid 作用域与输入框对齐', () => {
     const a = app();
     const s = settings(a);
     const d = debug(a);
-    for (const label of ['等级（1–30）', '精灵球数（0–99）', '偏移天数']) {
+    for (const label of ['等级（1–30）', '发放数量（1–999）', '偏移天数']) {
       assert.ok(d.includes(
         '<div class="grid2 formgrid"><div><label>' + label + '</label>',
       ), label);
@@ -109,7 +143,8 @@ describe('formgrid 作用域与输入框对齐', () => {
     assert.ok(s.includes(
       '<div class="grid2 formgrid"><div><label>每科打卡经验</label>',
     ));
-    assert.ok(s.includes('class="pset-field"'), '安全详情每孩一个 pset-field 块');
+    assert.ok(s.includes('pset-list'), '安全详情每孩一行（131 改一级-二级：pset-list 列表＋详情页）');
+    assert.ok(s.includes("psetRow('pw-' + c.id"), '安全列表每孩一个密码行');
     assert.ok(s.includes('id="cpw-${c.id}"'), '孩子密码输入 id 保留');
     assert.ok(!s.includes(
       '<div class="grid2 formgrid">${s.children.map((c) => `<div><label>${esc(c.name)} 的密码：',

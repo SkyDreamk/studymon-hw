@@ -12,7 +12,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -48,7 +48,7 @@ beforeEach(async () => {
   assert.equal(parent.status, 200);
   const set = await call('/api/parent/settings/update', {
     method: 'POST', cookie: parent.cookie,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(set.j.ok, true);
 });
@@ -153,7 +153,7 @@ describe('养成转盘奖池（纯函数）', () => {
 
 describe('发放幂等（完成当日 5 句）', () => {
   test('完成发 1 次；同一天重复完成不重发', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const r1 = await completeDailyEnglish(1, c1);
     assert.equal(r1.careWheelGranted, true);
     assert.equal(r1.careWheelChances, 1);
@@ -165,7 +165,7 @@ describe('发放幂等（完成当日 5 句）', () => {
   });
 
   test('第二天完成再发 1 次（debug_day_offset 拨到次日）', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const r1 = await completeDailyEnglish(1, c1);
     assert.equal(r1.careWheelChances, 1);
     raw.prepare("INSERT OR REPLACE INTO settings(key,value) VALUES('debug_day_offset','1')").run();
@@ -179,8 +179,8 @@ describe('发放幂等（完成当日 5 句）', () => {
   });
 
   test('两孩互不干扰', async () => {
-    const c1 = await childCookie(1, '0000');
-    const c2 = await childCookie(2, '0000');
+    const c1 = await childCookie(1, '1111');
+    const c2 = await childCookie(2, '2222');
     await completeDailyEnglish(1, c1);
     let b1 = await backpackChances(1, c1);
     let b2 = await backpackChances(2, c2);
@@ -196,7 +196,7 @@ describe('发放幂等（完成当日 5 句）', () => {
 
 describe('抽奖接口', () => {
   test('抽中奖品必为 10 样之一、进库存 +1、机会清零、再抽报无机会', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     await completeDailyEnglish(1, c1);
     const r = await withRandom(0, () => call('/api/care-wheel/spin', { method: 'POST', body: { childId: 1 }, cookie: c1 }));
     assert.equal(r.status, 200, JSON.stringify(r.j));
@@ -215,7 +215,7 @@ describe('抽奖接口', () => {
   });
 
   test('无机会时不发奖、不动库存', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const r = await call('/api/care-wheel/spin', { method: 'POST', body: { childId: 1 }, cookie: c1 });
     assert.equal(r.status, 400);
     assert.match(r.j.error, /没有养成转盘机会/);
@@ -223,7 +223,7 @@ describe('抽奖接口', () => {
   });
 
   test('未登录拒绝、跨孩拒绝', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     await completeDailyEnglish(1, c1);
     const anon = await call('/api/care-wheel/spin', { method: 'POST', body: { childId: 1 } });
     assert.equal(anon.status, 401);
@@ -234,7 +234,7 @@ describe('抽奖接口', () => {
 
 describe('上限隔离（周上限仅限高级转盘）', () => {
   test('照顾盘抽奖不计入高级转盘周上限、不动 wheel_chances', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     grantExamWheelChance(1);
     let b = await backpackChances(1, c1);
     assert.equal(b.wheel, 1, '预置 1 次高级转盘机会');
@@ -250,7 +250,7 @@ describe('上限隔离（周上限仅限高级转盘）', () => {
   });
 
   test('高级转盘抽奖不消耗照顾盘机会', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     await completeDailyEnglish(1, c1);
     grantExamWheelChance(1);
     let b = await backpackChances(1, c1);

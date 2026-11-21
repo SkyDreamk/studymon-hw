@@ -1,5 +1,5 @@
 /* 每日英语打卡单测：node --test tests/daily-english.test.mjs
- * 覆盖：内容池快照（两孩句数 236/1100、每句 en/zh/双音频齐全、池内 (episode_id, sid) 不重复、
+ * 覆盖：内容池快照（两孩句数 464/1462、每句 en/zh/双音频齐全、池内 (episode_id, sid) 不重复、
  * 音频均为跟读站原链接、口语 card/video 句带说话人）；每日选题（种子固定：同一天同一孩子恒为同一 5 句、5 句互不重复、
  * 次日换批、两孩池子互不串、未知年级 fail-closed 不编句子）；内容分工（2026-11-13：每日英语只取课本句、
  * 口语归 Oak；混选器口语不足时用课本句补满不崩）；打卡接口（首次记完成、
@@ -14,7 +14,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -50,7 +50,7 @@ beforeEach(async () => {
   assert.equal(parent.status, 200);
   const set = await call('/api/parent/settings/update', {
     method: 'POST', cookie: parent.cookie,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(set.j.ok, true);
 });
@@ -136,10 +136,10 @@ function xmlForScore(score) {
 }
 
 describe('内容池快照（src/data/daily-english.js，源自 work/daily-english-pool.json）', () => {
-  test('两孩句数 236/1100，集数 29/40', () => {
-    assert.equal(M.DAILY_ENGLISH_POOL.xiaobao.length, 236);
-    assert.equal(M.DAILY_ENGLISH_POOL.dabao.length, 1100);
-    assert.equal(Object.keys(M.DAILY_ENGLISH_EPISODES).length, 69);
+  test('两孩句数 464/1462，集数 43/54', () => {
+    assert.equal(M.DAILY_ENGLISH_POOL.xiaobao.length, 464);
+    assert.equal(M.DAILY_ENGLISH_POOL.dabao.length, 1462);
+    assert.equal(Object.keys(M.DAILY_ENGLISH_EPISODES).length, 94);
   });
   test('每句 en/zh/双音频齐全，音频均为跟读站原链接', () => {
     for (const [kid, pool] of Object.entries(M.DAILY_ENGLISH_POOL)) {
@@ -169,8 +169,8 @@ describe('内容池快照（src/data/daily-english.js，源自 work/daily-englis
         }
       }
     }
-    assert.equal(M.DAILY_ENGLISH_POOL.xiaobao.filter((s) => s.k === 'card').length, 82, '小宝口语 82 句');
-    assert.equal(M.DAILY_ENGLISH_POOL.dabao.filter((s) => s.k === 'card' || s.k === 'video').length, 775, '大宝口语 775 句');
+    assert.equal(M.DAILY_ENGLISH_POOL.xiaobao.filter((s) => s.k === 'card').length, 137, '小宝口语 137 句');
+    assert.equal(M.DAILY_ENGLISH_POOL.dabao.filter((s) => s.k === 'card' || s.k === 'video').length, 1137, '大宝口语 1137 句');
   });
 });
 
@@ -269,7 +269,7 @@ describe('内容分工（2026-11-13：每日英语只取课本句，口语归 Oa
 
 describe('接口 GET /api/daily-english', () => {
   test('大宝取到 5 句 g3，同一天两次相同；小宝取到 g1 句', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const r1 = await call('/api/daily-english?child_id=1', { cookie: c1 });
     assert.equal(r1.status, 200);
     assert.equal(r1.j.ok, true);
@@ -279,7 +279,7 @@ describe('接口 GET /api/daily-english', () => {
     for (const s of r1.j.sentences) assert.ok(g3.has(`${s.episodeId}:${s.sid}`));
     const r2 = await call('/api/daily-english?child_id=1', { cookie: c1 });
     assert.deepEqual(r2.j.sentences, r1.j.sentences);
-    const c2 = await childCookie(2, '0000');
+    const c2 = await childCookie(2, '2222');
     const r3 = await call('/api/daily-english?child_id=2', { cookie: c2 });
     assert.equal(r3.j.sentences.length, 5);
     const g1 = new Set(M.DAILY_ENGLISH_POOL.xiaobao.map((s) => `${s.e}:${s.s}`));
@@ -289,7 +289,7 @@ describe('接口 GET /api/daily-english', () => {
     const anon = await call('/api/daily-english?child_id=1');
     assert.equal(anon.status, 401);
     assert.equal(anon.j.error, 'NEED_LOGIN');
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const cross = await call('/api/daily-english?child_id=2', { cookie: c1 });
     assert.equal(cross.status, 403);
     assert.equal(cross.j.error, 'FORBIDDEN');
@@ -304,7 +304,7 @@ describe('接口 GET /api/daily-english', () => {
 
 describe('接口 POST /api/daily-english/checkin', () => {
   test('首次记完成、同一天重复点只记一次、GET 后 completed 为 true', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const today = M.shDateStr();
     const { keys } = await todayKeys(1, c1);
     seedScores(1, today, keys, [85, 88, 80, 92, 81]);
@@ -332,8 +332,8 @@ describe('接口 POST /api/daily-english/checkin', () => {
     assert.equal(xpAfter, xpBefore, 'v1 打卡不加经验');
   });
   test('两孩分开记；未登录拒绝；跨孩拒绝', async () => {
-    const c1 = await childCookie(1, '0000');
-    const c2 = await childCookie(2, '0000');
+    const c1 = await childCookie(1, '1111');
+    const c2 = await childCookie(2, '2222');
     const t1 = await todayKeys(1, c1);
     const t2 = await todayKeys(2, c2);
     seedScores(1, t1.date, t1.keys, [85, 88, 80, 92, 81]);
@@ -380,14 +380,14 @@ describe('75 分线口径（2026-11-10，任务 82：75 分＝4 星，全 5 句�
 describe('接口 POST /api/daily-english/assess', () => {
   beforeEach(() => {
     env.IFLYTEK_APPID = 'test-appid';
-    env.IFLYTEK_API_KEY = 'test-apikey-fedcba9876543210';
-    env.IFLYTEK_API_SECRET = 'test-secret-dummy-fedcba9876543210';
+    env.IFLYTEK_API_KEY = 'test-apikey-0123456789abcdef';
+    env.IFLYTEK_API_SECRET = 'test-secret-dummy-0123456789abcdef';
   });
   afterEach(() => { globalThis.WebSocket = RealWS; FakeWS.last = null; });
 
   test('未配密钥返回 200 not_configured', async () => {
     delete env.IFLYTEK_APPID; delete env.IFLYTEK_API_KEY; delete env.IFLYTEK_API_SECRET;
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const wav = mkWav(3200);
     const r = await callRaw('/api/daily-english/assess?child_id=1', { method: 'POST', cookie: c1,
       headers: { 'Content-Type': 'audio/wav', 'x-ref-text': encodeURIComponent('Hi') }, body: wav });
@@ -395,7 +395,7 @@ describe('接口 POST /api/daily-english/assess', () => {
     assert.equal(r.j.error, 'not_configured');
   });
   test('未登录拒绝；跨孩拒绝；ref 不在当日 5 句返回 bad_ref；非 wav 返回 bad_type', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const wav = mkWav(3200);
     const anon = await callRaw('/api/daily-english/assess?child_id=1', { method: 'POST',
       headers: { 'Content-Type': 'audio/wav', 'x-ref-text': encodeURIComponent('Hi') }, body: wav });
@@ -415,7 +415,7 @@ describe('接口 POST /api/daily-english/assess', () => {
   });
   test('端到端：FakeWS 评分落库、最好分留存、75 分线与星级', async () => {
     stubWS();
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date, sentences, keys } = await todayKeys(1, c1);
     const ref = sentences[0].en;
     const wav = mkWav(3200);
@@ -466,7 +466,7 @@ describe('接口 POST /api/daily-english/assess', () => {
 
 describe('打卡门禁：5 句 best 全 ≥75 才记完成（2026-11-10，任务 82）', () => {
   test('无成绩打卡被拒，missing 列出 5 句，不记日志、不发转盘机会', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const r = await call('/api/daily-english/checkin', { method: 'POST', body: { childId: 1 }, cookie: c1 });
     assert.equal(r.status, 200);
     assert.equal(r.j.ok, false);
@@ -480,7 +480,7 @@ describe('打卡门禁：5 句 best 全 ≥75 才记完成（2026-11-10，任务
     assert.equal(w, 0, '被拒不发转盘机会');
   });
   test('4 句达标、1 句 74 分：被拒，missing 只列那 1 句', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date, keys } = await todayKeys(1, c1);
     seedScores(1, date, keys, [88, 90, 82, 80, 74]);
     const r = await call('/api/daily-english/checkin', { method: 'POST', body: { childId: 1 }, cookie: c1 });
@@ -491,7 +491,7 @@ describe('打卡门禁：5 句 best 全 ≥75 才记完成（2026-11-10，任务
     assert.equal(r.j.missing[0].best, 74);
   });
   test('边界：best 恰 75 通过、74 不通过', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date, keys } = await todayKeys(1, c1);
     seedScores(1, date, keys, [75, 75, 75, 75, 74]);
     let r = await call('/api/daily-english/checkin', { method: 'POST', body: { childId: 1 }, cookie: c1 });
@@ -504,7 +504,7 @@ describe('打卡门禁：5 句 best 全 ≥75 才记完成（2026-11-10，任务
     assert.equal(r.j.completed, true);
   });
   test('5 句全达标才记日志并发机会，重复打卡不重发', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date, keys } = await todayKeys(1, c1);
     seedScores(1, date, keys, [85, 88, 80, 92, 81]);
     const r1 = await call('/api/daily-english/checkin', { method: 'POST', body: { childId: 1 }, cookie: c1 });
@@ -517,7 +517,7 @@ describe('打卡门禁：5 句 best 全 ≥75 才记完成（2026-11-10，任务
     assert.equal(r2.j.careWheelChances, 1);
   });
   test('GET 返回每句最好分与达标态', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date, keys } = await todayKeys(1, c1);
     seedScores(1, date, keys, [88, 74, 80, 60, 95]);
     const r = await call('/api/daily-english?child_id=1', { cookie: c1 });

@@ -10,7 +10,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -67,10 +67,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 
 function realTodayStr() {
@@ -125,8 +125,8 @@ function insertEncounter(childId, no, name) {
 describe('暴击（§1）', () => {
   test('calcDamage：暴击 roll 命中 → ×1.5 且 critical=true；未命中与边界（恰 1/16）不暴击', () => {
     const move = { name: '电击', type: '电', power: 50 };
-    // rng 序列：第 1 掷 = 伤害浮动 0.5（×1.0），第 2 掷 = 暴击判定
-    const crit = M.calcDamage(move, { level: 10, type: '电', stats: null }, { level: 10, type: '火', stats: null }, seq(0.5, 0));
+    // rng 序列（2026-11-17 暴击无视能力等级修复：暴击判定移到 A/D 计算之前，顺序改为暴击→伤害浮动）：第 1 掷 = 暴击判定 0（暴击），第 2 掷 = 伤害浮动 0.5（×1.0）
+    const crit = M.calcDamage(move, { level: 10, type: '电', stats: null }, { level: 10, type: '火', stats: null }, seq(0, 0.5));
     assert.equal(crit.critical, true);
     assert.equal(crit.dmg, 75); // 50 × (0.5+0.05×10) × 1.0 = 50 → ×1.5
     const noCrit = M.calcDamage(move, { level: 10, type: '电', stats: null }, { level: 10, type: '火', stats: null }, seq(0.5, 0.5));
@@ -141,9 +141,8 @@ describe('暴击（§1）', () => {
   test('applyBattleAction：暴击事件带 critical 与「会心一击！」，伤害落账一致', () => {
     const a = pet('皮丘', '电', 500, [{ name: '电击', type: '电', power: 50 }]);
     const b = pet('小火龙', '火', 500, [{ name: '火花', type: '火', power: 40 }]);
-    const st = M.createBattleState({ mode: 'gym', firstSide: 'B', sides: { A: side(1, '大宝', [a]), B: side(null, '馆主', [b]) } });
-    M.applyBattleAction(st, 'B', null, () => 0.5); // 先攻方跳过
-    const r = M.applyBattleAction(st, 'A', '电击', seq(0.5, 0));
+    const st = M.createBattleState({ mode: 'gym', firstSide: 'A', sides: { A: side(1, '大宝', [a]), B: side(null, '馆主', [b]) } });
+    const r = M.applyBattleAction(st, 'A', '电击', seq(0, 0.5)); // 暴击→浮动：第 1 掷 0 暴击，第 2 掷 0.5 浮动 ×1.0
     const atk = r.events.find((e) => e.type === 'attack');
     assert.equal(atk.critical, true);
     assert.ok(atk.text.includes('会心一击'));
@@ -181,8 +180,7 @@ describe('PvP 防守四档（§2）', () => {
   test('resolveStagedAttack：守护把伤害打七五折并出守护事件', () => {
     const petA = pet('妙蛙种子', '草', 200, [{ name: '藤鞭', type: '草', power: 40 }]);
     const petB = pet('小火龙', '火', 200, [{ name: '火花', type: '火', power: 40 }]);
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
-    M.applyBattleAction(st, 'B', null, () => 0.5);
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
     const staged = M.stagePvpAttack(st, 'A', '藤鞭', () => 0.5);
     assert.equal(staged.dmg, 30); // 40 × (0.5+0.05×5) × 1.0
     assert.equal(staged.critical, false); // rng 0.5 不暴击
@@ -214,23 +212,22 @@ describe('PvP 平衡调整（暴击降 / HP 拉长）', () => {
     const mk = () => {
       const a = pet('皮丘', '电', 500, [{ name: '电击', type: '电', power: 50 }]);
       const b = pet('小火龙', '火', 500, [{ name: '火花', type: '火', power: 40 }]);
-      const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [a]), B: side(2, '小宝', [b]) } });
-      M.applyBattleAction(st, 'B', null, () => 0.5); // 先攻方跳过
+      const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [a]), B: side(2, '小宝', [b]) } });
       return st;
     };
-    // 伤害浮动 0.5（×1.0）→ rolled = round(50×0.75) = 38；暴击 roll 0.05：旧全局 1/16 会暴击，PvP 1/24 不暴击
-    const noCrit = M.stagePvpAttack(mk(), 'A', '电击', seq(0.5, 0.05));
+    // 暴击→浮动：暴击 roll 0.05：旧全局 1/16 会暴击，PvP 1/24 不暴击；浮动 0.5（×1.0）→ rolled = round(50×0.75) = 38
+    const noCrit = M.stagePvpAttack(mk(), 'A', '电击', seq(0.05, 0.5));
     assert.equal(noCrit.critical, false);
     assert.equal(noCrit.dmg, 38);
     // 暴击 roll 0.02 < 1/24 → 暴击，倍率 ×1.3（非全局 ×1.5）：round(38×1.3) = 49
-    const crit = M.stagePvpAttack(mk(), 'A', '电击', seq(0.5, 0.02));
+    const crit = M.stagePvpAttack(mk(), 'A', '电击', seq(0.02, 0.5));
     assert.equal(crit.critical, true);
     assert.equal(crit.dmg, 49);
   });
 
   test('calcDamage 默认口径（道馆/合作）未被 PvP 参数污染：roll 0.05 仍暴击 ×1.5', () => {
     const move = { name: '电击', type: '电', power: 50 };
-    const r = M.calcDamage(move, { level: 5, type: '电', stats: null }, { level: 5, type: '火', stats: null }, seq(0.5, 0.05)); // 不传 opts
+    const r = M.calcDamage(move, { level: 5, type: '电', stats: null }, { level: 5, type: '火', stats: null }, seq(0.05, 0.5)); // 不传 opts；暴击→浮动：第 1 掷 0.05 < 1/16 暴击
     assert.equal(r.critical, true);
     assert.equal(r.dmg, 57); // round(38 × 1.5)
   });
@@ -293,22 +290,22 @@ describe('图鉴扩充（§3）', () => {
     assert.equal(M.pickWildSpecies(seq(0.95, 0.999)).no, 51); // roll 95 → rare 末只三地鼠（51 补进后末位）
   });
 
-  test('覆盖校验：四关馆主每关都至少有一只常见档克制宠', () => {
+  test('覆盖校验：八关馆主每关都至少有一只常见/少见档克制宠（2026-11-17 8 关扩围：S6 超能力的克制属性虫/幽灵/恶只在少见档——绿毛虫/独角虫/毛球/鬼斯；常见档 4 只里没有；SPECIES.type 把虫/幽灵/恶存成“普通”，故用官方属性 playerDefTypes 判定）', () => {
     for (const g of M.GYM_STAGES) {
       const bossTypes = M.bossDefTypes(g.bossNo);
-      const counters = M.WILD.filter((w) => w.tier === 'common' && M.typeMultOfficialMulti(M.SPECIES[w.no].type, bossTypes) >= 2);
-      assert.ok(counters.length >= 1, `第 ${g.stage} 关（${bossTypes.join('/')}）缺常见克制宠，现有克制：${counters.map((c) => c.name).join('/') || '无'}`);
+      const counters = M.WILD.filter((w) => (w.tier === 'common' || w.tier === 'uncommon') && M.playerDefTypes(w.no).some((t) => M.typeMultOfficialMulti(t, bossTypes) >= 2));
+      assert.ok(counters.length >= 1, `第 ${g.stage} 关（${bossTypes.join('/')}）缺常见/少见克制宠，现有克制：${counters.map((c) => c.name).join('/') || '无'}`);
     }
   });
 
-  test('S8 程序化断言：枚举 132 只野外池逐关校验，常见档克制集合非空且与 countersForType 同源一致', () => {
+  test('S8 程序化断言：枚举 132 只野外池逐关校验，常见/少见档克制集合非空且与 countersForType 同源一致（2026-11-17 8 关扩围：口径同上，官方属性＋两档）', () => {
     assert.equal(M.WILD.length, 132);
     for (const g of M.GYM_STAGES) {
       const bossTypes = M.bossDefTypes(g.bossNo);
-      const hits = M.WILD.filter((w) => w.tier === 'common' && M.typeMultOfficialMulti(M.SPECIES[w.no].type, bossTypes) >= 2);
-      assert.ok(hits.length >= 1, `第 ${g.stage} 关 ${M.SPECIES[g.bossNo].name}（${bossTypes.join('/')}）无常见档克制宠`);
-      // 徽章用的 countersForType 必须把这些宠的属性算作克制该关（断言与引擎口径同源）
-      for (const w of hits) assert.ok(M.countersForType(M.SPECIES[w.no].type).includes(g.stage), `${w.name} 应被徽章标为克制第 ${g.stage} 关`);
+      const hits = M.WILD.filter((w) => (w.tier === 'common' || w.tier === 'uncommon') && M.playerDefTypes(w.no).some((t) => M.typeMultOfficialMulti(t, bossTypes) >= 2));
+      assert.ok(hits.length >= 1, `第 ${g.stage} 关 ${M.SPECIES[g.bossNo].name}（${bossTypes.join('/')}）无常见/少见档克制宠`);
+      // 徽章用的 countersForType 必须把这些宠的属性算作克制该关（断言与引擎口径同源；用官方属性，SPECIES.type 的“普通”不进 countersForType）
+      for (const w of hits) for (const t of M.playerDefTypes(w.no)) if (M.typeMultOfficialMulti(t, bossTypes) >= 2) assert.ok(M.countersForType(t).includes(g.stage), `${w.name}（${t}）应被徽章标为克制第 ${g.stage} 关`);
     }
   });
 });
@@ -576,8 +573,8 @@ describe('克制判定与实战同源（修复一）', () => {
   test('countersForType 与引擎 typeMultOfficialMulti 逐项对齐（徽章不得与实战脱节）', () => {
     assert.deepEqual(M.countersForType('电'), [2]); // 电 vs 第 2 关宝石海星（水/超能力）：calcDamage 同样给 ×2
     assert.deepEqual(M.countersForType('火'), [4]);
-    assert.deepEqual(M.countersForType('地面'), [1, 3, 5, 6]); // 地面 vs 第 4 关霸王花（草/毒）= 0.5×2 = 1，不克制；克火 5 关、克地面/岩石 6 关
-    assert.deepEqual(M.countersForType('水'), [1, 5, 6]);
+    assert.deepEqual(M.countersForType('地面'), [1, 3, 5, 7, 8]); // 地面 vs 第 4 关霸王花（草/毒）= 0.5×2 = 1，不克制；克岩石 1 关、电 3 关、毒 5 关、火 7 关、地面/岩石 8 关（2026-11-17 8 关扩围：火从 S5 移到 S7、地面从 S6 移到 S8，新增毒 S5）
+    assert.deepEqual(M.countersForType('水'), [1, 7, 8]); // 水克岩石 1 关、火 7 关、地面 8 关（2026-11-17 8 关扩围）
     assert.deepEqual(M.countersForType('飞行'), [4]);
     for (const t of M.TYPES) {
       for (const g of M.GYM_STAGES) {
@@ -596,8 +593,8 @@ describe('克制判定与实战同源（修复一）', () => {
     assert.equal(r.j.ok, true, JSON.stringify(r.j));
     const by = Object.fromEntries(r.j.collection.map((c) => [c.no, c.counters]));
     assert.deepEqual(by[179], [2]); // 咩利羊（电）克水关
-    assert.deepEqual(by[111], [1, 3, 5, 6]); // 独角犀牛（地面）克岩石+电+火+地面
-    assert.deepEqual(by[54], [1, 5, 6]); // 可达鸭（水）克岩石+火+地面
+    assert.deepEqual(by[111], [1, 3, 5, 7, 8]); // 独角犀牛（地面）克岩石+电+毒+火+地面（2026-11-17 8 关扩围：火 S5→S7、地面 S6→S8，新增毒 S5）
+    assert.deepEqual(by[54], [1, 7, 8]); // 可达鸭（水）克岩石+火+地面（2026-11-17 8 关扩围）
     assert.deepEqual(by[37], [4]); // 六尾（火）克草
     const r2 = await call('/api/gym/status', { method: 'POST', cookie: c2, body: { childId: 2 } });
     assert.deepEqual(r2.j.mainCounters, [4]); // 小宝主宠火系克草 4 关
@@ -1003,8 +1000,11 @@ describe('PvP 卡死修复前端接线（2026-10-24）', () => {
     assert.match(defFn, /catch \(e\)/);
     assert.match(defFn, /refreshBattleState\(\)/);
     // 动作请求带 15 秒超时，不再无限挂死
-    assert.match(appJs, /api\('\/api\/battle\/move', body, undefined, 15000\)/);
-    assert.match(appJs, /api\('\/api\/battle\/defend', body, undefined, 15000\)/);
+    // 第三期：出招/换宠/防守统一走 pvpPost（兄弟对战带 requestId＋静默重发一次；其他模式原样 api），超时仍是 15 秒
+    assert.match(appJs, /pvpPost\('\/api\/battle\/move', body, /);
+    assert.match(appJs, /pvpPost\('\/api\/battle\/defend', body, /);
+    const postFn = appJs.slice(appJs.indexOf('async function pvpPost'), appJs.indexOf('async function battleMove'));
+    assert.equal((postFn.match(/api\(path, body, undefined, 15000\)/g) || []).length, 3);
   });
 
   test('行动方看门狗与轮询异常续链都在', () => {
@@ -1024,8 +1024,8 @@ describe('道馆备战克制提示（§6）', () => {
     raw.prepare("INSERT OR IGNORE INTO pokedex(child_id, entry_key, unlocked_at) VALUES(1,'wild:16','2026-01-01')").run();
     const r = await call('/api/gym/status', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(r.j.ok, true, JSON.stringify(r.j));
-    const dm = r.j.collection.find((c) => c.no === 50); // 地鼠（地面）：克岩石 1 关、电 3 关、火 5 关与地面 6 关
-    assert.deepEqual(dm.counters, [1, 3, 5, 6]);
+    const dm = r.j.collection.find((c) => c.no === 50); // 地鼠（地面）：克岩石 1 关、电 3 关、毒 5 关、火 7 关与地面/岩石 8 关（2026-11-17 8 关扩围）
+    assert.deepEqual(dm.counters, [1, 3, 5, 7, 8]);
     const bb = r.j.collection.find((c) => c.no === 16); // 波波（飞行）：克草 4 关
     assert.deepEqual(bb.counters, [4]);
     assert.deepEqual(r.j.mainCounters, [2]); // 大宝主宠电系：克水 2 关
@@ -1079,9 +1079,8 @@ describe('建议改 A 批（健壮性/公平性）', () => {
   test('S2 暴击被闪避：文案不再并列「会心一击」与 0 伤害', () => {
     const petA = pet('皮丘', '电', 200, [{ name: '电击', type: '电', power: 50 }]);
     const petB = pet('小火龙', '火', 200, [{ name: '火花', type: '火', power: 40 }]);
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
-    M.applyBattleAction(st, 'B', null, () => 0.5);
-    const staged = M.stagePvpAttack(st, 'A', '电击', seq(0.5, 0)); // 第二掷 0 → 暴击
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
+    const staged = M.stagePvpAttack(st, 'A', '电击', seq(0, 0.5)); // 暴击→浮动：第一掷 0 → 暴击
     assert.equal(staged.critical, true);
     const r = M.resolveStagedAttack(st, { ...staged, attacker: 'A' }, { kind: 'dodge' });
     const atk = r.events.find((e) => e.type === 'attack');

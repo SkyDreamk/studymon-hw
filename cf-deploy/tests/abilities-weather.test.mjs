@@ -1,6 +1,6 @@
 /* 战斗特性第三期第一步——天气简化版（2026-11-07）：node --test tests/abilities-weather.test.mjs
- * 范围：只做晴/雨两态，触发走关卡设定（GYM_STAGES.weather，本批只定 S4＝晴天），整场持续不计回合。
- * 效果：①晴天火×1.5/水×0.5、雨天水×1.5/火×0.5（calcDamage 威力修正段）；②叶绿素晴天速度×2、悠游自如雨天速度×2（只影响道馆出招顺序）；③UI 角标＋开局天气文案。
+ * 范围：只做晴/雨两态，触发走每日随机天气（gymDailyWeather，2026-11-17 起取代关卡写死配置），整场持续不计回合。
+ * 效果：①晴天火×1.5/水×0.5、雨天水×1.5/火×0.5（calcDamage 基础伤害修正段，2026-11-17 按 App.md 管线从威力段移到基础伤害后、单独取整）；②叶绿素晴天速度×2、悠游自如雨天速度×2（只影响道馆出招顺序）；③UI 角标＋开局天气文案。
  * 不做：沙暴/冰雹、天气招式、特性触发、太阳之力/雨盘结算；沙隐 4 种继续 dormant。
  * 口径：D6 速度不进 PvP；D7 关卡设定；D8 简化版两态整场持续。
  * 确定性：固定 rng；精确伤害数均由 /tmp/probe-weather.mjs 实测（makePet 带 stats，走官方分支，服务端与离线端逐数一致）。
@@ -64,23 +64,25 @@ describe('范围守卫', () => {
       assert.equal(M.effectiveSpeed(p, 'sand'), M.effectiveSpeed(p));
     }
   });
-  test('GYM_STAGES 天气配置：S1 沙暴、S2–S3、S5–S6 null、S4 晴天，服务端与离线端一致', () => {
-    assert.deepEqual(M.GYM_STAGES.map((g) => g.weather), ['sand', null, null, 'sun', null, null]);
-    assert.deepEqual(L.GYM_STAGES.map((g) => g.weather), ['sand', null, null, 'sun', null, null]);
+  test('GYM_STAGES 不再写死天气（2026-11-17 每日随机）：weather 字段已删，天气由 gymDailyWeather 现掷', () => {
+    assert.ok(M.GYM_STAGES.every((g) => !('weather' in g)), '服务端 GYM_STAGES 不应再有 weather 字段');
+    assert.ok(L.GYM_STAGES.every((g) => !('weather' in g)), '离线 GYM_STAGES 不应再有 weather 字段');
     assert.equal(M.GYM_STAGES[0].bossNo, 95);
     assert.equal(M.GYM_STAGES[3].bossNo, 45);
+    // 每日天气函数在，两边同一天同一关结果一致
+    assert.equal(M.gymDailyWeather(1, '2026-11-17'), L.gymDailyWeather(1, '2026-11-17'));
   });
 });
 
-describe('calcDamage 天气火/水修正（威力段，探针实测数）', () => {
+describe('calcDamage 天气火/水修正（基础伤害段，App.md 管线，探针实测数）', () => {
   const cases = [
-    ['火-无天气', OFF, fire, 31, []],
-    ['火-晴天', { ...OFF, weather: 'sun' }, fire, 45, [{ name: '大晴天', kind: 'weather', side: 'atk', pet: '攻方6', moveType: '火' }]],
-    ['水-晴天', { ...OFF, weather: 'sun' }, water, 3, [{ name: '大晴天', kind: 'weather', side: 'atk', pet: '攻方6', moveType: '水' }]],
+    ['火-无天气', OFF, fire, 30, []],
+    ['火-晴天', { ...OFF, weather: 'sun' }, fire, 42, [{ name: '大晴天', kind: 'weather', side: 'atk', pet: '攻方6', moveType: '火' }]],
+    ['水-晴天', { ...OFF, weather: 'sun' }, water, 2, [{ name: '大晴天', kind: 'weather', side: 'atk', pet: '攻方6', moveType: '水' }]],
     ['水-雨天', { ...OFF, weather: 'rain' }, water, 7, [{ name: '下雨', kind: 'weather', side: 'atk', pet: '攻方6', moveType: '水' }]],
-    ['火-雨天', { ...OFF, weather: 'rain' }, fire, 17, [{ name: '下雨', kind: 'weather', side: 'atk', pet: '攻方6', moveType: '火' }]],
-    ['草-晴天（不受天气影响）', { ...OFF, weather: 'sun' }, grass, 3, []],
-    ['草-雨天（不受天气影响）', { ...OFF, weather: 'rain' }, grass, 3, []],
+    ['火-雨天', { ...OFF, weather: 'rain' }, fire, 12, [{ name: '下雨', kind: 'weather', side: 'atk', pet: '攻方6', moveType: '火' }]],
+    ['草-晴天（不受天气影响）', { ...OFF, weather: 'sun' }, grass, 2, []],
+    ['草-雨天（不受天气影响）', { ...OFF, weather: 'rain' }, grass, 2, []],
   ];
   for (const [label, opts, move, dmg, ability] of cases) {
     test(`${label}：dmg ${dmg}，服务端与离线端一致`, () => {
@@ -106,8 +108,8 @@ describe('calcDamage 天气火/水修正（威力段，探针实测数）', () =
       const d = def(95, ['岩石', '地面'], 100, rockStats);
       const rN = mod.calcDamage(psy, a, d, R, { ...OFF, weather: null });
       const rS = mod.calcDamage(psy, a, d, R, { ...OFF, weather: 'sand' });
-      assert.equal(rN.dmg, 8);
-      assert.equal(rS.dmg, 6);
+      assert.equal(rN.dmg, 7);
+      assert.equal(rS.dmg, 4);
       assert.ok(rS.dmg < rN.dmg);
       assert.ok(rS.ability.some((e) => e.name === '沙暴' && e.kind === 'weather' && e.side === 'def'));
     }

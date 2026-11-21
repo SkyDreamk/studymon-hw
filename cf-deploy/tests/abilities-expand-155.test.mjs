@@ -85,9 +85,9 @@ describe('范围守卫（扩到 155）', () => {
       .map(([no]) => Number(no)).sort((a, b) => a - b);
     assert.deepEqual(stat, [25, 26, 125, 172, 179, 180, 181]);
   });
-  test('零实效注册：ABILITY_NO_EFFECT 两端一致，含坚硬脑袋与压迫感（159 批加入压迫感）', () => {
-    assert.deepEqual([...M.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感']);
-    assert.deepEqual([...L.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感']);
+  test('零实效注册：ABILITY_NO_EFFECT 两端一致，28 种（Batch 11 加 26 种 D 类；159 批加入压迫感）', () => {
+    assert.deepEqual([...M.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感', '逃跑', '捡拾', '发光', '湿气', '锐利目光', '鳞粉', '我行我素', '蹒跚', '斗争心', '污泥浆', '黏着', '连续攻击', '预知梦', '危险预知', '察觉', '天恩', '穿透', '奇迹皮肤', '友情防守', '治愈之心', '舍身', '强行', '轻装', '贪吃鬼', '收获', '紧张感']);
+    assert.deepEqual([...L.ABILITY_NO_EFFECT], ['坚硬脑袋', '压迫感', '逃跑', '捡拾', '发光', '湿气', '锐利目光', '鳞粉', '我行我素', '蹒跚', '斗争心', '污泥浆', '黏着', '连续攻击', '预知梦', '危险预知', '察觉', '天恩', '穿透', '奇迹皮肤', '友情防守', '治愈之心', '舍身', '强行', '轻装', '贪吃鬼', '收获', '紧张感']);
     // 8 种首特性坚硬脑袋的种均被该注册覆盖（按特性名，不按种号）。
     for (const no of [74, 75, 76, 95, 104, 105, 142, 208]) {
       assert.ok(M.ABILITY_NO_EFFECT.has(M.abilityOf(no)), `${no} 在零实效注册内`);
@@ -107,15 +107,15 @@ describe('范围守卫（扩到 155）', () => {
 describe('低血量同系强化（1–9，calcDamage 级）', () => {
   // 探针实测（Lv18、40 威力同系招打波波）：满血/低血（floor(maxHp/3)）/刚过 1/3/低血量非同系招。
   const cases = [
-    [1, '妙蛙种子', vine, 44, 9, 13, 9, 8],
-    [2, '妙蛙草', vine, 49, 10, 15, 10, 9],
-    [3, '妙蛙花', vine, 56, 13, 20, 13, 12],
-    [4, '小火龙', ember, 42, 18, 25, 18, 8],
-    [5, '火恐龙', ember, 48, 21, 31, 21, 10],
-    [6, '喷火龙', ember, 56, 28, 40, 28, 12],
-    [7, '杰尼龟', water, 43, 15, 22, 15, 8],
-    [8, '卡咪龟', water, 49, 18, 27, 18, 9],
-    [9, '水箭龟', water, 56, 22, 33, 22, 12],
+    [1, '妙蛙种子', vine, 44, 9, 12, 9, 8],
+    [2, '妙蛙草', vine, 49, 9, 15, 9, 9],
+    [3, '妙蛙花', vine, 56, 12, 19, 12, 12],
+    [4, '小火龙', ember, 42, 18, 24, 18, 8],
+    [5, '火恐龙', ember, 48, 19, 30, 19, 10],
+    [6, '喷火龙', ember, 56, 27, 39, 27, 12],
+    [7, '杰尼龟', water, 43, 15, 21, 15, 8],
+    [8, '卡咪龟', water, 49, 18, 25, 18, 9],
+    [9, '水箭龟', water, 56, 21, 33, 21, 12],
   ];
   for (const [no, name, move, maxHp, full, low, over, tackleLow] of cases) {
     test(`${no} ${name}：满血 ${full}、低血量 ${low}、刚过 1/3 为 ${over}、低血量撞击 ${tackleLow}`, () => {
@@ -196,7 +196,7 @@ describe('坚硬脑袋 95（零实效）', () => {
   test('calcDamage 对照：95 与 121（场外特性对照种）同 stats 时四招双向逐数相等', () => {
     const stats = { hp: 50, attack: 40, defense: 40, sp_attack: 40, sp_defense: 40, speed: 40 };
     const mk = (no) => ({ key: 'x', name: `测${no}`, type: '岩石', no, level: 18, maxHp: 100, hp: 100, defTypes: ['岩石', '地面'], stats, moves: [tackle], stages: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 }, status: null, flashFire: false });
-    const want = { '撞击': 4, '火花': 4, '水枪': 33, '地震': 25 };
+    const want = { '撞击': 3, '火花': 4, '水枪': 32, '地震': 24 }; // App.md 分步取整：撞击 floor(8×0.93)=7→floor(7×0.5)=3；水枪 floor(9×0.93)=8→floor(8×4)=32；地震 floor(9×0.93)=8→floor(8×1.5)=12→floor(12×2)=24
     for (const move of [tackle, ember, water, { name: '地震', type: '地面', power: 40 }]) {
       const r95a = M.calcDamage(move, mk(95), mk(16), R, OFF);
       const r121a = M.calcDamage(move, mk(121), mk(16), R, OFF);
@@ -237,7 +237,7 @@ describe('道馆集成（扩到 155）', () => {
     st.gym.endureUsed = false;
     return st;
   }
-  test('茂盛：低血量 3 妙蛙花藤鞭打波波馆主 → boss 42→22、茂盛事件在攻击事件之前', () => {
+  test('茂盛：低血量 3 妙蛙花藤鞭打波波馆主 → boss 42→23、茂盛事件在攻击事件之前', () => {
     const st = gymState(
       { key: 'main', name: '妙蛙花', type: '草', no: 3, defTypes: M.playerDefTypes(3), level: 18, moves: [vine] },
       bobo,
@@ -245,7 +245,7 @@ describe('道馆集成（扩到 155）', () => {
     st.sides.A.pets[0].hp = 18;
     const r = M.resolveGymRound(st, { moveName: '藤鞭' }, R);
     assert.equal(r.error, undefined);
-    assert.equal(st.sides.B.pets[0].hp, 22);
+    assert.equal(st.sides.B.pets[0].hp, 23);
     const ev = r.events.find((e) => e.type === 'ability' && e.ability === '茂盛');
     assert.ok(ev, JSON.stringify(r.events));
     const atkEv = r.events.find((e) => e.type === 'attack' && e.side === 'A');
@@ -282,7 +282,7 @@ describe('道馆集成（扩到 155）', () => {
     assert.equal(rNull.events.find((e) => e.type === 'attack').side, 'A');
     assert.equal(rNull.events.find((e) => e.type === 'attack').move, '火花');
   });
-  test('S4 晴天火/水修正：小火龙火花日志含提升文案；水箭龟水枪存活（56→23）且日志含减弱文案', () => {
+  test('S4 晴天火/水修正：小火龙火花日志含提升文案；水箭龟水枪存活（56→24）且日志含减弱文案', () => {
     const petal = { name: '花瓣狂舞', type: '草', power: 56 };
     const stF = gymState(
       { key: 'main', name: '小火龙', type: '火', no: 4, defTypes: ['火'], level: 18, moves: [ember] },
@@ -299,7 +299,7 @@ describe('道馆集成（扩到 155）', () => {
     );
     const rW = M.resolveGymRound(stW, { moveName: '水枪' }, R);
     assert.equal(rW.error, undefined);
-    assert.equal(stW.sides.A.pets[0].hp, 23);
+    assert.equal(stW.sides.A.pets[0].hp, 24);
     assert.ok(stW.log.some((e) => e.text === '大晴天！水箭龟 的水属性招式威力减弱了！'));
   });
   test('坚硬脑袋无操作：95 主宠一回合、95 馆主一回合，均无 ability 事件', () => {
@@ -383,7 +383,7 @@ describe('合作战集成（扩到 155）', () => {
     const sideB = { childId: 2, childName: '小宝', battleLevel: 18, activeIdx: 0, pets: [M.makePet(petB)] };
     return M.createCoopBattleState({ node_id: 'test-n1', kind: 'normal', bossNo, bossType, bossMoves, levelOffset: 0 }, sideA, sideB, 18);
   }
-  test('激流：A 低血量 9 水箭龟水枪打 143 馆主 → boss 85→63、激流事件', () => {
+  test('激流：A 低血量 9 水箭龟水枪打 143 馆主 → boss 85→65、激流事件', () => {
     const st = coopState(
       143, '普通', [['撞击', '普通', 35]],
       { key: 'main', name: '水箭龟', type: '水', no: 9, defTypes: M.playerDefTypes(9), level: 18, moves: [water] },
@@ -394,7 +394,7 @@ describe('合作战集成（扩到 155）', () => {
     assert.equal(boss.maxHp, 85);
     const r = M.resolveCoopRound(st, { A: { type: 'move', moveName: '水枪' }, B: { type: 'move', moveName: '撞击' } }, { kind: 'single', moveName: '撞击', targetSeat: 'A' }, R);
     assert.equal(r.error, undefined);
-    assert.equal(boss.hp, 63);
+    assert.equal(boss.hp, 65);
     assert.ok(r.events.some((e) => e.type === 'ability' && e.ability === '激流'), JSON.stringify(r.events));
     assert.equal(st.round_no, 2);
   });

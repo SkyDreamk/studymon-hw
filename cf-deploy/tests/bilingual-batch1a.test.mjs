@@ -3,9 +3,10 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { readBackendSource } from './backend-src.mjs';
 
 const appSrc = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
-const backSrc = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const backSrc = readBackendSource();
 
 describe('语言管线', () => {
   test('overview 返回 englishMode', () => {
@@ -104,7 +105,9 @@ describe('第一批切片 4a：问答弹窗翻译', () => {
     assert.match(appSrc, /quizSlice4Submit: tr\('提交答案', 'Submit answer'\)/);
     assert.match(appSrc, /quizSlice4CorrectXP:/);
     assert.match(appSrc, /quizSlice4Encounter:/);
-    assert.match(appSrc, /onclick="submitReviewAnswer\(\)">提交答案<\/button>/);
+    // 任务 96：提交按钮改由 QuizEngine.renderStep 渲染（labels.sub/subTxt），运行时输出不变
+    assert.match(appSrc, /sub: 'submitReviewAnswer', cls: 'closeReview', subTxt: '提交答案'/);
+    assert.match(appSrc, /onclick="\$\{labels\.sub\}\(\)">\$\{labels\.subTxt\}<\/button>/);
   });
 });
 
@@ -153,9 +156,13 @@ describe('第二批：背包/封印蛋/图鉴/道馆/PvP/照顾/对战擂台（2
     assert.match(appSrc, /tr\('种族值', 'Base stats'\)/);
     assert.match(appSrc, /biTitle\('周末道馆', 'Weekend Gym'\)/);
     assert.match(appSrc, /biTitle\('兄弟对战 周末冠军赛', 'Sibling battles Weekend championship'\)/);
-    assert.match(appSrc, /biTitle\('照顾伙伴', 'Care for companion'\)/);
+    assert.match(appSrc, /biTitle\('照顾伙伴', 'Care'\)/);
     assert.match(appSrc, /道馆第 \$\{v\.stage\} 关/);
-    assert.match(appSrc, /防守还剩 \$\{left\} 秒/);
+    // 防守倒计时（修复单 2026-11-16 ①④）：数字单独放 span；2026-11-16 用户定兄弟对战固定中文，
+    // 倒计时直接用中文文案、不再走 tr()（学习功能仍走 tr()）
+    assert.match(appSrc, /防守：还剩<span id="defense-countdown-num">/);
+    assert.match(appSrc, /秒，不答算放弃防守/);
+    assert.match(appSrc, /defense-countdown-num/);
     assert.match(appSrc, /esc\(it\.name\)/);
     assert.match(appSrc, /esc\(e\.name\)/);
   });
@@ -166,9 +173,12 @@ describe('第二批：背包/封印蛋/图鉴/道馆/PvP/照顾/对战擂台（2
 
 describe('背包页中英双语演示（2026-10-31，仅英文模式、仅背包页）', () => {
   test('双语 helper 与样式存在、中文模式原样', () => {
-    assert.match(appSrc, /const isBi = state\.lang === 'en';/);
-    assert.match(appSrc, /const bi = \(zh, en\) => isBi \? `\$\{en\}<span class="bi-sub"><br>\$\{zh\}<\/span>` : zh;/);
-    assert.match(appSrc, /const biTitle = \(zh, en\) => isBi \? `\$\{en\}<span class="bi-title-zh"> · \$\{zh\}<\/span>` : zh;/);
+    // 任务 94 (JS-M1)：bi / biTitle 已提全局（tr 之后定义），本地定义清零
+    assert.match(appSrc, /function bi\(zh, en\) \{\n  return state\.lang === 'en' \? `\$\{en\}<span class="bi-sub"><br>\$\{zh\}<\/span>` : zh;\n\}/);
+    assert.match(appSrc, /function biTitle\(zh, en\) \{\n  return state\.lang === 'en' \? `\$\{en\}<span class="bi-title-zh"> · \$\{zh\}<\/span>` : zh;\n\}/);
+    assert.doesNotMatch(appSrc, /const isBi = state\.lang/);
+    assert.doesNotMatch(appSrc, /const bi = \(zh, en\) =>/);
+    assert.doesNotMatch(appSrc, /const biTitle = \(zh, en\) =>/);
     assert.match(appSrc, /ballCell\('<span class="pb-mini"><\/span>', bi\('精灵球', 'Poké Ball'\)/);
     const cssSrc = readFileSync(new URL('../public/static/style.css.orig', import.meta.url), 'utf8');
     assert.match(cssSrc, /\.bi-sub\{font-size:var\(--fs-label\);color:var\(--text-2\);font-weight:400\}/);
@@ -203,12 +213,15 @@ describe('顶栏去火焰标、打卡页表头显示连续打卡（2026-10-31；
 describe('释义开关推广 Slice A：childTop 调用处＋孩子主页（2026-10-31）', () => {
   test('9 处孩子端调用传 glossBtn、合作 3 处不动、主页问候语单行用 tr()（任务 111 Q1：小卡只有一行，bi() 会撑成两行）', () => {
     assert.match(appSrc, /childTop\(biTitle\(\.\.\.LANG\.checkinSlice3Title\), `goChild\(\$\{id\}\)`, k\.streak, true\)/);
-    assert.match(appSrc, /childTop\(ic\('utensils'\) \+ ' ' \+ biTitle\('照顾伙伴', 'Care for companion'\), 'goChild\(' \+ id \+ '\)', undefined, true\)/);
+    assert.match(appSrc, /childTop\(biTitle\('照顾伙伴', 'Care'\), 'openOak\(' \+ id \+ '\)', undefined, true\)/);
     assert.match(appSrc, /childTop\('合作营地', `goChild\(\$\{p\.childId\}\)`\)/);
     assert.match(appSrc, /childTop\('合作战斗', `goCoop\(\$\{state\.childId\}\)`\)/);
     assert.doesNotMatch(appSrc, /childTop\('合作营地', `goChild\(\$\{p\.childId\}\)`, undefined, true\)/);
     assert.match(appSrc, /function childTop\(title, backFn, streak, glossBtn\) \{\n  document\.body\.classList\.toggle\('show-gloss', state\.lang === 'en' && glossOn\(\)\);/);
-    assert.match(appSrc, /const biTitle = \(zh, en\) => isBi \? `\$\{en\}<span class="bi-title-zh"> · \$\{zh\}<\/span>` : zh;\n  const MAIN_LINES/);
+    // 任务 94 (JS-M1)：biTitle 已提全局，renderBackpack 内不再有本地定义；MAIN_LINES 仍在原处
+    const bpSrc = appSrc.slice(appSrc.indexOf('function renderBackpack()'), appSrc.indexOf('function renderBackpack()') + 1200);
+    assert.doesNotMatch(bpSrc, /const biTitle = /);
+    assert.match(bpSrc, /const MAIN_LINES = \['pikachu', 'charmander', 'squirtle', 'bulbasaur', 'eevee'\];/);
     assert.match(appSrc, /biTitle\(\.\.\.LANG\.childSlice2Moves\)/);
     // 返工 2026-11-14 item 4：问候语收短（去“，今天也要加油哦”/“, let's go today!”），仍用 tr() 单行
     assert.match(appSrc, /tr\(`嗨，\$\{esc\(k\.name\)\}！\$\{greetPair\[0\]\}`, `Hi, \$\{esc\(k\.name\)\}! \$\{greetPair\[1\]\}`\)/);
@@ -227,13 +240,14 @@ describe('释义开关推广 Slice B：打卡页 bi 化（2026-10-31；方案第
 });
 
 describe('释义开关推广 Slice C：科目详情＋单元测试＋学校成绩上传（2026-10-31）', () => {
-  test('三页 bi／tr 已接线、中文原文未动、select 选项未动', () => {
+  test('三页 bi／tr 已接线、中文原文未动、select 选项未动（2026-11-20 用户反馈：科目下拉加期末考试）', () => {
     assert.match(appSrc, /tr\(\.\.\.SUBJ_STATUS\[c\.status\]\)/);
     assert.match(appSrc, /bi\(`家长说：\$\{esc\(c\.reason\)\}<br>改好后点下面按钮重新提交。`/);
     assert.match(appSrc, /biTitle\('单元测试', 'Unit test'\)/);
-    assert.match(appSrc, /counter\.textContent = state\.lang === 'en' \? `Answered/);
+    // 任务 96：selectUnitTestOpt 里 counter 改名 c、计数先算 n，运行时双语文案不变
+    assert.match(appSrc, /c\.textContent = state\.lang === 'en' \? `Answered \$\{n\}\/\$\{tot\}`/);
     assert.match(appSrc, /biTitle\('上传学校成绩', 'Upload school test score'\)/);
-    assert.match(appSrc, /<select id="cst-subj"><option>语文<\/option><option>数学<\/option><option>英语<\/option><option>阅读<\/option><\/select>/);
+    assert.match(appSrc, /<select id="cst-subj"[^>]*><option>语文<\/option><option>数学<\/option><option>英语<\/option><option>阅读<\/option><option>期末考试<\/option><\/select>/);
     assert.match(appSrc, /tr\('交给爸爸妈妈审核', 'Submit for parent review'\)/);
   });
 });
@@ -254,7 +268,9 @@ test('sliceE1 gym biTitle + pvp picker bi + join button tr', () => {
   assert.match(appSrc, /biTitle\('兄弟对战 周末冠军赛', 'Sibling battles Weekend championship'\)/);
   assert.match(appSrc, /bi\('兄弟对战只在周末开放。/);
   assert.match(appSrc, /bi\('主宠固定出战，选 1 只备战宠', 'Main companion always fights, pick 1 backup pet'\)/);
-  assert.match(appSrc, /tr\('加入对战！', 'Join battle!'\)/);
+  // 房号模式：旧加入按钮「加入对战！」已撤，统一入口是「开始对战」（点后输房号分流创建/加入）
+  assert.ok(!appSrc.includes("tr('加入对战！', 'Join battle!')"), '旧加入按钮应已撤');
+  assert.match(appSrc, /tr\('开始对战', 'Start battle'\)/);
   assert.ok(!appSrc.includes("tr('zh', 'en')"), 'no tr(zh,en) isBi');
 });
 
@@ -265,9 +281,9 @@ test('sliceE2 pokedex + care biTitle/bi', () => {
   assert.match(appSrc, /biTitle\('关都图鉴 151', 'Kanto Pokédex 151'\)/);
   assert.match(appSrc, /bi\('皮丘（172）、咩利羊（179）在原分册，不计入 151 进度。'/);
   assert.match(appSrc, /bi\('还没有学会招式', 'No moves learned yet'\)/);
-  assert.match(appSrc, /childTop\(ic\('utensils'\) \+ ' ' \+ biTitle\('照顾伙伴', 'Care for companion'\)/);
+  assert.match(appSrc, /childTop\(biTitle\('照顾伙伴', 'Care'\)/);
   assert.match(appSrc, /biTitle\('喂食（每天一次）', 'Feeding \(once a day\)'\)/);
-  assert.match(appSrc, /bi\('每天喂食、洗澡各一次，每次 \+10 友好度；喂对最爱口味再 \+5 经验。需要对应道具，没有就先去养成转盘抽一个。友好度越高，道馆单人战时主宠越容易硬撑、闪避和暴击。'/);
+  assert.match(appSrc, /bi\('每天喂食、洗澡各一次，每次 \+10 友好度；每天会随机一种最爱食物和一种最爱洗澡方式/);
   assert.match(appSrc, /tr\('展开 ▸', 'Expand ▸'\)/);
 });
 
@@ -275,7 +291,7 @@ test('sliceE2 pokedex + care biTitle/bi', () => {
 test('sliceF battle + eggs + quiz bi', () => {
   assert.match(appSrc, /document\.body\.classList\.toggle\('show-gloss', glossOn\(\)\)/);
   assert.match(appSrc, /biTitle\('战况', 'Battle log'\)/);
-  assert.match(appSrc, /bi\('等待对方进入对战——对方加入后，对战才开始哦'/);
+  assert.match(appSrc, /bi\(`你的先发已经扔出啦！等 \$\{esc\(oppName\)\} 在自己的设备上选好先发、加入对战，对战才开始哦`/); // 第三期：两机等待文案
   assert.match(appSrc, /bi\('用药算一次出招机会：这回合你用药就不出招/);
   assert.match(appSrc, /childTop\(biTitle\(\.\.\.LANG\.eggSlice1Title\)/);
   assert.match(appSrc, /biTitle\('奖励蛋（高级转盘／稀有转盘／单元测试获得，7 天孵化）'/);

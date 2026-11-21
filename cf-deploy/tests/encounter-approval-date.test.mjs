@@ -13,7 +13,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql', '0030_daily_chinese.sql', '0031_daily_math.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql', '0030_daily_chinese.sql', '0031_daily_math.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -49,7 +49,7 @@ beforeEach(async () => {
   parentCookie = parent.cookie;
   const set = await call('/api/parent/settings/update', {
     method: 'POST', cookie: parentCookie,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(set.j.ok, true);
 });
@@ -113,7 +113,7 @@ test('补审旧打卡触发的遭遇按审批当天日期（周末必触发）',
   assert.equal(rows[0].date, today, `遭遇日期应为审批当天 ${today}，不是打卡提交日 ${yesterday}`);
   assert.equal(rows[0].status, 'pending');
   // 孩子当天就能打开这场遭遇（旧口径下它一出生就过期）
-  const ck = await childCookie(1, '0000');
+  const ck = await childCookie(1, '1111');
   const p = await call('/api/encounter/pending', { method: 'POST', cookie: ck, body: { childId: 1 } });
   assert.equal(p.status, 200, JSON.stringify(p.j));
   assert.ok(p.j.encounter, '审批当天应能打开这场遭遇');

@@ -10,16 +10,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { assetHash, assetPath } from './asset-path.mjs';
+import { readBackendSource } from './backend-src.mjs';
 
 const H = assetHash();
 assert.match(H || '', /^[0-9a-f]{8}$/, '先跑 node scripts/hash-assets.mjs');
 
-const src = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const src = readBackendSource();
 const M = await import(new URL('../src/index.js', import.meta.url));
 
 const app = () => readFileSync(assetPath('app.js'), 'utf8');
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0021_skill_levels.sql', '0024_evo_reward.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0021_skill_levels.sql', '0024_evo_reward.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -235,11 +236,17 @@ describe('图鉴卡片带技能等级与碎片数', () => {
 
   test('野外六尾卡片：已学会的带 skillLevel 与 learned，升级后图鉴同步变', async () => {
     const cookie = await parentCookie();
+    const card = async (key) => {
+      const r = await call('/api/pokedex/card', { method: 'POST', cookie, body: { childId: 1, key } });
+      assert.equal(r.status, 200, key);
+      return r.j.details;
+    };
     const r1 = await call('/api/pokedex', { method: 'POST', cookie, body: { childId: 1 } });
     assert.equal(r1.status, 200);
     assert.equal(r1.j.fragments, 5);
-    const six = r1.j.wild.find((e) => e.no === 37);
-    assert.ok(six, '野外应有六尾条目');
+    // 招式表是卡片详情（Fable 优化 #2）：六尾须已获得，卡片才回详情
+    assert.ok(r1.j.unlocked.includes('wild:37'), '野外六尾应已获得（seed）');
+    const six = await card('wild:37');
     const spark = six.moves.find((m) => m.name === '火花');
     assert.ok(spark);
     assert.equal(spark.learned, true);
@@ -255,7 +262,7 @@ describe('图鉴卡片带技能等级与碎片数', () => {
     });
     assert.equal(up.status, 200);
     const r2 = await call('/api/pokedex', { method: 'POST', cookie, body: { childId: 1 } });
-    const spark2 = r2.j.wild.find((e) => e.no === 37).moves.find((m) => m.name === '火花');
+    const spark2 = (await card('wild:37')).moves.find((m) => m.name === '火花');
     assert.equal(spark2.skillLevel, 2);
     assert.equal(spark2.power, 43);
     assert.equal(r2.j.fragments, 2);
@@ -270,5 +277,14 @@ describe('备战升级前端源码口径', () => {
     }
     assert.ok(text.includes('/api/quiz/upgrade-move'), '备战升级应复用主宠升级接口');
     assert.equal(src.split("route('/api/quiz/upgrade-move'").length - 1, 1, '升级接口仍只有一处路由');
+  });
+
+  test('备战升级后丢掉图鉴详情缓存（dexForgetDetails＋lcSaveDexDetails）', () => {
+    const text = app();
+    const start = text.indexOf('async function upgradeBenchMoveByIndex(i) {');
+    assert.ok(start >= 0, '应有 upgradeBenchMoveByIndex');
+    const body = text.slice(start, text.indexOf('\n}\n', start) + 2);
+    assert.ok(body.includes('dexForgetDetails(id, window._dexMoveSourceKey || window._dexMoveKey)'), '升级后应清图鉴详情缓存');
+    assert.ok(body.includes('lcSaveDexDetails(id, window._dexMoveSourceKey || window._dexMoveKey, null, no)'), '升级后应清本地图鉴详情快照');
   });
 });

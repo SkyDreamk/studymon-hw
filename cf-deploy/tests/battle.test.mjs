@@ -8,7 +8,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0019_evo_items.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -65,10 +65,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 
 /* 真实上海日期（不能用 M.shDateStr——它读的是模块内虚拟时钟，拨过一次后基准会漂移） */
@@ -180,11 +180,9 @@ describe('战斗引擎（纯函数）', () => {
       { name: '火花', type: '火', power: 40 },
       { name: '烟幕', type: '火', power: 43 },
     ]);
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
     const hpA = () => st.sides.A.pets[st.sides.A.activeIdx].hp;
     const hpB = () => st.sides.B.pets[st.sides.B.activeIdx].hp;
-
-    M.applyBattleAction(st, 'B', null);
 
     M.applyBattleAction(st, 'A', '撒娇', __half);
     __eq(hpB(), 200, '撒娇不造成伤害');
@@ -229,9 +227,8 @@ describe('战斗引擎（纯函数）', () => {
   test('吸取即时结算：寄生种子回复一半伤害', () => {
     const petA = pet('妙蛙种子', '草', 200, [{ name: '寄生种子', type: '草', power: 40 }]);
     const petB = pet('妙蛙种子', '草', 200, [{ name: '撞击', type: '草', power: 35 }]);
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
     st.sides.A.pets[st.sides.A.activeIdx].hp = 100;
-    M.applyBattleAction(st, 'B', null);
     const r = M.applyBattleAction(st, 'A', '寄生种子', __half);
     __eq(st.sides.B.pets[st.sides.B.activeIdx].hp, 170, 'B 受 30 伤害');
     __eq(st.sides.A.pets[st.sides.A.activeIdx].hp, 115, 'A 回复 15');
@@ -243,10 +240,9 @@ describe('战斗引擎（纯函数）', () => {
   test('吸取预演路径：stagePvpAttack + resolveStagedAttack', () => {
     const petA = pet('妙蛙种子', '草', 200, [{ name: '寄生种子', type: '草', power: 40 }]);
     const petB = pet('妙蛙种子', '草', 200, [{ name: '撞击', type: '草', power: 35 }]);
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [petA]), B: side(2, '小宝', [petB]) } });
     st.sides.A.pets[st.sides.A.activeIdx].hp = 100;
-    M.applyBattleAction(st, 'B', null);
-    __eq(st.turn, 'A', '跳过后应为 A 回合');
+    __eq(st.turn, 'A', '先攻方 A 直接开局');
     const staged = M.stagePvpAttack(st, 'A', '寄生种子', () => 0.5);
     __eq(staged.drain, true, 'staged.drain 应为 true');
     __eq(staged.dmg, 30, 'staged.dmg 应为 30');
@@ -288,49 +284,48 @@ describe('战斗引擎（纯函数）', () => {
     assert.equal(normal.dmg, 50);
   });
 
-  test('馆主招式按名定属性：大地重压是地面系，克电命中时日志含「效果拔群」', () => {
+  test('馆主招式按名定属性：落石是岩石系，克火命中时日志含「效果拔群」（2026-11-17 数据集校对）', () => {
     const cfg = M.GYM_STAGES.find((g) => g.stage === 1);
-    // 与 apiBattleGymStart 相同的组装方式
+    // 与 apiBattleGymStart 相同的组装方式（2026-11-17 8 关扩围：多只队伍，取王牌=队尾的招式）
+    const aceMoves = cfg.bossTeam[cfg.bossTeam.length - 1].moves;
     const boss = M.makePet({
       key: 'boss', name: '大岩蛇', type: '岩石', level: cfg.bossLevel, hpMult: cfg.hpMult,
-      moves: cfg.bossMoves.map(([n, t, p]) => ({ name: n, type: t, power: p })),
+      moves: aceMoves.map(([n, t, p]) => ({ name: n, type: t, power: p })),
     });
-    assert.equal(boss.moves.find((m) => m.name === '大地重压').type, '地面');
-    assert.equal(boss.moves.find((m) => m.name === '岩石猛击').type, '岩石');
-    assert.equal(boss.moves.find((m) => m.name === '尾巴横扫').type, '普通');
+    assert.equal(boss.moves.find((m) => m.name === '落石').type, '岩石');
+    assert.equal(boss.moves.find((m) => m.name === '击落').type, '岩石');
+    assert.equal(boss.moves.find((m) => m.name === '撞击').type, '普通');
     assert.equal(boss.maxHp, Math.round(M.battleMaxHp(cfg.bossLevel) * cfg.hpMult));
-    // 全部关卡招式都带合法属性（[名称, 属性, 威力] 三元组）
-    for (const g of M.GYM_STAGES) for (const [n, t, p] of g.bossMoves) {
-      assert.ok(M.TYPES.includes(t), `${n} 属性 ${t} 不在属性集`);
+    // 全部关卡全部馆主招式都带合法属性（[名称, 属性, 威力] 三元组；官方 18 属性均合法——8 关队伍含钢（铁尾/修长之角）、虫（虫鸣）等扩展属性）
+    for (const g of M.GYM_STAGES) for (const m of g.bossTeam) for (const [n, t, p] of m.moves) {
+      assert.ok(M.TYPES18.includes(t), `${n} 属性 ${t} 不在官方 18 属性集`);
       assert.ok(p > 0);
     }
-    const mine = pet('皮丘', '电', 500, [{ name: '电击', type: '电', power: 50 }]);
+    const mine = pet('小火龙', '火', 500, [{ name: '火花', type: '火', power: 40 }]);
     const st = M.createBattleState({ mode: 'gym', firstSide: 'A', sides: { A: side(1, '大宝', [mine]), B: side(null, '馆主', [boss]) } });
-    M.applyBattleAction(st, 'A', '电击', () => 0.5); // 先攻方首回合跳过
-    const r = M.applyBattleAction(st, 'B', '大地重压', () => 0.5);
+    M.applyBattleAction(st, 'A', '火花', () => 0.5); // 先攻方首回合跳过
+    const r = M.applyBattleAction(st, 'B', '落石', () => 0.5);
     const atk = r.events.find((e) => e.type === 'attack');
-    assert.equal(atk.mult, 2); // 地面克电
+    assert.equal(atk.mult, 2); // 岩石克火
     assert.equal(atk.superEffective, true);
     assert.ok(atk.text.includes('效果拔群'), `日志应含效果拔群：${atk.text}`);
-    assert.equal(atk.dmg, 58); // 改版定参威力 36 × (0.5+0.05×6) × 2 × 1.0 = 57.6 → 58
-    assert.equal(st.sides.A.pets[0].hp, 500 - 58);
+    assert.equal(atk.dmg, 80); // 官方落石 50 × (0.5+0.05×6) × 2 × 1.0 = 80
+    assert.equal(st.sides.A.pets[0].hp, 500 - 80);
   });
 
-  test('先攻方第一个回合不能出招：提交招式也被跳过、不造成伤害', () => {
+  test('先攻方第一回合可直接出招（2026-11-16 用户定：取消热身，与道馆一致）', () => {
     const a = pet('皮丘', '电', 120, [{ name: '电击', type: '电', power: 50 }]);
     const b = pet('可达鸭', '水', 120, [{ name: '头痛水花', type: '水', power: 46 }]);
     const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [a]), B: side(2, '小宝', [b]) } });
-    assert.equal(M.canSideAttack(st, 'A'), false);
+    assert.equal(M.canSideAttack(st, 'A'), true);
     const r = M.applyBattleAction(st, 'A', '电击', () => 0.5);
-    assert.equal(r.events[0].type, 'skip_first');
-    assert.equal(st.sides.B.pets[0].hp, 120); // 没掉血
+    assert.equal(r.events[0].type, 'attack');
+    assert.ok(st.sides.B.pets[0].hp < 120); // 造成伤害，不再跳过
     assert.equal(st.turn, 'B');
-    // B 不是先攻方，可以正常出招
     assert.equal(M.canSideAttack(st, 'B'), true);
     const r2 = M.applyBattleAction(st, 'B', '头痛水花', () => 0.5);
     assert.equal(r2.events[0].type, 'attack');
     assert.ok(st.sides.A.pets[0].hp < 120);
-    // 回到 A 时已可出招
     assert.equal(M.canSideAttack(st, 'A'), true);
   });
 
@@ -383,7 +378,9 @@ describe('战斗引擎（纯函数）', () => {
     assert.throws(() => M.makePet({ key: 'x', name: 'x', type: '电', level: 5, moves: [] }), TypeError);
     assert.throws(() => M.makePet({ key: 'x', name: 'x', type: '电', level: 5, moves: [{ type: '电', power: 50 }] }), TypeError);
     assert.throws(() => M.makePet({ key: 'x', name: 'x', type: '电', level: 5, moves: [{ name: '电击', type: '电', power: -3 }] }), TypeError);
-    assert.throws(() => M.makePet({ key: 'x', name: 'x', type: '幽灵', level: 5, moves: [{ name: '撞击', type: '普通', power: 35 }] }), TypeError);
+    assert.throws(() => M.makePet({ key: 'x', name: 'x', type: '暗影', level: 5, moves: [{ name: '撞击', type: '普通', power: 35 }] }), TypeError);
+    // 2026-11-17 方案 A：幽灵现为合法单属性（TYPES18），不再抛错
+    assert.doesNotThrow(() => M.makePet({ key: 'x', name: 'x', type: '幽灵', level: 5, moves: [{ name: '撞击', type: '普通', power: 35 }] }));
   });
 
   test('createBattleState：firstSide 非法（不是 A/B）抛错', () => {
@@ -393,22 +390,20 @@ describe('战斗引擎（纯函数）', () => {
 
   test('空队/越界加固：activePetOf 返回 undefined、applyBattleAction 返回 NO_ACTIVE_PET 不抛错', () => {
     const foePet = pet('可达鸭', '水', 120, [{ name: '头痛水花', type: '水', power: 46 }]);
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', []), B: side(2, '小宝', [foePet]) } });
+    // A 空队：A 先攻直接出招 → 己方无可用宠 NO_ACTIVE_PET（2026-11-16 取消热身，不再跳过）
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', []), B: side(2, '小宝', [foePet]) } });
     assert.equal(M.activePetOf(st, 'A'), undefined);
-    M.applyBattleAction(st, 'B', null, () => 0.5); // B 先攻跳过，轮到 A
     const r = M.applyBattleAction(st, 'A', '电击', () => 0.5);
     assert.equal(r.error, 'NO_ACTIVE_PET');
-    // activeIdx 越界
+    // activeIdx 越界：B 先攻直接出招 → 己方无可用宠 NO_ACTIVE_PET
     const oob = side(2, '小宝', [pet('可达鸭', '水', 120, [{ name: '头痛水花', type: '水', power: 46 }])]);
     oob.activeIdx = 99;
-    const st2 = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [pet('皮丘', '电', 120, [{ name: '电击', type: '电', power: 50 }])]), B: oob } });
+    const st2 = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [pet('皮丘', '电', 120, [{ name: '电击', type: '电', power: 50 }])]), B: oob } });
     assert.equal(M.activePetOf(st2, 'B'), undefined);
-    M.applyBattleAction(st2, 'A', '电击', () => 0.5); // A 先攻跳过，轮到 B
     const r2 = M.applyBattleAction(st2, 'B', '头痛水花', () => 0.5);
     assert.equal(r2.error, 'NO_ACTIVE_PET');
     // 目标缺失：A 出招时对方队伍为空 → NO_ACTIVE_PET
-    const st3 = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [pet('皮丘', '电', 120, [{ name: '电击', type: '电', power: 50 }])]), B: side(2, '小宝', []) } });
-    M.applyBattleAction(st3, 'B', null, () => 0.5); // B 先攻跳过，轮到 A
+    const st3 = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [pet('皮丘', '电', 120, [{ name: '电击', type: '电', power: 50 }])]), B: side(2, '小宝', []) } });
     const r3 = M.applyBattleAction(st3, 'A', '电击', () => 0.5);
     assert.equal(r3.error, 'NO_ACTIVE_PET');
   });
@@ -417,8 +412,8 @@ describe('战斗引擎（纯函数）', () => {
     const a = pet('喷火龙', '火', 500, [{ name: '大字爆炎', type: '火', power: 90 }], 15);
     const b = pet('走路草', '草', 30, [{ name: '飞叶小刀', type: '草', power: 40 }]);
     b.hp = NaN;
-    const st = M.createBattleState({ mode: 'gym', firstSide: 'B', sides: { A: side(1, '大宝', [a]), B: side(null, '馆主', [b]) } });
-    M.applyBattleAction(st, 'B', '飞叶小刀', () => 0.5); // B 先攻跳过
+    const st = M.createBattleState({ mode: 'gym', firstSide: 'A', sides: { A: side(1, '大宝', [a]), B: side(null, '馆主', [b]) } });
+    // 2026-11-16 取消热身：A 先攻直接出招（B 的 NaN 血按 0 结算、昏厥、A 获胜）；旧写法先让 B 空过热身
     const r = M.applyBattleAction(st, 'A', '大字爆炎', () => 0.5);
     assert.ok(r.events.some((e) => e.type === 'attack'));
     assert.ok(Number.isFinite(st.sides.B.pets[0].hp));
@@ -429,8 +424,7 @@ describe('战斗引擎（纯函数）', () => {
   test('applyBattleAction：招式 power 损坏时返回 INVALID_MOVE_POWER 且不推进回合、不扣血', () => {
     const a = pet('皮丘', '电', 120, [{ name: '电击', type: '电', power: 50 }]);
     const b = pet('可达鸭', '水', 120, [{ name: '头痛水花', type: '水', power: 46 }]);
-    const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [a]), B: side(2, '小宝', [b]) } });
-    M.applyBattleAction(st, 'B', null, () => 0.5); // B 先攻跳过，轮到 A
+    const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [a]), B: side(2, '小宝', [b]) } });
     st.sides.A.pets[0].moves[0].power = NaN; // 模拟已存档的坏招式数据
     const turnNoBefore = st.turnNo;
     const r = M.applyBattleAction(st, 'A', '电击', () => 0.5);
@@ -444,8 +438,7 @@ describe('战斗引擎（纯函数）', () => {
     const mk = () => {
       const a = pet('皮丘', '电', 120, [{ name: '电击', type: '电', power: 50 }]);
       const b = pet('小火龙', '火', 120, [{ name: '火花', type: '火', power: 40 }]);
-      const st = M.createBattleState({ mode: 'pvp', firstSide: 'B', sides: { A: side(1, '大宝', [a]), B: side(2, '小宝', [b]) } });
-      M.applyBattleAction(st, 'B', null, () => 0.5); // B 先攻跳过，轮到 A
+      const st = M.createBattleState({ mode: 'pvp', firstSide: 'A', sides: { A: side(1, '大宝', [a]), B: side(2, '小宝', [b]) } });
       return st;
     };
     // 答错 → 全额伤害 + 回合推进
@@ -555,7 +548,7 @@ describe('道馆闯关梯子', () => {
     const start = await call('/api/battle/gym/start', { method: 'POST', cookie: c1, body: { childId: 1, stage: 1, benchNo: 54 } });
     assert.equal(start.j.ok, true, JSON.stringify(start.j));
     assert.equal(start.j.battle.sides.A.pets.length, 2); // 主宠 + 备战
-    assert.equal(start.j.battle.sides.B.pets.length, 1); // 馆主 1 只
+    assert.equal(start.j.battle.sides.B.pets.length, 2); // 馆主 2 只（2026-11-17 8 关扩围：S1 小拳石＋大岩蛇）
     // 改版定参下单场非必胜：以推荐阵容（此处 Lv.9 主宠＋可达鸭备战，超门槛配）反复挑战至首通
     const { view, rewards } = await clearGymStage(c1, 1, 54);
     assert.equal(view.status, 'finished');
@@ -655,11 +648,11 @@ describe('兄弟对战（PvP）', () => {
   }
 
   test('平衡调整（2026-10-24／属性成长）：join 后双方 HP 按实际六围 × PvP 倍率（压平 Lv.5：皮卡丘 18×1.4→25，小火龙 18×1.4→25；压平只压等级、不改形态）', async () => {
-    const { c1 } = await pvpFixture(); // 大宝 Lv.12 / 小宝 Lv.5 → 压平 5
+    const { c1, c2 } = await pvpFixture(); // 大宝 Lv.12 / 小宝 Lv.5 → 压平 5
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     const v = join.j.battle;
     assert.equal(M.pvpMaxHp(5), 168); // round(battleMaxHp(5)=120 × 1.4)，无 stats 回落口径不变
@@ -697,10 +690,10 @@ describe('兄弟对战（PvP）', () => {
     assert.equal(create.j.battle.status, 'waiting');
 
     // 密码错 → 拒
-    const wrong = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '9999' } });
+    const wrong = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '9999' } });
     assert.equal(wrong.status, 401);
     // 密码对 → 加入，拿到回合凭证
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     const token = join.j.joinToken;
     assert.ok(token);
@@ -768,7 +761,7 @@ describe('兄弟对战（PvP）', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     return { pc, c1, c2, battleId, token: join.j.joinToken, v: join.j.battle };
   }
@@ -822,7 +815,7 @@ describe('兄弟对战（PvP）', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     let v = join.j.battle;
     for (let i = 0; i < 6; i++) {
@@ -873,7 +866,7 @@ describe('兄弟对战（PvP）', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     let v = join.j.battle;
 
@@ -941,7 +934,7 @@ describe('兄弟对战（PvP）', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     let v = join.j.battle;
     // 双方均无答题记录：第一手攻击必挂起谜语防守题（历史池为空时全用谜语兜底）
@@ -987,7 +980,7 @@ describe('兄弟对战（PvP）', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     let v = join.j.battle;
     const moveAs = async (view) => {
@@ -1098,7 +1091,7 @@ describe('兄弟对战（PvP）', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     let v = join.j.battle;
     // 全程：A 用自己会话、B 用自己会话（不带 joinToken），轮流打完一整场
@@ -1117,10 +1110,10 @@ describe('兄弟对战（PvP）', () => {
   });
 
   test('弃赛不计次、无奖励，之后可再创建', async () => {
-    const { pc, c1 } = await pvpFixture();
+    const { pc, c1, c2 } = await pvpFixture();
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true);
     const ab = await call('/api/battle/abandon', { method: 'POST', cookie: c1, body: { battleId } });
     assert.equal(ab.j.ok, true);
@@ -1166,7 +1159,7 @@ describe('PvP 再来一局（申请-家长审核-解锁）', () => {
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000' } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222' } });
     assert.equal(join.j.ok, true, JSON.stringify(join.j));
     let v = join.j.battle;
     let guard = 0;
@@ -1347,6 +1340,26 @@ describe('道馆改版（同时选招）', () => {
     assert.ok(r.events.some((e) => e.type === 'attack' && e.side === 'B'), '事件里应有馆主本回合的攻击');
   });
 
+  test('死亡回合：先攻打倒对方后回合结束，顶上的新宠本回合不再行动（2026-11-20 用户定）', () => {
+    // 速度顺序结算（双方都有 stats 才走顺序分支）：玩家先攻打倒馆主首宠，馆主备战宠顶上；
+    // 死亡回合应到此结束——顶上的新宠本回合不再行动，出招清零，双方下回合重新选招。
+    // 旧行为是顶上的新宠当回合就用倒下那只的招出手，等于新宠连放两次技能（设计错误）。
+    const fast = (name, type, hp, moves, speed, attack = 50) => ({ key: name, name, type, no: null, img: null, level: 10, maxHp: hp, hp, moves, stats: { hp: 100, attack, defense: 50, sp_attack: attack, sp_defense: 50, speed } });
+    const a = fast('皮卡丘', '电', 300, [{ name: '电击', type: '电', power: 100 }], 100, 200);
+    const bLead = fast('大岩蛇', '岩石', 30, [{ name: '岩石猛击', type: '岩石', power: 40 }], 10);
+    const bBench = fast('小拳石', '岩石', 300, [{ name: '岩石猛击', type: '岩石', power: 40 }], 10);
+    const st = gymState([a], [bLead, bBench]);
+    const hpBefore = a.hp;
+    const r = M.resolveGymRound(st, { moveName: '电击' }, rng32(1));
+    assert.equal(st.sides.B.pets[0].hp, 0, '大岩蛇应被打倒');
+    assert.equal(st.sides.B.activeIdx, 1, '馆主备战宠小拳石应顶上');
+    assert.equal(a.hp, hpBefore, '顶上的新宠本回合不应出招，玩家不应掉血');
+    assert.equal(st.turnNo, 2, '死亡回合结束，回合数应推进');
+    assert.equal(st.turn, 'A', '轮到玩家行动，双方下回合重新选招');
+    assert.equal(st.winner, null, '战斗未结束');
+    assert.ok(!r.events.some((e) => e.type === 'attack' && e.side === 'B' && e.text && e.text.includes('小拳石')), '事件里不应有顶上新宠本回合的攻击');
+  });
+
   test('同回合双亡判馆主胜（挑战未通关）', () => {
     const a = pet('皮丘', '电', 300, [{ name: '电击', type: '电', power: 50 }], 10);
     a.hp = 10;
@@ -1467,22 +1480,57 @@ describe('道馆改版（同时选招）', () => {
     assert.ok(lo2 >= 36 && hi2 <= 44, `默认区间应仍为 [36,44]，实际 [${lo2},${hi2}]`);
   });
 
-  test('定参落表：四关 hpMult 与招式调整与 DESIGN 定版一致', () => {
+  test('定参落表：八关 hpMult 与招式调整与 DESIGN 定版一致（2026-11-17 设计定稿 8.md 热修；2026-11-17 道馆重调 S6/S7：bossLevel 30/29、hpMult 1.85/2.0、魔墙人偶魔法闪耀＋S7 特殊火）', () => {
     const by = (s) => M.GYM_STAGES.find((g) => g.stage === s);
-    assert.equal(by(1).hpMult, 3.0); // v11 仿真门：道具组把 S1 推到 62.9%，hpMult 2.82→3.0 后带道具 52.8%/49.1% 回带内
-    assert.equal(by(2).hpMult, 1.8); // 等比换算分关实施（2026-10-27 用户批）：S2 hpMult 2.0→1.8；2026-10-28 收紧实施馆主系数 1.5→1.7
-    assert.equal(by(3).hpMult, 2.2);
-    assert.equal(by(4).hpMult, 4.0); // 2026-10-28 收紧实施（用户点选主选组合）：S4 hpMult 2.55→2.7，配合馆主 ×1.85；2026-11-07 S4 收紧（用户点选“调 S4 系数压回 33% 附近”）：天气晴天后小宝 81.75%，hpMult 2.7→4.0 压回 38.05%（大宝 92.25%），单旋钮唯一满足双断言的值
-    const mv = (s, n) => by(s).bossMoves.find((m) => m[0] === n);
-    assert.deepEqual(mv(1, '岩石猛击'), ['岩石猛击', '岩石', 28]);
-    assert.deepEqual(mv(1, '尾巴横扫'), ['尾巴横扫', '普通', 34]);
-    assert.deepEqual(mv(1, '大地重压'), ['大地重压', '地面', 36]);
-    assert.deepEqual(mv(2, '水炮冲击'), ['水炮冲击', '水', 30]);
-    assert.deepEqual(mv(2, '大地之力'), ['大地之力', '地面', 70]);
-    assert.deepEqual(mv(2, '旋转突进'), ['旋转突进', '普通', 60]);
-    assert.deepEqual(mv(4, '花瓣狂舞'), ['花瓣狂舞', '草', 56]);
-    assert.deepEqual(mv(4, '巨叶拍打'), ['巨叶拍打', '草', 48]);
-    assert.deepEqual(mv(4, '甘露重压'), ['甘露重压', '水', 72]);
+    assert.equal(by(1).hpMult, 1.0); // 2026-11-17 设计定稿 8.md 热修：玻璃大炮口径 [1.0, 1.0, 1.1, 1.5, 1.0, 1.3, 1.65, 1.5]，S5 设计值 1.35 仍留硬墙，降到 1.0 才清零；2026-11-17 道馆重调：S6 1.85、S7 2.0；2026-11-20 馆主血量回调：S5 1.0→0.9、S7 2.0→1.8
+    assert.equal(by(2).hpMult, 1.0);
+    assert.equal(by(3).hpMult, 1.1);
+    assert.equal(by(4).hpMult, 1.5);
+    assert.equal(by(5).hpMult, 0.9);
+    assert.equal(by(6).hpMult, 1.85);
+    assert.equal(by(7).hpMult, 1.8);
+    assert.equal(by(8).hpMult, 1.5);
+    assert.equal(by(6).bossLevel, 30); // 道馆重调 S6：bossLevel 23→30（有效 55），needLevel 不动 20
+    assert.equal(by(7).bossLevel, 29); // 道馆重调 S7：bossLevel 25→29（有效 53），needLevel 不动 23
+    assert.equal(by(6).needLevel, 20);
+    assert.equal(by(7).needLevel, 23);
+    // 道馆重调招式：S6 魔墙人偶 突袭→魔法闪耀（妖精 80，lv44 ≤ 有效 55）；S7 四只补特殊火（烈火深渊 lv45/49、喷射火焰 lv40/5 ≤ 有效 53）
+    const teamMove = (s, no, n) => { const g = by(s); const p = g.bossTeam.find((m) => m.no === no); return p ? p.moves.find((m) => m[0] === n) : undefined; };
+    assert.deepEqual(teamMove(6, 122, '魔法闪耀'), ['魔法闪耀', '妖精', 80]);
+    assert.deepEqual(teamMove(6, 122, '突袭'), undefined, 'S6 魔墙人偶不应再有突袭（物攻 45 打不动恶系）');
+    assert.deepEqual(teamMove(7, 58, '喷射火焰'), ['喷射火焰', '火', 90]);
+    assert.deepEqual(teamMove(7, 77, '烈火深渊'), ['烈火深渊', '火', 100]);
+    assert.deepEqual(teamMove(7, 78, '烈火深渊'), ['烈火深渊', '火', 100]);
+    assert.deepEqual(teamMove(7, 59, '喷射火焰'), ['喷射火焰', '火', 90]);
+    assert.deepEqual(teamMove(7, 77, '踩踏'), undefined, 'S7 小火马踩踏已换成烈火深渊');
+    assert.deepEqual(teamMove(7, 78, '修长之角'), undefined, 'S7 烈焰马修长之角已换成烈火深渊');
+    // 2026-11-17 8 关扩围：mv 查王牌（队尾）的招式；S3 换雷丘队、S5 毒、S6 超能力、旧火/地面顺延为 S7/S8
+    const mv = (s, n) => { const g = by(s); return g.bossTeam[g.bossTeam.length - 1].moves.find((m) => m[0] === n); };
+    // 2026-11-17 数据集校对：全部换成官方招式名＋官方威力（有效等级可升级学会；“—”为初始招、“进化”为进化招）
+    assert.deepEqual(mv(1, '落石'), ['落石', '岩石', 50]);
+    assert.deepEqual(mv(1, '击落'), ['击落', '岩石', 50]);
+    assert.deepEqual(mv(1, '撞击'), ['撞击', '普通', 40]);
+    assert.deepEqual(mv(2, '水枪'), ['水枪', '水', 40]);
+    assert.deepEqual(mv(2, '高速旋转'), ['高速旋转', '普通', 50]);
+    assert.deepEqual(mv(2, '高速星星'), ['高速星星', '普通', 60]);
+    assert.deepEqual(mv(3, '十万伏特'), ['十万伏特', '电', 90]); // S3 王牌换雷丘（旧电击兽退役）
+    assert.deepEqual(mv(3, '电光'), ['电光', '电', 65]);
+    assert.deepEqual(mv(3, '铁尾'), ['铁尾', '钢', 100]);
+    assert.deepEqual(mv(4, '终极吸取'), ['终极吸取', '草', 75]);
+    assert.deepEqual(mv(4, '溶解液'), ['溶解液', '毒', 40]);
+    assert.deepEqual(mv(5, '污泥炸弹'), ['污泥炸弹', '毒', 90]); // S5 毒（双弹瓦斯王牌）
+    assert.deepEqual(mv(5, '热风'), ['热风', '火', 95]);
+    assert.deepEqual(mv(5, '恶意追击'), ['恶意追击', '恶', 60]);
+    assert.deepEqual(mv(6, '精神强念'), ['精神强念', '超能力', 90]); // S6 超能力（胡地王牌）
+    assert.deepEqual(mv(6, '精神冲击'), ['精神冲击', '超能力', 80]);
+    assert.deepEqual(mv(6, '幻象光线'), ['幻象光线', '超能力', 65]);
+    assert.deepEqual(mv(7, '火焰牙'), ['火焰牙', '火', 65]); // S7 火（旧 S5 顺延）
+    assert.deepEqual(mv(7, '报仇'), undefined, 'S7 不应再有报仇（咬住 60 更弱，小宝 S5 硬墙 14.8% 须回调）');
+    assert.deepEqual(mv(7, '咬住'), ['咬住', '恶', 60]);
+    assert.deepEqual(mv(8, '直冲钻'), ['直冲钻', '地面', 80]); // S8 地面（旧 S6 顺延）
+    assert.deepEqual(mv(8, '击落'), ['击落', '岩石', 50]);
+    assert.deepEqual(mv(8, '踩踏'), ['踩踏', '普通', 65]);
+    assert.deepEqual(mv(4, '超级吸取'), ['超级吸取', '草', 40]);
   });
 
   test('水系道馆改版（2026-10-24）：小宝 Lv.9 火主宠＋草备战开战，新招式配比落到实战状态', async () => {
@@ -1495,13 +1543,17 @@ describe('道馆改版（同时选招）', () => {
     const start = await call('/api/battle/gym/start', { method: 'POST', cookie: c2, body: { childId: 2, stage: 2, benchNo: 43 } });
     assert.equal(start.j.ok, true, JSON.stringify(start.j));
     assert.equal(start.j.battle.sides.A.pets.length, 2); // 主宠 + 草备战
-    const boss = start.j.battle.sides.B.pets[0];
+    // 2026-11-17 8 关扩围：馆主方多只轮换（海星星先发、宝石海星王牌压阵）
+    assert.equal(start.j.battle.sides.B.pets.length, 2);
+    assert.equal(start.j.battle.sides.B.pets[0].name, '海星星');
+    assert.equal(start.j.battle.sides.B.pets[0].level, 12);
+    const boss = start.j.battle.sides.B.pets[1];
     assert.equal(boss.name, '宝石海星');
     assert.equal(boss.level, 12);
     const mv = (n) => boss.moves.find((m) => m.name === n);
-    assert.equal(mv('水炮冲击').power, 30);
-    assert.equal(mv('大地之力').power, 70);
-    assert.equal(mv('旋转突进').power, 60);
+    assert.equal(mv('水枪').power, 40); // 2026-11-17 数据集校对：官方水枪 40（原自定义水炮冲击）
+    assert.equal(mv('高速旋转').power, 50); // 2026-11-17 数据集校对：官方高速旋转 50（幻象光线超能力 STAB 致大宝 S2 7.95% 硬墙，改用物理弱招）
+    assert.equal(mv('高速星星').power, 60); // 官方高速星星 60（原自定义旋转突进）
   });
 
   test('HTTP：道馆第一回合即可出招，馆主同回合行动，无 skip_first', async () => {

@@ -9,7 +9,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0023_care_qa_and_friendship.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0023_care_qa_and_friendship.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -66,10 +66,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 
 function realTodayStr() {
@@ -155,8 +155,8 @@ async function careHarness() {
     method: 'POST',
     body: {
       childPasswords: [
-        { id: 1, password: '0000' },
-        { id: 2, password: '0000' },
+        { id: 1, password: '1111' },
+        { id: 2, password: '2222' },
       ],
     },
   });
@@ -196,10 +196,8 @@ async function careHarness() {
       return row && row.friendship != null ? Number(row.friendship) : 0;
     },
     async enable(value = true) {
-      const result = await api('/api/parent/settings/update', {
-        method: 'POST', body: { careEnabled: value },
-      });
-      careAssert.equal(result.status, 200);
+      // 全站开关需 settings.global 权限，旧版（无账号）会话没有；这里测的是照顾玩法不是授权，直接写库造前置状态
+      database.prepare("INSERT INTO settings(key,value) VALUES('care_enabled',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(value ? '1' : '0');
     },
     async status(id = 1) {
       return api(`/api/care/status?childId=${id}`);
@@ -247,16 +245,11 @@ careDescribe('care pure functions', () => {
     careAssert.doesNotThrow(() => careExports.careSceneForDate('not-a-date'));
   });
 
-  careTest('favorite foods by evolutionary line', () => {
-    for (const [line, food] of Object.entries({
-      pikachu: 'berry',
-      charmander: 'meat',
-      squirtle: 'milk',
-      bulbasaur: 'honey',
-    })) {
-      careAssert.equal(careExports.careFavoriteFood(line), food);
-    }
-    careAssert.equal(careExports.careFavoriteFood('unknown-line'), null);
+  careTest('daily favorite is deterministic per child and date', () => {
+    const a = careExports.careDailyFavorite(1, '2026-11-20');
+    careAssert.deepEqual(a, careExports.careDailyFavorite(1, '2026-11-20'));
+    careAssert.ok(careExports.CARE_FOODS.some((f) => f.key === a.food));
+    careAssert.ok(careExports.CARE_BATHS.some((b) => b.key === a.bath));
   });
 
   careTest('food and bath lookup rejects unknown keys', () => {
@@ -303,31 +296,34 @@ careDescribe('care API', { concurrency: false }, () => {
   careTest('favorite food adds five XP and reveals only that favorite', async () => {
     const h = await careHarness();
     await h.enable();
-    h.give(1, 'care:berry');
+    const fav = (await h.status()).body.dailyFavorite.food;
+    h.give(1, 'care:' + fav);
     careAssert.equal(h.xp(1), 0);
-    const result = await h.feed();
+    const result = await h.feed(1, fav);
     careAssert.equal(result.status, 200);
     careAssert.equal(result.body.favorite, true);
     careAssert.equal(result.body.xpAwarded, 5);
     careAssert.equal(result.body.friendshipAwarded, 10);
     careAssert.equal(result.body.friendship, 10);
     careAssert.equal(h.friendship(1), 10);
-    careAssert.equal(h.itemQty(1, 'care:berry'), 0);
+    careAssert.equal(h.itemQty(1, 'care:' + fav), 0);
     careAssert.equal(h.xp(1), 5);
     const status = await h.status();
     careAssert.equal(status.status, 200);
     careAssert.equal(status.body.fedToday, true);
     for (const food of status.body.foods) {
-      careAssert.equal(food.isFavoriteKnown, food.key === 'berry');
+      careAssert.equal(food.isFavoriteKnown, food.key === fav);
     }
   });
 
   careTest('non-favorite food grants no XP', async () => {
     const h = await careHarness();
     await h.enable();
-    h.give(2, 'care:apple');
+    const fav2 = (await h.status(2)).body.dailyFavorite.food;
+    const other = careExports.CARE_FOODS.find((f) => f.key !== fav2).key;
+    h.give(2, 'care:' + other);
     const before = h.xp(2);
-    const result = await h.feed(2, 'apple');
+    const result = await h.feed(2, other);
     careAssert.equal(result.status, 200);
     careAssert.equal(result.body.favorite, false);
     careAssert.equal(result.body.xpAwarded, 0);
@@ -336,13 +332,16 @@ careDescribe('care API', { concurrency: false }, () => {
     careAssert.equal(h.xp(2), before);
   });
 
-  careTest('bath grants no XP and updates status', async () => {
+  careTest('non-favorite bath grants no XP and updates status', async () => {
     const h = await careHarness();
     await h.enable();
-    h.give(1, 'care:bubble');
+    const favBath = (await h.status()).body.dailyFavorite.bath;
+    const other = careExports.CARE_BATHS.find((b) => b.key !== favBath).key;
+    h.give(1, 'care:' + other);
     const before = h.xp(1);
-    const result = await h.bath();
+    const result = await h.bath(1, other);
     careAssert.equal(result.status, 200);
+    careAssert.equal(result.body.favorite, false);
     careAssert.equal(result.body.xpAwarded, 0);
     careAssert.equal(result.body.friendshipAwarded, 10);
     careAssert.equal(result.body.friendship, 10);
@@ -351,12 +350,30 @@ careDescribe('care API', { concurrency: false }, () => {
     careAssert.equal((await h.status()).body.bathedToday, true);
   });
 
+  careTest('favorite bath adds five XP and reveals only that favorite', async () => {
+    const h = await careHarness();
+    await h.enable();
+    const fav = (await h.status()).body.dailyFavorite.bath;
+    h.give(1, 'care:' + fav);
+    const result = await h.bath(1, fav);
+    careAssert.equal(result.status, 200);
+    careAssert.equal(result.body.favorite, true);
+    careAssert.equal(result.body.xpAwarded, 5);
+    careAssert.equal(result.body.friendshipAwarded, 10);
+    careAssert.equal(h.xp(1), 5);
+    const status = await h.status();
+    for (const bath of status.body.baths) {
+      careAssert.equal(bath.isFavoriteKnown, bath.key === fav);
+    }
+  });
+
   careTest('second feed is rejected without another log or XP', async () => {
     const h = await careHarness();
     await h.enable();
-    h.give(1, 'care:berry');
-    careAssert.equal((await h.feed()).status, 200);
-    careError(await h.feed(), 400, 'ALREADY_DONE');
+    const fav = (await h.status()).body.dailyFavorite.food;
+    h.give(1, 'care:' + fav);
+    careAssert.equal((await h.feed(1, fav)).status, 200);
+    careError(await h.feed(1, fav), 400, 'ALREADY_DONE');
     careAssert.equal(h.logs(), 1);
     careAssert.equal(h.xp(1), 5);
   });
@@ -364,10 +381,12 @@ careDescribe('care API', { concurrency: false }, () => {
   careTest('second bath is rejected without another log or XP', async () => {
     const h = await careHarness();
     await h.enable();
-    h.give(1, 'care:bubble');
+    const favBath = (await h.status()).body.dailyFavorite.bath;
+    const other = careExports.CARE_BATHS.find((b) => b.key !== favBath).key;
+    h.give(1, 'care:' + other);
     const before = h.xp(1);
-    careAssert.equal((await h.bath()).status, 200);
-    careError(await h.bath(), 400, 'ALREADY_DONE');
+    careAssert.equal((await h.bath(1, other)).status, 200);
+    careError(await h.bath(1, other), 400, 'ALREADY_DONE');
     careAssert.equal(h.logs(), 1);
     careAssert.equal(h.xp(1), before);
   });
@@ -380,7 +399,7 @@ careDescribe('care API', { concurrency: false }, () => {
     const other = await h.status(2);
     careAssert.equal(other.status, 200);
     careAssert.equal(other.body.fedToday, false);
-    const cookie = await h.childCookie(1, '0000');
+    const cookie = await h.childCookie(1, '1111');
     careError(await h.feed(2, 'meat', { cookie }), 403);
     careAssert.equal(h.logs(), 1);
     careAssert.equal(h.xp(2), 0);
@@ -399,22 +418,24 @@ careDescribe('care API', { concurrency: false }, () => {
   careTest('concurrent feeds award XP exactly once', async () => {
     const h = await careHarness();
     await h.enable();
-    h.give(1, 'care:berry', 2);
-    const results = await Promise.all([h.feed(), h.feed()]);
+    const fav = (await h.status()).body.dailyFavorite.food;
+    h.give(1, 'care:' + fav, 2);
+    const results = await Promise.all([h.feed(1, fav), h.feed(1, fav)]);
     careAssert.deepEqual(results.map(result => result.status).sort(), [200, 400]);
     careError(results.find(result => result.status === 400), 400, 'ALREADY_DONE');
     careAssert.equal(h.logs(), 1);
     careAssert.equal(h.xp(1), 5);
-    careAssert.equal(h.itemQty(1, 'care:berry'), 1, '并发落败那次扣的道具应退回');
+    careAssert.equal(h.itemQty(1, 'care:' + fav), 1, '并发落败那次扣的道具应退回');
   });
 
   careTest('favorite feed reuses level-up logic at forty XP', async () => {
     const h = await careHarness();
     await h.enable();
-    h.give(1, 'care:berry');
+    const fav = (await h.status()).body.dailyFavorite.food;
+    h.give(1, 'care:' + fav);
     h.raw.prepare('UPDATE children SET total_xp=35 WHERE id=?').run(1);
     careAssert.equal(h.xp(1), 35);
-    const result = await h.feed();
+    const result = await h.feed(1, fav);
     careAssert.equal(result.status, 200);
     careAssert.equal(result.body.xpAwarded, 5);
     careAssert.equal(h.xp(1), 40);

@@ -15,7 +15,7 @@ const MIGRATIONS = [
   '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql',
   '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql',
   '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql',
-  '0021_skill_levels.sql', '0022_warehouse.sql',
+  '0021_skill_levels.sql', '0022_warehouse.sql', '0043_pet_instances_ability.sql',
 ];
 
 function makeEnv() {
@@ -73,10 +73,10 @@ async function setup() {
   const pc = await parentCookie();
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pc,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
-  return { pc, c1: await childCookie(1, '0000'), c2: await childCookie(2, '0000') };
+  return { pc, c1: await childCookie(1, '1111'), c2: await childCookie(2, '2222') };
 }
 
 function realTodayStr() {
@@ -107,14 +107,22 @@ function seedOnlyVulpixCarried() {
   raw.prepare("INSERT INTO pokedex(child_id, entry_key, unlocked_at, carried) VALUES(1, 'wild:50', '2026-01-01', 0)").run();
 }
 
-describe('测试站备战选择（2026-11-06；道馆 2026-11-14 只列随身队）', () => {
-  test('0. 前端接线：道馆只列随身队（j.collection 去主宠），不再用 benchOptions；PvP 加入方选择器用 benchOptions 回落到携带列表', () => {
+describe('测试站备战选择（2026-11-06；道馆前端选择区 2026-11-16 已撤，后端 benchNo 能力保留）', () => {
+  test('0. 前端接线（任务 127）：道馆备战选择区已撤，随身 5 球即全部可用；PvP 加入方选择器用 benchOptions 回落到携带列表', () => {
     const src = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
-    assert.ok(src.includes('const benchList = (j.collection || []).filter((c) => c.no !== mainNo);'), '道馆候补即携带列表去主宠');
+    // 任务 127：道馆页不再有备战选择（先发与换宠都在战斗里扔球选，换备战去仓库换携带）。
+    // 2026-11-16 用户纠正：5 球是查看携带精灵的窗口，不能撤——benchList 回来只供展示（gymPartyBallsHtml，无选中态）。
+    assert.ok(src.includes('const benchList = (j.collection || []).filter((c) => c.no !== mainNo);'), '道馆 benchList 应在（供随身队伍展示）');
+    assert.ok(src.includes('gymPartyBallsHtml(mainPet, benchList, G.id)'), '道馆应画随身队伍展示');
+    assert.ok(!src.includes('benchPickerHtml(benchList,'), '道馆备战球选择器应已移除');
+    assert.ok(!src.includes('function benchPickerHtml('), 'benchPickerHtml 函数应已移除');
+    assert.ok(!src.includes('function openGymBenchCard('), 'openGymBenchCard 函数应已移除');
     assert.ok(!src.includes('j.benchOptions || j.collection'), '道馆不得再用 benchOptions 回落');
-    assert.ok(src.includes('benchPickerHtml(benchList,'), '道馆直接画 benchList');
     assert.ok(!src.includes('benchFoldBtn'), '「全部 151 只」折叠已删');
-    assert.ok(src.includes('const bColl = pv.benchOptions || ('), 'PvP 加入方应为 pv.benchOptions || 携带列表');
+    // 房号模式：旧加入表单已撤（pvpJoinFormHtml 含 bColl = pv.benchOptions），加入方改在道馆页
+    // 选备战（与发起方同一栏，只列携带列表；服务端仍校验备战须已收集）。
+    assert.ok(!src.includes('pvpJoinFormHtml'), '旧加入表单应已撤');
+    assert.ok(!src.includes('const bColl = pv.benchOptions || ('), '旧加入方 benchOptions 写法应已撤');
     // A 方栏仍只读、只列携带：不得出现 aColl 用 benchOptions 的写法。
     assert.ok(!src.includes('aColl = pv.benchOptions'), 'A 方栏不得用 benchOptions');
   });
@@ -140,14 +148,14 @@ describe('测试站备战选择（2026-11-06；道馆 2026-11-14 只列随身队
     setXp(1, M.xpForLevel(10));
     const start = await call('/api/battle/gym/start', { method: 'POST', cookie: c1, body: { childId: 1, stage: 1, benchNo: 143 } });
     assert.equal(start.j.ok, true, `非携带 143 开局应成功：${JSON.stringify(start.j)}`);
-    // 任务 126：开局带全部随身宠物——主宠＋备战 143＋携带六尾 37，共 3 只（旧断言 2 只已过期）。
+    // 队伍人数不限（原版全随身队）：主宠＋备战 143＋携带六尾 37，共 3 只。
     assert.equal(start.j.battle.sides.A.pets.length, 3, '备战与携带队都应进局');
     assert.equal(start.j.battle.sides.A.pets[1].no, 143);
     assert.ok(start.j.battle.sides.A.pets.some((p) => p.no === 37), '携带六尾应在队里');
   });
 
   test('3. 兄弟对战：测试模式 /api/battle/pvp/status 返回 164 种 benchOptions；加入方可用非携带 143', async () => {
-    const { c1 } = await setup();
+    const { c1, c2 } = await setup();
     seedOnlyVulpixCarried();
     const { weekStart } = gotoWeekday(6);
     seedApprovedDays(1, weekStart, 4);
@@ -162,7 +170,7 @@ describe('测试站备战选择（2026-11-06；道馆 2026-11-14 只列随身队
     const create = await call('/api/battle/pvp/create', { method: 'POST', cookie: c1, body: { childId: 1, benchNo: 37 } });
     assert.equal(create.j.ok, true, JSON.stringify(create.j));
     const battleId = create.j.battle.battleId;
-    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c1, body: { battleId, childId: 2, password: '0000', benchNo: 143 } });
+    const join = await call('/api/battle/pvp/join', { method: 'POST', cookie: c2, body: { battleId, childId: 2, password: '2222', benchNo: 143 } });
     assert.equal(join.j.ok, true, `加入方用非携带 143 应成功：${JSON.stringify(join.j)}`);
     assert.equal(join.j.battle.sides.B.pets.length, 2);
     assert.equal(join.j.battle.sides.B.pets[1].no, 143);

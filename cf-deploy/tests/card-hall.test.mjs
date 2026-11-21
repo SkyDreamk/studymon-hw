@@ -10,7 +10,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0023_care_qa_and_friendship.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0023_care_qa_and_friendship.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -138,7 +138,7 @@ describe('POST /api/eggs cards', () => {
 /* 任务 104 v2：卡面字段 hp / moves / weak（真 TCG 卡面）。
  * 口径：hp 取 DEX_DETAILS.stats.hp；moves 取 cardFaceMoves（COLLECTION_MOVES → COLLECTION_LEARNSET
  * 最高 2 条 → 主宠线 LINES 最高 2 条 → 无则 []）；weak 取 matchupsForType(主属性).weak[0]，
- * 主属性不在 9 种战斗属性里（如冰/毒/超能力）时为 null，不显示弱点行。
+ * 2026-11-17 方案 A 起主属性为官方 18 种，全有弱点值（此前冰/毒/超能力等不在 9 种集内时为 null，不显示弱点行）。
  * 威力口径（任务 116）：名册招式优先取官方威力（原版数值），原创招式名无官方威力时保留名册值。 */
 describe('cardFaceMoves', () => {
   test('main-line final now takes its COLLECTION_MOVES pair; 172 (still no roster entry) takes last 2 line moves', () => {
@@ -242,7 +242,7 @@ describe('POST /api/eggs card face fields', () => {
       { name: '冰冻光束', power: 90, type: '冰' },
       { name: '暴风雪', power: 110, type: '冰' },
     ]);
-    assert.equal(byNo[144].weak, null);
+    assert.equal(byNo[144].weak, '火'); // 2026-11-17 方案 A：急冻鸟主属性冰，weak[0] 为火（此前 9 种集内无冰，weak 为 null）
     assert.equal(typeof byNo[45].hp, 'number');
     assert.deepEqual(byNo[45].moves, [
       { name: '溶解液', power: 40, type: '毒' },

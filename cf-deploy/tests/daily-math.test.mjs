@@ -14,7 +14,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql', '0030_daily_chinese.sql', '0031_daily_math.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0025_oak_draw_item.sql', '0026_rare_wheel.sql', '0027_daily_english.sql', '0028_care_wheel.sql', '0029_daily_english_assess.sql', '0030_daily_chinese.sql', '0031_daily_math.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -49,7 +49,7 @@ beforeEach(async () => {
   assert.equal(parent.status, 200);
   const set = await call('/api/parent/settings/update', {
     method: 'POST', cookie: parent.cookie,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(set.j.ok, true);
 });
@@ -156,6 +156,7 @@ describe('出题器（种子 child_id＋当天日期）', () => {
       for (const p of M.dailyMathTodayFor({ id: 2, grade_label: '一年级' }, date).problems) {
         if (p.kind === 'bracket') { checkBracket(p, 1); continue; }
         if (p.kind === 'word') { checkWord(p, 1); continue; }
+        if (p.kind === 'bank') continue; // 题库题另见 tests/math-bank.test.mjs
         assert.equal(p.kind, 'calc', `未知题型：${p.kind}`);
         const { a, op, b } = parseQ(p.q);
         assert.ok(op === '+' || op === '−', `一年级只出加减，实际：${p.q}`);
@@ -172,6 +173,7 @@ describe('出题器（种子 child_id＋当天日期）', () => {
       for (const p of M.dailyMathTodayFor({ id: 1, grade_label: '三年级' }, date).problems) {
         if (p.kind === 'bracket') { checkBracket(p, 3); continue; }
         if (p.kind === 'word') { checkWord(p, 3); continue; }
+        if (p.kind === 'bank') continue; // 题库题另见 tests/math-bank.test.mjs
         assert.equal(p.kind, 'calc', `未知题型：${p.kind}`);
         const { a, op, b } = parseQ(p.q);
         if (op === '×') {
@@ -196,13 +198,13 @@ describe('出题器（种子 child_id＋当天日期）', () => {
 
 describe('接口 GET /api/daily-math', () => {
   test('返回当日 5 道题（不带答案）、answers 空、correctCount 0、未完成', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const r = await call('/api/daily-math?child_id=1', { cookie: c1 });
     assert.equal(r.status, 200);
     assert.equal(r.j.ok, true);
     assert.equal(r.j.problems.length, 5);
     for (const p of r.j.problems) {
-      assert.ok(p.kind === 'calc' || p.kind === 'bracket' || p.kind === 'word', `题型未知：${p.kind}`);
+      assert.ok(p.kind === 'calc' || p.kind === 'bracket' || p.kind === 'word' || p.kind === 'bank', `题型未知：${p.kind}`);
       if (p.kind === 'calc') assert.ok(p.q && p.q.endsWith('= ?'), '口算题面应以 = ? 结尾');
       if (p.kind === 'bracket') assert.ok(p.q && p.q.includes('()') && p.q.includes('='), '括号题面应含 () 与 =');
       if (p.kind === 'word') {
@@ -221,7 +223,7 @@ describe('接口 GET /api/daily-math', () => {
   test('未登录 401；跨孩 403', async () => {
     const anon = await call('/api/daily-math?child_id=1');
     assert.equal(anon.status, 401);
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const cross = await call('/api/daily-math?child_id=2', { cookie: c1 });
     assert.equal(cross.status, 403);
   });
@@ -229,7 +231,7 @@ describe('接口 GET /api/daily-math', () => {
 
 describe('接口 POST /api/daily-math/answer（每题一次作答）', () => {
   test('答对记 correct、答错返回正确答案；重复提交返回已有结果不重复计', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date, problems } = await todayMath(1, c1);
     const answers = todayAnswers(1, '三年级', date);
     // 第 1 题答对
@@ -262,7 +264,7 @@ describe('接口 POST /api/daily-math/answer（每题一次作答）', () => {
     void problems;
   });
   test('非法 index / 非数字答案拒绝；未登录/跨孩拒绝', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const badIdx = await call('/api/daily-math/answer', { method: 'POST', cookie: c1, body: { childId: 1, index: 5, answer: 1 } });
     assert.equal(badIdx.status, 400);
     const badAns = await call('/api/daily-math/answer', { method: 'POST', cookie: c1, body: { childId: 1, index: 0, answer: 'abc' } });
@@ -284,7 +286,7 @@ describe('打卡门禁：4/5 才记完成（2026-11-09）', () => {
     }
   }
   test('3/5 打卡被拒，不记日志、不发转盘机会', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date } = await todayMath(1, c1);
     await answerN(1, c1, date, '三年级', 3, true);
     const r = await call('/api/daily-math/checkin', { method: 'POST', cookie: c1, body: { childId: 1 } });
@@ -296,7 +298,7 @@ describe('打卡门禁：4/5 才记完成（2026-11-09）', () => {
     assert.equal(wheelChances(1, 'daily-math'), 0, '未达 4/5 不应发转盘机会');
   });
   test('4/5 打卡成功：记日志、发 1 次养成转盘机会；重复打卡不重发', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date } = await todayMath(1, c1);
     await answerN(1, c1, date, '三年级', 4, true);
     const r = await call('/api/daily-math/checkin', { method: 'POST', cookie: c1, body: { childId: 1 } });
@@ -314,7 +316,7 @@ describe('打卡门禁：4/5 才记完成（2026-11-09）', () => {
     assert.equal(wheelChances(1, 'daily-math'), 1, '重复打卡不应重发机会');
   });
   test('已打卡后答题锁定：answer 返回 completed', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date } = await todayMath(1, c1);
     await answerN(1, c1, date, '三年级', 4, true);
     await call('/api/daily-math/checkin', { method: 'POST', cookie: c1, body: { childId: 1 } });
@@ -324,7 +326,7 @@ describe('打卡门禁：4/5 才记完成（2026-11-09）', () => {
     assert.equal(r.j.error, 'completed', '已打卡后不应再答题');
   });
   test('打卡不加经验（total_xp 不变）', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date } = await todayMath(1, c1);
     const before = raw.prepare('SELECT total_xp FROM children WHERE id=1').get().total_xp;
     await answerN(1, c1, date, '三年级', 5, true);
@@ -339,12 +341,15 @@ describe('回归 2026-11-09 截图验收：placeholder 与刷新后正确答案'
   function renderRow({ lang, answers, problems, index = 4 }) {
     const appSrc = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
     // 任务 82：dmBi 已并入通用 dailyBi，dmUpdateRow 已并入 DM.updateRow；分别抽 dailyBi 与 dmRowHtml 再拼合
+    // 任务 94 (JS-M1)：dailyBi 改为 alias，依赖全局 bi——一并抽出，否则沙箱里 bi 未定义
+    const gBiStart = appSrc.indexOf('\nfunction bi(zh, en) {');
+    const gBiEnd = appSrc.indexOf('\n}\n', gBiStart) + 3;
     const biStart = appSrc.indexOf('function dailyBi(');
     const biEnd = appSrc.indexOf('\n}\n', biStart) + 3;
     const rowStart = appSrc.indexOf('function dmRowHtml(');
     const rowEnd = appSrc.indexOf('async function dmAnswer(', rowStart);
-    assert.ok(biStart >= 0 && biEnd > biStart && rowStart >= 0 && rowEnd > rowStart, '应能在 app.js.orig 找到 dailyBi/dmRowHtml');
-    const src = appSrc.slice(biStart, biEnd) + '\n' + appSrc.slice(rowStart, rowEnd);
+    assert.ok(gBiStart >= 0 && gBiEnd > gBiStart && biStart >= 0 && biEnd > biStart && rowStart >= 0 && rowEnd > rowStart, '应能在 app.js.orig 找到 bi/dailyBi/dmRowHtml');
+    const src = appSrc.slice(gBiStart, gBiEnd) + '\n' + appSrc.slice(biStart, biEnd) + '\n' + appSrc.slice(rowStart, rowEnd);
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const factory = new Function('window', 'state', 'lcNetOff', 'esc', `${src}; return { dmBi: dailyBi, dmRowHtml };`);
     const F = factory(
@@ -380,7 +385,7 @@ describe('回归 2026-11-09 截图验收：placeholder 与刷新后正确答案'
   });
 
   test('Bug 2：答错后 GET /api/daily-math 应回显 correctAnswer（刷新后仍可见）', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date } = await todayMath(1, c1);
     const answers = todayAnswers(1, '三年级', date);
     const r = await call('/api/daily-math/answer', { method: 'POST', cookie: c1, body: { childId: 1, index: 1, answer: answers[1] + 1 } });
@@ -393,7 +398,7 @@ describe('回归 2026-11-09 截图验收：placeholder 与刷新后正确答案'
   });
 
   test('Bug 2：答对的题 GET 不附 correctAnswer（与 POST 口径一致）', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date } = await todayMath(1, c1);
     const answers = todayAnswers(1, '三年级', date);
     await call('/api/daily-math/answer', { method: 'POST', cookie: c1, body: { childId: 1, index: 0, answer: answers[0] } });
@@ -405,7 +410,7 @@ describe('回归 2026-11-09 截图验收：placeholder 与刷新后正确答案'
 
 describe('新题型：括号填数＋应用题（2026-11-09，任务表 78）', () => {
   // 看图列算式、比大小（填＞＜＝）本次不加：前者要配图、后者不走数字输入框。
-  test('每天构成恰为 3 口算＋1 括号＋1 应用题；位置由种子定', () => {
+  test('每天构成恰为 2 口算＋1 括号＋1 应用题＋1 题库题；位置由种子定', () => {
     const bracketIdx = new Set(), wordIdx = new Set();
     for (let d = 1; d <= 40; d++) {
       const date = `2026-11-${String(d).padStart(2, '0')}`;
@@ -413,7 +418,7 @@ describe('新题型：括号填数＋应用题（2026-11-09，任务表 78）', 
         const ps = M.dailyMathTodayFor({ id, grade_label: label }, date).problems;
         assert.equal(ps.length, 5);
         const kinds = ps.map((p) => p.kind).sort();
-        assert.deepEqual(kinds, ['bracket', 'calc', 'calc', 'calc', 'word'], `${label} ${date} 构成应为 3 口算＋1 括号＋1 应用题`);
+        assert.deepEqual(kinds, ['bank', 'bracket', 'calc', 'calc', 'word'], `${label} ${date} 构成应为 2 口算＋1 括号＋1 应用题＋1 题库题`);
         bracketIdx.add(ps.findIndex((p) => p.kind === 'bracket'));
         wordIdx.add(ps.findIndex((p) => p.kind === 'word'));
       }
@@ -427,7 +432,7 @@ describe('新题型：括号填数＋应用题（2026-11-09，任务表 78）', 
     const b = M.dailyMathTodayFor({ id: 1, grade_label: '三年级' }, '2026-11-09');
     assert.deepEqual(a.problems, b.problems);
     const c = M.dailyMathTodayFor({ id: 2, grade_label: '一年级' }, '2026-11-09');
-    assert.deepEqual(c.problems.map((p) => p.kind).sort(), ['bracket', 'calc', 'calc', 'calc', 'word']);
+    assert.deepEqual(c.problems.map((p) => p.kind).sort(), ['bank', 'bracket', 'calc', 'calc', 'word']);
   });
 
   test('括号填数与应用题答案重算正确（40 天抽样）', () => {
@@ -460,11 +465,11 @@ describe('新题型：括号填数＋应用题（2026-11-09，任务表 78）', 
   });
 
   test('GET 返回新题型的 kind 与 qEn（应用题附英文，口算/括号不附）', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const r = await call('/api/daily-math?child_id=1', { cookie: c1 });
     assert.equal(r.j.ok, true);
     const kinds = r.j.problems.map((p) => p.kind).sort();
-    assert.deepEqual(kinds, ['bracket', 'calc', 'calc', 'calc', 'word']);
+    assert.deepEqual(kinds, ['bank', 'bracket', 'calc', 'calc', 'word']);
     for (const p of r.j.problems) {
       if (p.kind === 'word') assert.ok(p.qEn, '应用题 GET 应附 qEn');
       else assert.equal(p.qEn, undefined, '口算/括号 GET 不应附 qEn');
@@ -472,7 +477,7 @@ describe('新题型：括号填数＋应用题（2026-11-09，任务表 78）', 
   });
 
   test('答题流程对新题型同样有效：括号答对、应用题答错返正确答案', async () => {
-    const c1 = await childCookie(1, '0000');
+    const c1 = await childCookie(1, '1111');
     const { date } = await todayMath(1, c1);
     const answers = todayAnswers(1, '三年级', date);
     const probs = M.dailyMathTodayFor({ id: 1, grade_label: '三年级' }, date).problems;
@@ -493,15 +498,18 @@ describe('新题型：括号填数＋应用题（2026-11-09，任务表 78）', 
 
 describe('新题型渲染（2026-11-09，任务表 78；吸取 77② 补修教训：属性值只放纯文本）', () => {
   // 复用回归块的 renderRow 沙箱手法（dailyBi＋dmRowHtml 从 app.js.orig 抽出；任务 82：dmBi 已并入 dailyBi）
+  // 任务 94 (JS-M1)：dailyBi 改为 alias，依赖全局 bi——一并抽出，否则沙箱里 bi 未定义
   function renderRow({ lang, answers, problems, index }) {
     const appSrc = readFileSync(new URL('../public/static/app.js.orig', import.meta.url), 'utf8');
     // 任务 82：dmBi 已并入通用 dailyBi，dmUpdateRow 已并入 DM.updateRow；分别抽 dailyBi 与 dmRowHtml 再拼合
+    const gBiStart = appSrc.indexOf('\nfunction bi(zh, en) {');
+    const gBiEnd = appSrc.indexOf('\n}\n', gBiStart) + 3;
     const biStart = appSrc.indexOf('function dailyBi(');
     const biEnd = appSrc.indexOf('\n}\n', biStart) + 3;
     const rowStart = appSrc.indexOf('function dmRowHtml(');
     const rowEnd = appSrc.indexOf('async function dmAnswer(', rowStart);
-    assert.ok(biStart >= 0 && biEnd > biStart && rowStart >= 0 && rowEnd > rowStart, '应能在 app.js.orig 找到 dailyBi/dmRowHtml');
-    const src = appSrc.slice(biStart, biEnd) + '\n' + appSrc.slice(rowStart, rowEnd);
+    assert.ok(gBiStart >= 0 && gBiEnd > gBiStart && biStart >= 0 && biEnd > biStart && rowStart >= 0 && rowEnd > rowStart, '应能在 app.js.orig 找到 bi/dailyBi/dmRowHtml');
+    const src = appSrc.slice(gBiStart, gBiEnd) + '\n' + appSrc.slice(biStart, biEnd) + '\n' + appSrc.slice(rowStart, rowEnd);
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const factory = new Function('window', 'state', 'lcNetOff', 'esc', `${src}; return { dmBi: dailyBi, dmRowHtml };`);
     const F = factory(

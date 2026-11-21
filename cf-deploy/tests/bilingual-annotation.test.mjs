@@ -65,6 +65,9 @@ describe('前端显隐接线（源码断言）', () => {
     assert.match(appSrc, /englishMode: on/);
   });
   test('错题复习渲染不动（本批不改复习面，见 DEPLOY 备注）', () => {
-    assert.match(appSrc, /onclick="nextReview\(\)"/);
+    // 任务 96：下一题按钮改由 QuizEngine.showResult 渲染（nextCall 串 'nextReview'），
+    // 运行时输出仍是 onclick="nextReview()"，源码里不再出现该字面量
+    assert.match(appSrc, /'nextReview', R\.idx \+ 1 </);
+    assert.match(appSrc, /onclick="\$\{nextCall\}\(\)"/);
   });
 });

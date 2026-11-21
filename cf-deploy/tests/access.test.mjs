@@ -14,7 +14,7 @@ const M = await import(new URL('../src/index.js', import.meta.url));
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
-  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql']) {
+  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql']) {
     raw.exec(readFileSync(new URL('../migrations/' + f, import.meta.url), 'utf8'));
   }
   // 与测试环境一致的孩子名（种子在部署时改名，非迁移内容）
@@ -63,7 +63,7 @@ async function parentCookie() {
 async function setupChildPasswords(pCookie) {
   const r = await call('/api/parent/settings/update', {
     method: 'POST', cookie: pCookie,
-    body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] },
+    body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] },
   });
   assert.equal(r.j.ok, true);
 }
@@ -83,17 +83,17 @@ describe('入口与会话', () => {
 
   test('家庭密码接口已下线（/api/login 不再发会话）', async () => {
     // 无会话：被 API 门拦下 401，拿不到会话（家庭密码不能再登录）
-    const r = await call('/api/login', { method: 'POST', body: { password: 'YOUR_PASSWORD' } });
+    const r = await call('/api/login', { method: 'POST', body: { password: 'test5678' } });
     assert.equal(r.status, 401);
     assert.equal(r.cookie, undefined);
     // 有会话：路由里已无此接口 → 404
     const pc = await parentCookie();
-    const r2 = await call('/api/login', { method: 'POST', cookie: pc, body: { password: 'YOUR_PASSWORD' } });
+    const r2 = await call('/api/login', { method: 'POST', cookie: pc, body: { password: 'test5678' } });
     assert.equal(r2.status, 404);
   });
 
   test('未设密码的孩子登录 → PWD_NOT_SET 提示分支', async () => {
-    const r = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '0000' } });
+    const r = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '1111' } });
     assert.equal(r.status, 403);
     assert.equal(r.j.error, 'PWD_NOT_SET');
   });
@@ -105,7 +105,7 @@ describe('入口与会话', () => {
   });
 
   test('家长 PIN 登录 → parent 会话，全量接口可用', async () => {
-    const bad = await call('/api/parent/login', { method: 'POST', body: { pin: '9999' } });
+    const bad = await call('/api/parent/login', { method: 'POST', body: { pin: '0000' } });
     assert.equal(bad.status, 401);
     assert.equal(bad.j.error, 'PIN_WRONG');
     const pc = await parentCookie();
@@ -138,7 +138,7 @@ describe('孩子密码与隔离', () => {
     const s = await call('/api/parent/settings', { cookie: pc });
     assert.equal(s.j.settings.children[0].hasPassword, true);
     assert.equal(s.j.settings.children[1].hasPassword, true);
-    const cc = await childCookie(1, '0000');
+    const cc = await childCookie(1, '1111');
     const ov = await call('/api/overview', { cookie: cc });
     assert.equal(ov.j.session.kind, 'child');
     assert.equal(ov.j.session.childId, 1);
@@ -166,7 +166,7 @@ describe('孩子密码与隔离', () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
     // 孩子用旧密码登录，拿到有效会话
-    const oldSession = await childCookie(1, '0000');
+    const oldSession = await childCookie(1, '1111');
     const ok1 = await call('/api/overview', { cookie: oldSession });
     assert.equal(ok1.status, 200);
     // 家长改掉该孩子的密码
@@ -179,7 +179,7 @@ describe('孩子密码与隔离', () => {
     assert.equal(dead.status, 401);
     assert.equal(dead.j.error, 'NEED_LOGIN');
     // 兄弟（孩子 2）的会话不受影响
-    const sib = await childCookie(2, '0000');
+    const sib = await childCookie(2, '2222');
     const upd2 = await call('/api/parent/settings/update', {
       method: 'POST', cookie: pc, body: { childPasswords: [{ id: 1, password: '9999' }] },
     });
@@ -187,7 +187,7 @@ describe('孩子密码与隔离', () => {
     const sibOk = await call('/api/overview', { cookie: sib });
     assert.equal(sibOk.status, 200);
     // 新密码可登录，旧密码不行
-    const wrongPw = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '0000' } });
+    const wrongPw = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '1111' } });
     assert.equal(wrongPw.j.ok, false);
     const newCc = await childCookie(1, '9999');
     const ov = await call('/api/overview', { cookie: newCc });
@@ -198,7 +198,7 @@ describe('孩子密码与隔离', () => {
   test('孩子 A 会话请求孩子 B 的数据全部被拒（403 FORBIDDEN）', async () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
-    const a = await childCookie(1, '0000');
+    const a = await childCookie(1, '1111');
     const checks = [
       await call('/api/child?id=2', { cookie: a }),
       await call('/api/checkin', { method: 'POST', cookie: a, body: { childId: 2, subjects: ['语文'] } }),
@@ -228,7 +228,7 @@ describe('孩子密码与隔离', () => {
     await setupChildPasswords(pc);
     raw.exec("INSERT INTO encounters(child_id, date, pokemon_no, name) VALUES(2, '2026-01-01', 39, '胖丁')");
     raw.exec("INSERT INTO gym_battles(child_id, week_start, created_at) VALUES(2, '2025-12-29', 1)");
-    const a = await childCookie(1, '0000');
+    const a = await childCookie(1, '1111');
     const t = await call('/api/encounter/throw', { method: 'POST', cookie: a, body: { encounterId: 1 } });
     assert.equal(t.status, 403);
     // 旧 /api/gym/round 已下线（对战修复批 #2），不再有“按 id 猜战斗”的入口：路由不存在 → 404
@@ -240,25 +240,25 @@ describe('孩子密码与隔离', () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
     for (let i = 0; i < 4; i++) {
-      const r = await call('/api/child/login', { method: 'POST', body: { childId: 2, password: '9999' } });
+      const r = await call('/api/child/login', { method: 'POST', body: { childId: 2, password: '0000' } });
       assert.equal(r.status, 401);
       assert.equal(r.j.error, 'PWD_WRONG');
       assert.equal(r.j.attemptsLeft, 4 - i);
     }
-    const fifth = await call('/api/child/login', { method: 'POST', body: { childId: 2, password: '9999' } });
+    const fifth = await call('/api/child/login', { method: 'POST', body: { childId: 2, password: '0000' } });
     assert.equal(fifth.status, 429);
     assert.equal(fifth.j.error, 'CHILD_LOCKED');
     assert.ok(fifth.j.retryAfter > 0 && fifth.j.retryAfter <= 300);
-    const correct = await call('/api/child/login', { method: 'POST', body: { childId: 2, password: '0000' } });
+    const correct = await call('/api/child/login', { method: 'POST', body: { childId: 2, password: '2222' } });
     assert.equal(correct.status, 429);
     // 孩子 1 不受孩子 2 锁定影响
-    await childCookie(1, '0000');
+    await childCookie(1, '1111');
   });
 
   test('孩子会话输 PIN 可升级为家长会话（同一 cookie）', async () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
-    const a = await childCookie(1, '0000');
+    const a = await childCookie(1, '1111');
     const before = await call('/api/parent/pending', { cookie: a });
     assert.equal(before.status, 403);
     const up = await call('/api/parent/verify-pin', { method: 'POST', cookie: a, body: { pin: '0000' } });
@@ -277,11 +277,11 @@ describe('孩子密码与隔离', () => {
       method: 'POST', cookie: pc, body: { childPasswords: [{ id: 1, password: '' }] },
     });
     assert.equal(clr.j.ok, true);
-    const r = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '0000' } });
+    const r = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '1111' } });
     assert.equal(r.status, 403);
     assert.equal(r.j.error, 'PWD_NOT_SET');
     const badFmt = await call('/api/parent/settings/update', {
-      method: 'POST', cookie: pc, body: { childPasswords: [{ id: 1, password: '00005' }] },
+      method: 'POST', cookie: pc, body: { childPasswords: [{ id: 1, password: '00000' }] },
     });
     assert.equal(badFmt.status, 400);
   });
@@ -293,7 +293,7 @@ describe('连击里程碑通知（小修①）', () => {
     await setupChildPasswords(pc);
     const yesterday = M.addDays(M.shDateStr(), -1);
     raw.exec(`UPDATE children SET streak=6, last_checkin_date='${yesterday}' WHERE id=1`);
-    const a = await childCookie(1, '0000');
+    const a = await childCookie(1, '1111');
     const sub = await call('/api/checkin', { method: 'POST', cookie: a, body: { childId: 1, subjects: ['语文'] } });
     assert.equal(sub.j.ok, true);
     const rev = await call('/api/parent/review', {
@@ -311,7 +311,7 @@ describe('连击里程碑通知（小修①）', () => {
     const noticeId = detail.j.child.notices[0].id;
 
     // 孩子 2 的会话不能确认孩子 1 的通知
-    const b = await childCookie(2, '0000');
+    const b = await childCookie(2, '2222');
     await call('/api/notices/ack', { method: 'POST', cookie: b, body: { ids: [noticeId] } });
     const still = await call('/api/child?id=1', { cookie: a });
     assert.equal(still.j.child.notices.length, 1);
@@ -332,7 +332,7 @@ describe('测试模式与重置（小修②相关链路）', () => {
     assert.equal(s.j.settings.testMode, true);
     const r = await call('/api/parent/debug-reset', { method: 'POST', cookie: pc, body: { confirm: true } });
     assert.equal(r.j.ok, true);
-    const login = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '0000' } });
+    const login = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '1111' } });
     assert.equal(login.status, 403);
     assert.equal(login.j.error, 'PWD_NOT_SET');
     // PIN 重置后仍可用（保留 PIN）
@@ -346,16 +346,16 @@ describe('测试模式与重置（小修②相关链路）', () => {
   });
 });
 
-describe('选人页隐私（未登录不下发姓名）', () => {
-  test('未登录 GET / 的选人页只有虚拟形象、年级与宠物等级，无真实姓名', async () => {
+describe('登录页隐私（未登录不下发任何孩子信息，用户系统 v2）', () => {
+  test('未登录 GET / 的登录页只有用户名/密码/登录按钮：无孩子姓名、年级、宠物等级、孩子头像', async () => {
     const res = await M.default.fetch(new Request('https://test.local/'), env);
     assert.equal(res.status, 200);
-    const html = await res.text();
-    assert.ok(html.includes(`avatar-pikachu.${H}.webp`), '应有皮丘线虚拟形象');
-    assert.ok(html.includes(`avatar-charmander.${H}.webp`), '应有小火龙线虚拟形象');
-    assert.ok(html.includes('宠物 Lv.'), '应显示宠物等级');
-    assert.ok(html.includes('三年级') && html.includes('一年级'), '应显示年级');
-    assert.ok(!html.includes('测试大宝'), '选人页不得出现大宝姓名');
-    assert.ok(!html.includes('测试小宝'), '选人页不得出现小宝姓名');
+    const html = (await res.text()).replace(/<select id="rg">.*?<\/select>/s, ''); // 注册表单的年级选项是静态选项，不是孩子信息
+    assert.ok(html.includes('id="u"') && html.includes('id="p"') && html.includes('id="b-login"'), '应有用户名、密码、登录按钮');
+    assert.ok(!html.includes('avatar-pikachu') && !html.includes('avatar-charmander'), '登录页不得出现孩子虚拟形象');
+    assert.ok(!html.includes('宠物 Lv.'), '登录页不得出现宠物等级');
+    assert.ok(!html.includes('三年级') && !html.includes('一年级'), '登录页不得出现年级');
+    assert.ok(!html.includes('测试大宝') && !html.includes('测试小宝'), '登录页不得出现孩子姓名');
+    assert.ok(!html.includes('role-card') && !html.includes('class="role"'), '登录页不得再列孩子卡片');
   });
 });

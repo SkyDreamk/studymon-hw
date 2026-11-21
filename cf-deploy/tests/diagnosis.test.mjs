@@ -198,7 +198,7 @@ describe('迁移 0017（诊断表）', () => {
       '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql',
       '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql',
       '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql',
-      '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql',
+      '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql',
     ]) {
       raw.exec(readFileSync(new URL('../migrations/' + f, import.meta.url), 'utf8'));
     }
@@ -232,7 +232,7 @@ describe('诊断接口端到端', () => {
       '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql',
       '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql',
       '0013_bsn_math_chapters.sql', '0014_oak.sql', '0015_care_logs.sql', '0016_oak_audio_fix.sql',
-      '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql',
+      '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql',
     ]) {
       raw.exec(readFileSync(new URL('../migrations/' + f, import.meta.url), 'utf8'));
     }
@@ -300,10 +300,13 @@ describe('诊断接口端到端', () => {
     assert.equal(r1.j.correct, true);
     assert.equal(r1.j.xpAwarded, 0);
     assert.equal(r1.j.fragmentsAwarded, 0);
+    // 中途（只答 1/2）仍 pending，不置 done
+    assert.equal(raw.prepare("SELECT status FROM quiz_diagnoses WHERE child_id=2").get().status, 'pending');
     const r2 = await call(env, '/api/quiz/review', { method: 'POST', body: { child_id: 2, question_id: p001ids[1], answer_idx: 1 }, cookie: pc });
     assert.equal(r2.j.correct, false);
     assert.equal(raw.prepare("SELECT COUNT(*) n FROM quiz_diagnoses WHERE child_id=2").get().n, 1, '复习中途行不置 done、不另建行');
-    assert.equal(raw.prepare("SELECT status FROM quiz_diagnoses WHERE child_id=2").get().status, 'pending');
+    // 2026-11-17：整批答完即置 done（同一根因当天不再建新诊断）；中途（只答 1/2）仍 pending
+    assert.equal(raw.prepare("SELECT status FROM quiz_diagnoses WHERE child_id=2").get().status, 'done');
     const atts = raw.prepare(`SELECT question_id, xp_awarded, fragments_awarded FROM quiz_attempts WHERE question_id IN (${p001ids[0]},${p001ids[1]}) ORDER BY question_id`).all();
     assert.deepEqual(atts.map((a) => [a.question_id, a.xp_awarded, a.fragments_awarded]), [[p001ids[0], 0, 0], [p001ids[1], 0, 0]]);
     assert.equal(raw.prepare('SELECT review_correct FROM quiz_diagnoses WHERE child_id=2').get().review_correct, 1);
@@ -312,6 +315,7 @@ describe('诊断接口端到端', () => {
     assert.equal(raw.prepare("SELECT COUNT(*) n FROM ball_drops WHERE child_id=2").get().n, 0, '不触发掉球');
     assert.equal(raw.prepare("SELECT COUNT(*) n FROM encounters WHERE child_id=2").get().n, 0, '不触发遭遇');
     const d2 = await call(env, '/api/quiz/diagnosis?child_id=2', { cookie: pc });
-    assert.deepEqual(d2.j.pending.reviewQuestions, [], '两道复习题答完后当日不再出题');
+    // 2026-11-17：整批答完即置 done，同一根因当天不再新建，故 pending 为 null（当日不再出题）
+    assert.equal(d2.j.pending, null, '两道复习题答完后当日不再出题');
   });
 });

@@ -10,7 +10,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
 
-const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql'];
+const MIGRATIONS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0009_quiz_topic.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0014_oak.sql', '0016_oak_audio_fix.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0024_evo_reward.sql', '0040_oak_wheel_chances.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv(migrations = MIGRATIONS) {
   const raw = new DatabaseSync(':memory:');
@@ -120,18 +120,18 @@ describe('rollDailyItemDrop', () => {
 
 describe('rollWheelPrize', () => {
   test('蛋档去重：主宠蛋只剩伊布可重复时必出伊布', () => {
-    // 新池合计 147，蛋段为 85~100/147，0.6 落段内
-    const prize = M.rollWheelPrize(() => 0.6, new Set([1, 4, 7, 25]), new Set());
+    // 新池合计 15，蛋段为 4~5/15，0.3 落段内
+    const prize = M.rollWheelPrize(() => 0.3, new Set([1, 4, 7, 25]), new Set());
     assert.equal(prize.kind, 'egg');
     assert.equal(prize.species, 133);
   });
-  test('石档权重：0.1 落在日之石段', () => {
-    const prize = M.rollWheelPrize(() => 0.1, new Set(), new Set());
+  test('石档权重：0.03 落在日之石段', () => {
+    const prize = M.rollWheelPrize(() => 0.03, new Set(), new Set());
     assert.deepEqual(prize, { kind: 'stone', key: 'stone:sun' });
   });
   test('高级球段命中', () => {
-    // 新池合计 147，高级球段为 75~85/147，0.55 落段内（旧 0.7 现落活力碎片段）
-    const prize = M.rollWheelPrize(() => 0.55, new Set(), new Set());
+    // 新池合计 15，高级球段为 3~4/15，0.233 落段内
+    const prize = M.rollWheelPrize(() => 0.233, new Set(), new Set());
     assert.deepEqual(prize, { kind: 'ball', key: 'ball:hyper' });
   });
 });
@@ -440,34 +440,36 @@ describe('egg dedup / hatch', () => {
     assert.equal(e1.granted, true);
     assert.equal(e2.granted, true, '伊布蛋可重复获得');
   });
-  test('学校成绩自动补发：补发一次普通随机；同记录再发 409；另一条记录也可补发（规则变更：手动选蛋已取消）', async () => {
+  test('学校成绩自动补发：补发一次普通转盘机会；同记录再发 409；另一条记录也可补发（2026-11-21 奖励改走转盘）', async () => {
     await toProd();
     const cookie = await parentCookie();
     const today = todayStr();
     const ins1 = raw.prepare("INSERT INTO school_test_records(child_id, subject, unit, score, full_score, pct, exam_date, status, reward_granted, created_epoch, date_shanghai) VALUES(1,'数学','第3单元 加与减',96,100,96,?,'active',0,0,?)").run(today, today);
     const rec1 = Number(ins1.lastInsertRowid);
-    const r1 = await withRandom(0.1, () => call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec1 } }));
+    const r1 = await call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec1 } });
     assert.equal(r1.status, 200, JSON.stringify(r1.j));
-    assert.equal(r1.j.granted.kind, 'ball');
+    assert.equal(r1.j.granted.kind, 'wheel');
+    assert.equal(r1.j.granted.key, 'wheel:oak');
     assert.equal(raw.prepare('SELECT reward_granted FROM school_test_records WHERE id=?').get(rec1).reward_granted, 1);
     const r2 = await call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec1 } });
     assert.equal(r2.status, 409);
     const ins2 = raw.prepare("INSERT INTO school_test_records(child_id, subject, unit, score, full_score, pct, exam_date, status, reward_granted, created_epoch, date_shanghai) VALUES(1,'语文','第1单元',95,100,95,?,'active',0,0,?)").run(today, today);
     const rec2 = Number(ins2.lastInsertRowid);
-    const r3 = await withRandom(0.5, () => call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec2 } }));
+    const r3 = await call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: rec2 } });
     assert.equal(r3.status, 200, JSON.stringify(r3.j));
-    assert.equal(r3.j.granted.kind, 'xp');
+    assert.equal(r3.j.granted.kind, 'wheel');
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 2);
   });
-  test('学校成绩自动发：85 分以下不发；≥85 自动随机（规则变更：手动选石已取消）', async () => {
+  test('学校成绩自动发：85 分以下不发；≥85 自动发普通转盘机会（2026-11-21 奖励改走转盘）', async () => {
     const cookie = await parentCookie();
     const today = todayStr();
     const ins1 = raw.prepare("INSERT INTO school_test_records(child_id, subject, unit, score, full_score, pct, exam_date, status, reward_granted, created_epoch, date_shanghai) VALUES(1,'数学','第1单元',80,100,80,?,'active',0,0,?)").run(today, today);
     const r1 = await call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: Number(ins1.lastInsertRowid) } });
     assert.equal(r1.status, 400);
     const ins2 = raw.prepare("INSERT INTO school_test_records(child_id, subject, unit, score, full_score, pct, exam_date, status, reward_granted, created_epoch, date_shanghai) VALUES(1,'数学','第2单元',90,100,90,?,'active',0,0,?)").run(today, today);
-    const r2 = await withRandom(0.1, () => call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: Number(ins2.lastInsertRowid) } }));
+    const r2 = await call('/api/parent/school-test/grant', { method: 'POST', cookie, body: { recordId: Number(ins2.lastInsertRowid) } });
     assert.equal(r2.status, 200, JSON.stringify(r2.j));
-    assert.equal(r2.j.granted.kind, 'ball');
+    assert.equal(r2.j.granted.kind, 'wheel');
     assert.equal(raw.prepare('SELECT reward_granted FROM school_test_records WHERE id=?').get(Number(ins2.lastInsertRowid)).reward_granted, 1);
   });
 });
@@ -479,7 +481,7 @@ describe('wheel', () => {
     const today = todayStr();
     const ins = raw.prepare("INSERT INTO school_test_records(child_id, subject, unit, score, full_score, pct, exam_date, status, reward_granted, created_epoch, date_shanghai) VALUES(1,'数学','第3单元',96,100,96,?,'active',0,0,?)").run(today, today);
     raw.prepare('INSERT INTO wheel_chances(child_id, school_test_id, week_start, created_epoch, date_shanghai) VALUES(1,?,?,0,?)').run(Number(ins.lastInsertRowid), M.weekStartMon(today), today);
-    const r1 = await withRandom(0.1, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
+    const r1 = await withRandom(0.033, () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
     assert.equal(r1.status, 200, JSON.stringify(r1.j));
     assert.equal(r1.j.prize.kind, 'stone');
     assert.equal(r1.j.prize.name, '日之石');
@@ -497,9 +499,9 @@ describe('wheel', () => {
     }
     const ins = raw.prepare("INSERT INTO school_test_records(child_id, subject, unit, score, full_score, pct, exam_date, status, reward_granted, created_epoch, date_shanghai) VALUES(1,'数学','第3单元',96,100,96,?,'active',0,0,?)").run(today, today);
     raw.prepare('INSERT INTO wheel_chances(child_id, school_test_id, week_start, created_epoch, date_shanghai) VALUES(1,?,?,0,?)').run(Number(ins.lastInsertRowid), M.weekStartMon(today), today);
-    // 新池合计 147，蛋段为 85~100/147：第一次 rng 0.6 落蛋段，第二次 rng 决定蛋档内选取；
+    // 新池合计 15，蛋段为 4~5/15：第一次 rng 0.3 落蛋段，第二次 rng 决定蛋档内选取；
     // 测试模式下 DEBUG_GATES_OPEN 使 owned 为空、蛋档 5 只全在，第二次 rng 0.9 取下标 4（伊布）
-    const r = await withRandomSeq([0.6, 0.9], () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
+    const r = await withRandomSeq([0.3, 0.9], () => call('/api/evo/wheel/spin', { method: 'POST', cookie, body: { childId: 1 } }));
     assert.equal(r.status, 200, JSON.stringify(r.j));
     assert.equal(r.j.prize.kind, 'egg');
     assert.equal(r.j.prize.species, 133);
@@ -533,7 +535,7 @@ describe('unit test', () => {
     const r2 = await call('/api/parent/unit-test/start', { method: 'POST', cookie, body: { childId: 1, subject: '数学', unit: chapter } });
     assert.equal(r2.status, 400);
   });
-  test('提交：全错 0 分不抽奖；全对 100 分中奖（随机数固定 0 → 石）', async () => {
+  test('提交：全错 0 分不抽奖；全对 100 分中奖得 1 次普通转盘机会（2026-11-21 奖励改走转盘）', async () => {
     const cookie = await parentCookie();
     const chapter = seedMathQuestions();
     const r1 = await call('/api/parent/unit-test/start', { method: 'POST', cookie, body: { childId: 1, subject: '数学', unit: chapter } });
@@ -556,9 +558,10 @@ describe('unit test', () => {
     assert.equal(win.status, 200, JSON.stringify(win.j));
     assert.equal(win.j.score, 100);
     assert.equal(win.j.won, true);
-    assert.equal(win.j.prize.kind, 'stone');
-    assert.equal(win.j.prize.key, 'stone:thunder');
-    assert.equal(invQty(1, 'stone:thunder'), 1);
+    assert.equal(win.j.prize.kind, 'wheel');
+    assert.equal(win.j.prize.key, 'wheel:oak');
+    assert.equal(invQty(1, 'stone:thunder'), 0);
+    assert.equal(raw.prepare("SELECT COUNT(*) n FROM oak_wheel_chances WHERE child_id=1 AND source='oak'").get().n, 1);
     // 重复提交同一场 400
     const dup = await call('/api/child/unit-test/submit', { method: 'POST', cookie, body: { childId: 1, testId: r2.j.test.id, answers: [] } });
     assert.equal(dup.status, 400);
@@ -698,7 +701,7 @@ async function childCookie(id, pw) {
   return r.cookie;
 }
 async function setupChildPasswords(pCookie) {
-  const r = await call('/api/parent/settings/update', { method: 'POST', cookie: pCookie, body: { childPasswords: [{ id: 1, password: '0000' }, { id: 2, password: '0000' }] } });
+  const r = await call('/api/parent/settings/update', { method: 'POST', cookie: pCookie, body: { childPasswords: [{ id: 1, password: '1111' }, { id: 2, password: '2222' }] } });
   assert.equal(r.j.ok, true, JSON.stringify(r.j));
 }
 function insertPendingSchoolTest(childId, subject, unit, score, fullScore, photoKey) {
@@ -714,7 +717,7 @@ describe('child school test submit / review', () => {
   test('孩子上报 96 分：只写 pending，不记转盘机会；家长待审核列表能看到', async () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
-    const cc = await childCookie(1, '0000');
+    const cc = await childCookie(1, '1111');
     const today = todayStr();
     const r = await call('/api/child/school-test/submit', { method: 'POST', cookie: cc, body: { childId: 1, subject: '数学', unit: '期中考试', score: 96, fullScore: 100, examDate: today } });
     assert.equal(r.status, 200, JSON.stringify(r.j));
@@ -733,7 +736,7 @@ describe('child school test submit / review', () => {
   test('孩子不能替兄弟上报：FORBIDDEN', async () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
-    const cc = await childCookie(1, '0000');
+    const cc = await childCookie(1, '1111');
     const r = await call('/api/child/school-test/submit', { method: 'POST', cookie: cc, body: { childId: 2, subject: '数学', unit: '期中考试', score: 96, fullScore: 100, examDate: todayStr() } });
     assert.equal(r.status, 403);
   });
@@ -782,7 +785,7 @@ describe('child school test submit / review', () => {
   test('家长驳回：状态 rejected；再通过／发奖都 400；无转盘机会', async () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
-    const cc = await childCookie(1, '0000');
+    const cc = await childCookie(1, '1111');
     const s = await call('/api/child/school-test/submit', { method: 'POST', cookie: cc, body: { childId: 1, subject: '语文', unit: '期中考试', score: 96, fullScore: 100, examDate: todayStr() } });
     const rec = s.j.record.id;
     const r = await call('/api/parent/school-test/review', { method: 'POST', cookie: pc, body: { recordId: rec, decision: 'reject' } });
@@ -800,8 +803,8 @@ describe('child school test submit / review', () => {
   test('孩子查自己的上报记录：状态可见；兄弟的看不到', async () => {
     const pc = await parentCookie();
     await setupChildPasswords(pc);
-    const cc1 = await childCookie(1, '0000');
-    const cc2 = await childCookie(2, '0000');
+    const cc1 = await childCookie(1, '1111');
+    const cc2 = await childCookie(2, '2222');
     await call('/api/child/school-test/submit', { method: 'POST', cookie: cc1, body: { childId: 1, subject: '英语', unit: '期中考试', score: 88, fullScore: 100, examDate: todayStr() } });
     const mine = await call('/api/child/school-tests?childId=1', { cookie: cc1 });
     assert.equal(mine.status, 200, JSON.stringify(mine.j));
@@ -813,7 +816,7 @@ describe('child school test submit / review', () => {
     assert.equal(forbidden.status, 403);
   });
 
-  test('家长直登保存回归：96 分无照片不记转盘机会（重构未改行为）', async () => {
+  test('家长直登保存回归：96 分无照片不记转盘机会（95+ 必须传照片，2026-11-21 用户定）', async () => {
     await toProd();
     const pc = await parentCookie();
     const r = await call('/api/parent/school-test/save', { method: 'POST', cookie: pc, body: { childId: 1, subject: '数学', unit: '期中考试', score: 96, fullScore: 100, examDate: todayStr() } });

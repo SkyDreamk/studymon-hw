@@ -146,13 +146,13 @@ describe('阶段系统（2a）', () => {
     assert.deepEqual(p.stages, { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 });
     assert.equal(p.status, null);
   });
-  test('calcDamage 阶段进 A/D：物攻 atk+1 时 10→14、atk-1 时 10→7、防守 def+1 时 10→7；特攻 spa+1 时 31→45', () => {
+  test('calcDamage 阶段进 A/D：物攻 atk+1 时 10→13、atk-1 时 10→7、防守 def+1 时 10→7；特攻 spa+1 时 30→42（分步取整）', () => {
     const mv = { name: '电光一闪', type: '电', power: 40, damage_class: 'physical' };
     const a = atk(25, 100, 100, '电', ['电'], pikaStats);
     const d = def(16, ['普通', '飞行'], 100, popoStats);
     assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 10);
     a.stages = { atk: 1, def: 0, spa: 0, spd: 0, spe: 0 };
-    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 14);
+    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 13); // 分步取整
     a.stages.atk = -1;
     assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 7);
     a.stages.atk = 0;
@@ -160,9 +160,9 @@ describe('阶段系统（2a）', () => {
     assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 7);
     d.stages.def = 0;
     const mvSp = { name: '十万伏特', type: '电', power: 40, damage_class: 'special' };
-    assert.equal(M.calcDamage(mvSp, a, d, R, OFF).dmg, 31);
+    assert.equal(M.calcDamage(mvSp, a, d, R, OFF).dmg, 30);
     a.stages.spa = 1;
-    assert.equal(M.calcDamage(mvSp, a, d, R, OFF).dmg, 45);
+    assert.equal(M.calcDamage(mvSp, a, d, R, OFF).dmg, 42);
   });
   test('避雷针/电气引擎：电招免疫（dmg 0）且条目带 stage，applyAbilityStages 升档', () => {
     const mvSp = { name: '十万伏特', type: '电', power: 40, damage_class: 'special' };
@@ -276,32 +276,32 @@ describe('威吓（2a）', () => {
 
 describe('状态系统（2b）：挂状态与免疫', () => {
   const contact = { name: '撞击', type: '普通', power: 35, damage_class: 'physical' };
-  test('灼伤物理攻击减半（10→6，带 burn 条目）；特殊招不受影响（31 不变）', () => {
+  test('灼伤物理攻击减半（10→5，带 burn 条目）；特殊招不受影响（30 不变，分步取整）', () => {
     const mv = { name: '电光一闪', type: '电', power: 40, damage_class: 'physical' };
     const a = atk(25, 100, 100, '电', ['电'], pikaStats);
     const d = def(16, ['普通', '飞行'], 100, popoStats);
     assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 10);
     a.status = { kind: 'burn' };
     const burned = M.calcDamage(mv, a, d, R, OFF);
-    assert.equal(burned.dmg, 6);
+    assert.equal(burned.dmg, 5);
     assert.deepEqual(burned.ability, [{ name: '灼伤', kind: 'burn', side: 'atk', pet: '攻方25', moveType: '普通' }]);
     const mvSp = { name: '十万伏特', type: '电', power: 40, damage_class: 'special' };
-    assert.equal(M.calcDamage(mvSp, a, d, R, OFF).dmg, 31);
+    assert.equal(M.calcDamage(mvSp, a, d, R, OFF).dmg, 30);
   });
-  test('毅力：异常时物理攻击 ×1.5 且无视灼伤减半（13→19，带 guts 条目）', () => {
-    // 用 makePet 建宠（与 probe 一致）：腕力 defTypes 回落为 ['普通']，格斗招无 STAB。
+  test('毅力：异常时物理攻击 ×1.5 且无视灼伤减半（19→27，带 guts 条目；腕力 defTypes 现为 [格斗]，格斗招享 STAB）', () => {
+    // 用 makePet 建宠：playerDefTypes(66) 现为 ['格斗']（TYPES18 补全），格斗招享 STAB，基础伤害 13→19。
     const mv = { name: '空手劈', type: '格斗', power: 40, damage_class: 'physical' };
     const a = pet(66, '腕力', [{ name: '空手劈', type: '格斗', power: 40, damage_class: 'physical' }]);
     const d = pet(16, '波波', [{ name: '撞击', type: '普通', power: 35 }]);
-    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 13);
+    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 19);
     a.status = { kind: 'burn' };
     const g1 = M.calcDamage(mv, a, d, R, OFF);
-    assert.equal(g1.dmg, 19);
+    assert.equal(g1.dmg, 27);
     assert.deepEqual(g1.ability, [{ name: '毅力', kind: 'guts', side: 'atk', pet: '腕力', moveType: '格斗' }]);
     a.status = { kind: 'poison' };
-    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 19);
+    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 27);
     a.status = null;
-    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 13);
+    assert.equal(M.calcDamage(mv, a, d, R, OFF).dmg, 19);
   });
   test('tryInflictStatus：已有状态/昏厥返回 null；属性免疫推 immune 事件；特性守卫推 ability 事件', () => {
     assert.equal(M.tryInflictStatus(null, 'poison', R, 'B'), null);

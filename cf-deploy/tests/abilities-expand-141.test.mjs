@@ -96,11 +96,11 @@ describe('引火（新接线）', () => {
     M.applyAbilityFlashFire(q, [{ name: '储水', kind: 'immune', heal: 18 }]);
     assert.equal(q.flashFire, false);
   });
-  test('火伤加成：136 喷射火焰 57 vs 39；37 火花飞舞 29 vs 21；38 喷射火焰 50 vs 35，均带 flashfire 事件', () => {
+  test('火伤加成：136 喷射火焰 57 vs 39；37 火花飞舞 28 vs 19；38 喷射火焰 49 vs 34，均带 flashfire 事件', () => {
     const cases = [
       [136, '火伊布', fire64, 57, 39],
-      [37, '六尾', fire54, 29, 21],
-      [38, '九尾', fire64, 50, 35],
+      [37, '六尾', fire54, 28, 19],
+      [38, '九尾', fire64, 49, 34],
     ];
     for (const [no, name, move, wantOn, wantOff] of cases) {
       const on = pet(no, name, [move]);
@@ -118,7 +118,7 @@ describe('引火（新接线）', () => {
   });
   test('非火招不触发：撞击打 136 正常伤害无条目；带标记的 136 用撞击与无标记同伤害、无 flashfire 事件', () => {
     const r = M.calcDamage(tackle, pet(16, '波波', [tackle]), pet(136, '火伊布', [fire64]), R, OFF);
-    assert.equal(r.dmg, 10);
+    assert.equal(r.dmg, 9);
     assert.equal(r.ability.length, 0);
     const on = pet(136, '火伊布', [tackle]);
     on.flashFire = true;
@@ -188,9 +188,9 @@ describe('储水/蓄电/免疫/蜕皮/同步（calcDamage 级）', () => {
     assert.deepEqual(src.status, { kind: 'poison' });
     assert.ok(ev.some((e) => e.type === 'ability' && e.ability === '同步'), JSON.stringify(ev));
   });
-  test('场外特性无操作：水枪打 121 dmg 4、ability 空；撞击打 133 正常伤害、ability 空', () => {
+  test('场外特性无操作：水枪打 121 dmg 3、ability 空；撞击打 133 正常伤害、ability 空', () => {
     const r1 = M.calcDamage(water40, pet(7, '杰尼龟', [water40]), pet(121, '宝石海星', [water40]), R, OFF);
-    assert.equal(r1.dmg, 4);
+    assert.equal(r1.dmg, 3);
     assert.equal(r1.mult, 0.5);
     assert.equal(r1.ability.length, 0);
     const r2 = M.calcDamage(tackle, pet(16, '波波', [tackle]), pet(133, '伊布', [tackle]), R, OFF);

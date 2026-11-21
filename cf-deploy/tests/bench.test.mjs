@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 
 const M = await import(new URL('../src/index.js', import.meta.url));
-const MIGS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql'];
+const MIGS = ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0007_coop_tables.sql', '0008_battles_coop_cols.sql', '0009_quiz_topic.sql', '0010_pvp_rematch.sql', '0011_parent_grants.sql', '0012_reward_checkin.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql'];
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
@@ -90,8 +90,8 @@ describe('副宠等级同步主宠经验', () => {
     raw.prepare("INSERT OR IGNORE INTO pokedex(child_id, entry_key, unlocked_at) VALUES(1,'wild:54','2026-01-01')").run();
     const pc = await call('/api/parent/login', { method: 'POST', body: { pin: '0000' } });
     assert.equal(pc.status, 200);
-    await call('/api/parent/settings/update', { method: 'POST', cookie: pc.cookie, body: { childPasswords: [{ id: 1, password: '0000' }] } });
-    const c1 = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '0000' } });
+    await call('/api/parent/settings/update', { method: 'POST', cookie: pc.cookie, body: { childPasswords: [{ id: 1, password: '1111' }] } });
+    const c1 = await call('/api/child/login', { method: 'POST', body: { childId: 1, password: '1111' } });
     assert.equal(c1.status, 200);
     const start = await call('/api/battle/gym/start', { method: 'POST', cookie: c1.cookie, body: { childId: 1, stage: 1, benchNo: 54 } });
     assert.equal(start.j.ok, true, JSON.stringify(start.j));

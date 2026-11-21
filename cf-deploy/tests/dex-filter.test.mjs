@@ -168,6 +168,8 @@ describe('filter at runtime (DOM stub, same harness as dex151-collapse)', () => 
   const typeEn = app.slice(typeEnStart, app.indexOf(';', typeEnStart) + 1);
   const filterBlockStart = app.indexOf("let dexFilter = { scope: 'all', type: null };");
   const filterBlock = app.slice(filterBlockStart, app.indexOf('function renderPokedexPage(id, j) {', filterBlockStart));
+  // 任务 94 (JS-M1)：bi/biTitle 已提全局；抽出的 renderPokedexPage 依赖它们，须一并拼进沙箱
+  const biGlobals = sliceFn('function bi(zh, en) {') + '\n' + sliceFn('function biTitle(zh, en) {');
 
   const fixture = () => {
     const dex151 = Array.from({ length: 151 }, (_, i) => {
@@ -209,6 +211,12 @@ describe('filter at runtime (DOM stub, same harness as dex151-collapse)', () => 
     const stateObj = { childId: null, view: null, childCache: {}, lang };
     const factory = new Function('window', 'document', 'app', 'state', 'api', 'childTop', 'tabbar', 'esc', 'tr', 'careRoomUnmount',
       "let dexData = null;\n"
+      + biGlobals + '\n'
+      // Fable 优化 #2：goPokedex 改走 loadPokedex（动态＋静态骨架合并）。本桩只测筛选逻辑，
+      // 用 api 夹具直接当合并结果——夹具故意给未获得条目带 types（测“类型已知可命中”），
+      // 真实合并会按防剧透剥掉它们，绝不能把夹具喂给真实 mergePokedexData；合并行为由 pokedex-split.test.mjs 覆盖。
+      + "const DEX_SHAPE_VERSION = 2;\n"
+      + "async function loadPokedex(id) { return api('/api/pokedex', { method: 'POST', body: { childId: id } }); }\n"
       + "const EGG_FALLBACK = { bg: '#fff', pat: 'dot', c1: '#fff', c2: '#000' };\n"
       + "function eggHtml() { return '<i class=\"egg-stub\"></i>'; }\n"
       + typeEn + '\n'

@@ -6,11 +6,12 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { assetHash } from './asset-path.mjs';
+import { readBackendSource } from './backend-src.mjs';
 
 const H = assetHash();
 assert.match(H || '', /^[0-9a-f]{8}$/, '先跑 node scripts/hash-assets.mjs');
 
-const src = readFileSync(new URL('../src/index.js', import.meta.url), 'utf8');
+const src = readBackendSource();
 const M = await import(new URL('../src/index.js', import.meta.url));
 const publicRoot = new URL('../public/', import.meta.url);
 
@@ -26,7 +27,7 @@ const existingFiles = new Set(listFiles(publicRoot));
 
 function makeEnv() {
   const raw = new DatabaseSync(':memory:');
-  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql']) {
+  for (const f of ['0001_init.sql', '0002_quiz.sql', '0003_entry_roles.sql', '0004_subjects_photos.sql', '0005_battle.sql', '0006_borrow_pack.sql', '0011_parent_grants.sql', '0015_care_logs.sql', '0017_diagnosis.sql', '0018_oak_draw.sql', '0019_evo_items.sql', '0020_sync.sql', '0043_pet_instances_ability.sql']) {
     raw.exec(readFileSync(new URL('../migrations/' + f, import.meta.url), 'utf8'));
   }
   // 与测试环境一致的孩子名（种子在部署时改名，非迁移内容）

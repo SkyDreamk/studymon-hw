@@ -86,6 +86,8 @@ describe('dex151 deferred render at runtime', () => {
     }
     throw new Error('unbalanced braces');
   };
+  // 任务 94 (JS-M1)：bi/biTitle 已提全局；抽出的 renderPokedexPage 依赖它们，须一并拼进沙箱
+  const biGlobals = sliceFn('function bi(zh, en) {') + '\n' + sliceFn('function biTitle(zh, en) {');
   const fixture = () => {
     const dex151 = Array.from({ length: 151 }, (_, i) => {
       const no = i + 1;
@@ -121,6 +123,11 @@ describe('dex151 deferred render at runtime', () => {
     };
     const factory = new Function('window', 'document', 'app', 'state', 'api', 'childTop', 'tabbar', 'esc', 'tr', 'careRoomUnmount',
       "let dexData = null;\n"
+      + biGlobals + '\n'
+      // Fable 优化 #2：goPokedex 改走 loadPokedex（动态＋静态骨架合并）。本桩只测折叠渲染，
+      // 用 api 夹具直接当合并结果；真实合并行为由 pokedex-split.test.mjs 覆盖。
+      + "const DEX_SHAPE_VERSION = 2;\n"
+      + "async function loadPokedex(id) { return api('/api/pokedex', { method: 'POST', body: { childId: id } }); }\n"
       + "const EGG_FALLBACK = { bg: '#fff', pat: 'dot', c1: '#fff', c2: '#000' };\n"
       + "function eggHtml() { return '<i class=\"egg-stub\"></i>'; }\n"
       // 图鉴筛选（任务 74）：renderPokedexPage/toggleDex151 依赖这些定义，须一并抽进来
